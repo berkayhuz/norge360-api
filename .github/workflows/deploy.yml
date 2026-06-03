@@ -14,13 +14,8 @@ jobs:
     runs-on: self-hosted
 
     steps:
-      - name: Sync repository on server
-        run: |
-          set -euo pipefail
-
-          cd /opt/norge360
-          git fetch origin main
-          git reset --hard origin/main
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Login to GHCR
         env:
@@ -37,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          cd /opt/norge360
+          cd "$GITHUB_WORKSPACE"
 
           build_and_push() {
             local image_name="$1"
@@ -97,14 +92,14 @@ jobs:
         run: |
           set -euo pipefail
 
-          cd /opt/norge360
+          cd "$GITHUB_WORKSPACE"
           node scripts/tools/sync-k8s-production-secrets.mjs
 
       - name: Apply Kubernetes manifests
         run: |
           set -euo pipefail
 
-          cd /opt/norge360
+          cd "$GITHUB_WORKSPACE"
           kubectl apply -k k8s/production
 
       - name: Rollout immutable images
