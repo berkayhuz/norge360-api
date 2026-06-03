@@ -29,13 +29,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
+          cache-dependency-path: package-lock.json
 
       - name: Install Node dependencies
         run: |
           set -euo pipefail
 
           cd "$GITHUB_WORKSPACE"
-          npm install --ignore-scripts --no-package-lock
+          npm ci --ignore-scripts
 
       - name: Build and push images
         env:
