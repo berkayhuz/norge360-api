@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore\Norge360.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Authorization.Claims\Norge360.Authorization.Claims.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Application\Norge360.Search.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Contracts\Norge360.Search.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Infrastructure\Norge360.Search.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

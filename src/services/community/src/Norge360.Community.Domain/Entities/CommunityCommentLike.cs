@@ -1,0 +1,1 @@
+using Norge360.Entities; namespace Norge360.Community.Domain.Entities; public sealed class CommunityCommentLike : AuditableEntity { public Guid CommentId { get; set; } public Guid UserId { get; set; } }

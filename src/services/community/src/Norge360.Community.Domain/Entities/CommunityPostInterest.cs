@@ -1,0 +1,1 @@
+using Norge360.Community.Domain.Enums; using Norge360.Entities; namespace Norge360.Community.Domain.Entities; public sealed class CommunityPostInterest : AuditableEntity { public Guid PostId { get; set; } public Guid UserId { get; set; } public CommunityPostInterestType InterestType { get; set; } }

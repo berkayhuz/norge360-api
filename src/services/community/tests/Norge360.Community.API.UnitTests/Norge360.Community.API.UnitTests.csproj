@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Norge360.Community.API\Norge360.Community.API.csproj" />
+    <ProjectReference Include="..\..\src\Norge360.Community.Application\Norge360.Community.Application.csproj" />
+    <ProjectReference Include="..\..\src\Norge360.Community.Infrastructure\Norge360.Community.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\accounts\src\Norge360.Accounts.API\Norge360.Accounts.API.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="xunit" />
+    <PackageReference Include="xunit.runner.visualstudio">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="FluentAssertions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Moq" />
+  </ItemGroup>
+  <PropertyGroup>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+</Project>

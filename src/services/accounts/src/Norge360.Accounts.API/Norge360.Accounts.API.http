@@ -1,0 +1,9 @@
+@Norge360.Accounts.API_HostAddress = http://localhost:5289
+
+GET {{Norge360.Accounts.API_HostAddress}}/health/live
+Accept: application/json
+
+###
+
+GET {{Norge360.Accounts.API_HostAddress}}/health/ready
+Accept: application/json

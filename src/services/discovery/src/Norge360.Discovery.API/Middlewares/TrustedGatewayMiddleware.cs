@@ -1,0 +1,45 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.Extensions.Options;
+using Norge360.AspNetCore.RequestContext;
+using Norge360.AspNetCore.TrustedGateway.Abstractions;
+using Norge360.AspNetCore.TrustedGateway.Options;
+
+namespace Norge360.Discovery.API.Middlewares;
+
+public sealed class TrustedGatewayMiddleware(
+    RequestDelegate next,
+    IOptions<TrustedGatewayOptions> options,
+    ITrustedGatewayRequestValidator validator,
+    ILogger<TrustedGatewayMiddleware> logger)
+{
+    public async Task InvokeAsync(HttpContext context)
+    {
+        var trustedGatewayOptions = options.Value;
+        var endpoint = context.GetEndpoint();
+        var allowAnonymous = endpoint?.Metadata.GetMetadata<IAllowAnonymous>() is not null;
+        if (!trustedGatewayOptions.RequireTrustedGateway || allowAnonymous || context.Request.Path.StartsWithSegments("/health"))
+        {
+            await next(context);
+            return;
+        }
+
+        var correlationId = RequestContextSupport.GetOrCreateCorrelationId(context);
+        var validationResult = await validator.ValidateAsync(context, correlationId, context.RequestAborted);
+        if (!validationResult.Succeeded)
+        {
+            logger.LogWarning("Trusted gateway validation rejected request for {Path}. Reason={Reason} CorrelationId={CorrelationId}", context.Request.Path, validationResult.FailureReason, correlationId);
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/problem+json";
+            await context.Response.WriteAsJsonAsync(new
+            {
+                title = "Trusted caller required",
+                status = StatusCodes.Status403Forbidden,
+                detail = "The discovery service only accepts this endpoint via a trusted gateway.",
+                errorCode = validationResult.ErrorCode ?? "trusted_gateway_required"
+            }, context.RequestAborted);
+            return;
+        }
+
+        await next(context);
+    }
+}

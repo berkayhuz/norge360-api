@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Norge360.Community.Application\Norge360.Community.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Community.Contracts\Norge360.Community.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Community.Infrastructure\Norge360.Community.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore\Norge360.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore.CurrentUser\Norge360.AspNetCore.CurrentUser.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore.TrustedGateway\Norge360.AspNetCore.TrustedGateway.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.CurrentUser\Norge360.CurrentUser.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Media.Storage\Norge360.Media.Storage.csproj" />
+  </ItemGroup>
+</Project>

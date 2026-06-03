@@ -1,0 +1,111 @@
+# Normalize text files automatically
+* text=auto
+
+# -------------------------
+# .NET / C# source files
+# -------------------------
+*.cs        text eol=lf
+*.csx       text eol=lf
+*.csproj    text eol=lf
+*.fsproj    text eol=lf
+*.vbproj    text eol=lf
+*.props     text eol=lf
+*.targets   text eol=lf
+*.sln       text eol=crlf
+*.slnf      text eol=crlf
+
+# -------------------------
+# Config files
+# -------------------------
+*.json      text eol=lf
+*.xml       text eol=lf
+*.config    text eol=lf
+*.resx      text eol=lf
+*.settings  text eol=lf
+*.editorconfig text eol=lf
+
+# ASP.NET Core config
+appsettings*.json text eol=lf
+launchSettings.json text eol=lf
+
+# -------------------------
+# Web/API related files
+# -------------------------
+*.html      text eol=lf
+*.css       text eol=lf
+*.js        text eol=lf
+*.ts        text eol=lf
+*.razor     text eol=lf
+*.cshtml    text eol=lf
+
+# -------------------------
+# Markdown / YAML / ENV
+# -------------------------
+*.md        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.env.example text eol=lf
+
+# -------------------------
+# Docker
+# -------------------------
+Dockerfile  text eol=lf
+*.dockerfile text eol=lf
+.dockerignore text eol=lf
+
+# -------------------------
+# Scripts
+# -------------------------
+*.sh        text eol=lf
+*.ps1       text eol=crlf
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+
+# -------------------------
+# NuGet / lock files
+# -------------------------
+packages.lock.json text eol=lf
+*.nuspec    text eol=lf
+
+# -------------------------
+# Binary files
+# -------------------------
+*.dll       binary
+*.exe       binary
+*.pdb       binary
+*.snk       binary
+*.pfx       binary
+*.nupkg     binary
+*.symbols.nupkg binary
+
+# Images
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.gif       binary
+*.webp      binary
+*.ico       binary
+*.svg       text eol=lf
+
+# Fonts
+*.ttf       binary
+*.otf       binary
+*.woff      binary
+*.woff2     binary
+*.eot       binary
+
+# Archives
+*.zip       binary
+*.tar       binary
+*.gz        binary
+*.7z        binary
+*.rar       binary
+
+# Documents
+*.pdf       binary
+*.doc       binary
+*.docx      binary
+*.xls       binary
+*.xlsx      binary
+*.ppt       binary
+*.pptx      binary

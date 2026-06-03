@@ -1,0 +1,160 @@
+# -------------------------
+# Git / VCS
+# -------------------------
+.git
+.gitignore
+.gitattributes
+
+# -------------------------
+# Docker local files
+# -------------------------
+docker-compose.override.yml
+docker-compose.*.override.yml
+
+# .dockerignore dosyasının kendisi build context'e gerekmez
+.dockerignore
+
+# -------------------------
+# Secrets / environment
+# -------------------------
+.env
+.env.*
+!.env.example
+!.env.template
+
+*.pem
+*.key
+*.crt
+*.pfx
+*.p12
+*.cer
+
+secrets/
+.secret/
+certs/
+certificates/
+
+# -------------------------
+# .NET build outputs
+# -------------------------
+**/bin/
+**/obj/
+**/out/
+**/publish/
+**/artifacts/
+
+# NuGet local packages/cache
+**/packages/
+*.nupkg
+*.snupkg
+
+# -------------------------
+# Test / coverage outputs
+# -------------------------
+**/TestResults/
+**/coverage/
+**/coveragereport/
+*.trx
+*.coverage
+*.coveragexml
+coverage.json
+coverage.xml
+lcov.info
+
+# -------------------------
+# IDE / editor files
+# -------------------------
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.rsuser
+
+# -------------------------
+# OS junk
+# -------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -------------------------
+# Logs
+# -------------------------
+*.log
+logs/
+**/logs/
+
+# -------------------------
+# Node / frontend artifacts
+# -------------------------
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.vite/
+
+# -------------------------
+# Local database / volume data
+# -------------------------
+data/
+volumes/
+.docker-data/
+.meili_data/
+rabbitmq-data/
+postgres-data/
+pgdata/
+
+*.db
+*.sqlite
+*.sqlite3
+
+# -------------------------
+# Temporary files
+# -------------------------
+tmp/
+temp/
+*.tmp
+*.temp
+*.bak
+*.swp
+*.orig
+
+# -------------------------
+# Cloud / deployment local state
+# -------------------------
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# -------------------------
+# Do NOT ignore source/config needed by Docker builds
+# -------------------------
+!*.sln
+!*.props
+!*.targets
+!global.json
+!NuGet.config
+!nuget.config
+!Directory.Build.props
+!Directory.Build.targets
+!Directory.Packages.props
+!**/*.csproj
+!**/*.fsproj
+!**/*.vbproj
+!**/Dockerfile
+!**/*.cs
+!**/*.json
+!**/*.yml
+!**/*.yaml

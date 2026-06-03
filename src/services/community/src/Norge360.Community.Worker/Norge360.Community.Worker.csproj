@@ -1,0 +1,1 @@
+<Project Sdk="Microsoft.NET.Sdk.Web"><ItemGroup><ProjectReference Include="..\Norge360.Community.Application\Norge360.Community.Application.csproj" /><ProjectReference Include="..\Norge360.Community.Infrastructure\Norge360.Community.Infrastructure.csproj" /></ItemGroup></Project>

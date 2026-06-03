@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <UserSecretsId>Norge360-auth-api-dev</UserSecretsId>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="Program.cs" />
+    <Compile Include="Controllers\AuthController.cs" />
+    <Compile Include="Controllers\WellKnownController.cs" />
+    <Compile Include="Accessors\AuthRequestContextAccessor.cs" />
+    <Compile Include="Cookies\AuthCookieService.cs" />
+    <Compile Include="Security\ApiCorsOptions.cs" />
+    <Compile Include="Security\ApiForwardedHeadersOptions.cs" />
+    <Compile Include="Security\ApiSecurityHeadersOptions.cs" />
+    <Compile Include="Security\AuthApiOptionsValidation.cs" />
+    <Compile Include="Security\AuthRateLimitingOptions.cs" />
+    <Compile Include="Security\Turnstile\ITurnstileVerifier.cs" />
+    <Compile Include="Security\Turnstile\RequireTurnstileAttribute.cs" />
+    <Compile Include="Security\Turnstile\TurnstileOptions.cs" />
+    <Compile Include="Security\Turnstile\TurnstileOptionsValidation.cs" />
+    <Compile Include="Security\Turnstile\TurnstileValidationFilter.cs" />
+    <Compile Include="Security\Turnstile\TurnstileVerificationResult.cs" />
+    <Compile Include="Security\Turnstile\CloudflareTurnstileVerifier.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Configuration\Norge360.Configuration.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Application\Norge360.Auth.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Contracts\Norge360.Auth.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Infrastructure\Norge360.Auth.Infrastructure.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+  <PropertyGroup>
+    <UserSecretsId>norge360-search-worker-dev</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Messaging.RabbitMq\Norge360.Messaging.RabbitMq.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Application\Norge360.Search.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Contracts\Norge360.Search.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Search.Infrastructure\Norge360.Search.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

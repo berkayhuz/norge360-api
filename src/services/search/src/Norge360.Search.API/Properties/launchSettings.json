@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Norge360.Search.API": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:64514;http://localhost:64515"
+    }
+  }
+}

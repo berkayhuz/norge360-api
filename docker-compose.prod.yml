@@ -1,0 +1,38 @@
+services:
+  discovery-api:
+    ports: !reset []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:?ConnectionStrings__DiscoveryConnection is required}"
+      Discovery__Database__MigrateOnStartup: "false"
+      Security__InternalEvents__Enabled: "true"
+      Security__InternalEvents__HeaderName: "X-Discovery-Internal-Token"
+      Security__InternalEvents__Token: "${Discovery__InternalEvents__Token:?Discovery__InternalEvents__Token is required}"
+
+  discovery-worker:
+    environment:
+      DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:?ConnectionStrings__DiscoveryConnection is required}"
+
+  accounts-api:
+    ports: !reset []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Services__Discovery__Enabled: "true"
+      Services__Discovery__BaseUrl: "http://discovery-api:8080"
+      Services__Discovery__InternalTokenHeaderName: "X-Discovery-Internal-Token"
+      Services__Discovery__InternalToken: "${Discovery__InternalEvents__Token:?Discovery__InternalEvents__Token is required}"
+
+  community-api:
+    ports: !reset []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      Services__Discovery__Enabled: "true"
+      Services__Discovery__BaseUrl: "http://discovery-api:8080"
+      Services__Discovery__InternalTokenHeaderName: "X-Discovery-Internal-Token"
+      Services__Discovery__InternalToken: "${Discovery__InternalEvents__Token:?Discovery__InternalEvents__Token is required}"
+
+  gateway:
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ReverseProxy__Clusters__discovery-api-cluster__Destinations__destination1__Address: "http://discovery-api:8080/"

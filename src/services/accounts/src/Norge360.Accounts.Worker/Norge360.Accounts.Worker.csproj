@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Messaging.RabbitMq\Norge360.Messaging.RabbitMq.csproj" />
+    <ProjectReference Include="..\Norge360.Accounts.Application\Norge360.Accounts.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Accounts.Contracts\Norge360.Accounts.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Accounts.Infrastructure\Norge360.Accounts.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,94 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/packages/" />
+  <Folder Name="/src/packages/dotnet/" />
+   <Folder Name="/src/packages/dotnet/src/">
+     <Project Path="src/packages/dotnet/src/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.csproj" Id="2439b269-f5e4-4850-8612-2e32f9679ea4" />
+     <Project Path="src/packages/dotnet/src/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.AspNetCore/Norge360.AspNetCore.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.csproj" Id="4c51f2d4-c5ab-4fef-88c1-02eb276997ca" />
+     <Project Path="src/packages/dotnet/src/Norge360.Authorization.Claims/Norge360.Authorization.Claims.csproj" Id="e00a4815-8481-4a3d-b64d-24a123f0dc1a" />
+     <Project Path="src/packages/dotnet/src/Norge360.Authorization/Norge360.Authorization.csproj" Id="1bebea76-9c09-4b01-b003-937d02a380a3" />
+     <Project Path="src/packages/dotnet/src/Norge360.Clock/Norge360.Clock.csproj" Id="980e7929-25a0-4e39-bea3-91544c1586e2" />
+     <Project Path="src/packages/dotnet/src/Norge360.Configuration/Norge360.Configuration.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.CurrentUser/Norge360.CurrentUser.csproj" Id="18934978-4d42-4102-9522-16a1c1acf28f" />
+     <Project Path="src/packages/dotnet/src/Norge360.Entities.Abstractions/Norge360.Entities.Abstractions.csproj" Id="733185c1-09fb-4e57-af15-cbc336a061ad" />
+     <Project Path="src/packages/dotnet/src/Norge360.Entities/Norge360.Entities.csproj" Id="094529a5-4d34-4028-bbb4-5bdb4f9afe04" />
+     <Project Path="src/packages/dotnet/src/Norge360.Exceptions/Norge360.Exceptions.csproj" Id="b1d9c95e-55ea-4b28-8e17-8d9a3c659c7e" />
+     <Project Path="src/packages/dotnet/src/Norge360.Guards/Norge360.Guards.csproj" Id="74c3a98b-e015-4e01-a699-b0cbef9597d4" />
+     <Project Path="src/packages/dotnet/src/Norge360.Idempotency.DistributedCache/Norge360.Idempotency.DistributedCache.csproj" Id="8efef15b-05ba-48d8-9671-61aadb90231b" />
+     <Project Path="src/packages/dotnet/src/Norge360.Idempotency.Redis/Norge360.Idempotency.Redis.csproj" Id="7e71bfea-29ad-4a99-95d7-ada4a6be299d" />
+     <Project Path="src/packages/dotnet/src/Norge360.Idempotency/Norge360.Idempotency.csproj" Id="22cea811-cea8-4b7a-a535-14c5de230b0f" />
+     <Project Path="src/packages/dotnet/src/Norge360.Localization/Norge360.Localization.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.Media.Storage/Norge360.Media.Storage.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.Media/Norge360.Media.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.MediatR/Norge360.MediatR.csproj" Id="94f2c3f0-fb2b-4113-96fa-4972bac4b685" />
+     <Project Path="src/packages/dotnet/src/Norge360.Messaging.Abstractions/Norge360.Messaging.Abstractions.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.Messaging.RabbitMq/Norge360.Messaging.RabbitMq.csproj" />
+     <Project Path="src/packages/dotnet/src/Norge360.Pagination/Norge360.Pagination.csproj" Id="c930c9ff-4d2b-49f3-91c6-88aec02064b1" />
+     <Project Path="src/packages/dotnet/src/Norge360.Persistence.EntityFrameworkCore.Auditing/Norge360.Persistence.EntityFrameworkCore.Auditing.csproj" Id="f3884228-a78b-424f-9900-666c781ef0b1" />
+     <Project Path="src/packages/dotnet/src/Norge360.Persistence.EntityFrameworkCore.SoftDelete/Norge360.Persistence.EntityFrameworkCore.SoftDelete.csproj" Id="9ecefe61-9bbc-4927-a5cc-a58fed72c98f" />
+     <Project Path="src/packages/dotnet/src/Norge360.Persistence.EntityFrameworkCore/Norge360.Persistence.EntityFrameworkCore.csproj" Id="76fecb91-6f91-4a20-84b1-1b479775f5f4" />
+     <Project Path="src/packages/dotnet/src/Norge360.Repository.EntityFrameworkCore/Norge360.Repository.EntityFrameworkCore.csproj" Id="ffc6e40f-3def-4346-80a5-db8eca27b141" />
+     <Project Path="src/packages/dotnet/src/Norge360.Repository/Norge360.Repository.csproj" Id="8bfd31ab-5fba-4958-b219-da91d164d7f0" />
+     <Project Path="src/packages/dotnet/src/Norge360.Security.EndpointGuard/Norge360.Security.EndpointGuard.csproj" Id="245f0673-6d57-4a96-b365-c430468c925b" />
+   </Folder>
+  <Folder Name="/src/platform/" />
+  <Folder Name="/src/platform/gateway/" />
+  <Folder Name="/src/platform/gateway/src/">
+    <Project Path="src/platform/gateway/src/Norge360.ApiGateway/Norge360.ApiGateway.csproj" />
+  </Folder>
+  <Folder Name="/src/services/" />
+  <Folder Name="/src/services/auth/" />
+  <Folder Name="/src/services/auth/src/">
+    <Project Path="src/services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj" />
+    <Project Path="src/services/auth/src/Norge360.Auth.Application/Norge360.Auth.Application.csproj" />
+    <Project Path="src/services/auth/src/Norge360.Auth.Contracts/Norge360.Auth.Contracts.csproj" />
+    <Project Path="src/services/auth/src/Norge360.Auth.Domain/Norge360.Auth.Domain.csproj" />
+    <Project Path="src/services/auth/src/Norge360.Auth.Infrastructure/Norge360.Auth.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/notification/" />
+  <Folder Name="/src/services/notification/src/">
+    <Project Path="src/services/notification/src/Norge360.Notification.Application/Norge360.Notification.Application.csproj" />
+    <Project Path="src/services/notification/src/Norge360.Notification.Contracts/Norge360.Notification.Contracts.csproj" />
+    <Project Path="src/services/notification/src/Norge360.Notification.Domain/Norge360.Notification.Domain.csproj" />
+    <Project Path="src/services/notification/src/Norge360.Notification.Infrastructure/Norge360.Notification.Infrastructure.csproj" />
+    <Project Path="src/services/notification/src/Norge360.Notification.Worker/Norge360.Notification.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/services/community/" />
+  <Folder Name="/src/services/community/src/">
+    <Project Path="src/services/community/src/Norge360.Community.API/Norge360.Community.API.csproj" />
+    <Project Path="src/services/community/src/Norge360.Community.Application/Norge360.Community.Application.csproj" />
+    <Project Path="src/services/community/src/Norge360.Community.Contracts/Norge360.Community.Contracts.csproj" />
+    <Project Path="src/services/community/src/Norge360.Community.Domain/Norge360.Community.Domain.csproj" />
+    <Project Path="src/services/community/src/Norge360.Community.Infrastructure/Norge360.Community.Infrastructure.csproj" />
+    <Project Path="src/services/community/src/Norge360.Community.Worker/Norge360.Community.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/services/accounts/" />
+  <Folder Name="/src/services/accounts/src/">
+    <Project Path="src/services/accounts/src/Norge360.Accounts.API/Norge360.Accounts.API.csproj" />
+    <Project Path="src/services/accounts/src/Norge360.Accounts.Application/Norge360.Accounts.Application.csproj" />
+    <Project Path="src/services/accounts/src/Norge360.Accounts.Contracts/Norge360.Accounts.Contracts.csproj" />
+    <Project Path="src/services/accounts/src/Norge360.Accounts.Domain/Norge360.Accounts.Domain.csproj" />
+    <Project Path="src/services/accounts/src/Norge360.Accounts.Infrastructure/Norge360.Accounts.Infrastructure.csproj" />
+    <Project Path="src/services/accounts/src/Norge360.Accounts.Worker/Norge360.Accounts.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/services/discovery/" />
+  <Folder Name="/src/services/discovery/src/">
+    <Project Path="src/services/discovery/src/Norge360.Discovery.API/Norge360.Discovery.API.csproj" />
+    <Project Path="src/services/discovery/src/Norge360.Discovery.Application/Norge360.Discovery.Application.csproj" />
+    <Project Path="src/services/discovery/src/Norge360.Discovery.Contracts/Norge360.Discovery.Contracts.csproj" />
+    <Project Path="src/services/discovery/src/Norge360.Discovery.Domain/Norge360.Discovery.Domain.csproj" />
+    <Project Path="src/services/discovery/src/Norge360.Discovery.Infrastructure/Norge360.Discovery.Infrastructure.csproj" />
+    <Project Path="src/services/discovery/src/Norge360.Discovery.Worker/Norge360.Discovery.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/services/search/" />
+  <Folder Name="/src/services/search/src/">
+    <Project Path="src/services/search/src/Norge360.Search.API/Norge360.Search.API.csproj" />
+    <Project Path="src/services/search/src/Norge360.Search.Application/Norge360.Search.Application.csproj" />
+    <Project Path="src/services/search/src/Norge360.Search.Contracts/Norge360.Search.Contracts.csproj" />
+    <Project Path="src/services/search/src/Norge360.Search.Domain/Norge360.Search.Domain.csproj" />
+    <Project Path="src/services/search/src/Norge360.Search.Infrastructure/Norge360.Search.Infrastructure.csproj" />
+    <Project Path="src/services/search/src/Norge360.Search.Worker/Norge360.Search.Worker.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,54 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <NoWarn>$(NoWarn);IDE0161</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="DependencyInjection\InfrastructureDependencyInjection.cs" />
+    <Compile Include="Persistence\AuthDbContext.cs" />
+    <Compile Include="Persistence\OutboxMessage.cs" />
+    <Compile Include="Persistence\DesignTime\AuthDbContextFactory.cs" />
+    <Compile Include="Persistence\PostgreSqlMigrations\*.cs" />
+    <Compile Include="Services\IntegrationEventOutbox.cs" />
+    <Compile Include="Services\OutboxMessagePublisher.cs" />
+    <Compile Include="Services\OutboxPayloadProtector.cs" />
+    <Compile Include="Services\OutboxPublisherService.cs" />
+    <Compile Include="Services\Models\InternalAuthUserResolutionPayload.cs" />
+    <Compile Include="Services\Models\InternalUserIdentityPayload.cs" />
+    <Compile Include="Services\AccountsAuthUserProfileResolver.cs" />
+    <Compile Include="Services\AccountsUsernameLoginResolver.cs" />
+    <Compile Include="Services\JwtAccessTokenFactory.cs" />
+    <Compile Include="Services\RefreshTokenService.cs" />
+    <Compile Include="Services\TokenSigningKeyProvider.cs" />
+    <Compile Include="Services\UserRepository.cs" />
+    <Compile Include="Services\UserSessionRepository.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore.TrustedGateway\Norge360.AspNetCore.TrustedGateway.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore\Norge360.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Messaging.RabbitMq\Norge360.Messaging.RabbitMq.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Application\Norge360.Auth.Application.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Contracts\Norge360.Auth.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.Auth.Domain\Norge360.Auth.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="MailKit" />
+    <PackageReference Include="MimeKit" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="StackExchange.Redis" />
+  </ItemGroup>
+
+</Project>

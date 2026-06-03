@@ -1,0 +1,11 @@
+{
+  "name": "norge360-api",
+  "private": true,
+  "scripts": {
+    "prepare": "husky",
+    "gitleaks": "node scripts/gitleaks.mjs"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
+  }
+}

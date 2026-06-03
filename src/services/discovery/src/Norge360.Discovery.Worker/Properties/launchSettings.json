@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Norge360.Discovery.Worker": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:59758;http://localhost:59759"
+    }
+  }
+}

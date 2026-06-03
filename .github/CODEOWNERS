@@ -1,0 +1,37 @@
+# Root governance
+/package.json @berkayhuz
+/pnpm-workspace.yaml @berkayhuz
+/turbo.json @berkayhuz
+/Directory.Build.props @berkayhuz
+/Directory.Build.targets @berkayhuz
+/Directory.Packages.props @berkayhuz
+/global.json @berkayhuz
+/.github/ @berkayhuz
+
+# Product / planning / collaboration governance
+/README.md @berkayhuz
+
+# Frontend platform and apps
+/packages/frontend/ @berkayhuz
+/apps/ @berkayhuz
+
+# .NET services and backend platform
+/services/ @berkayhuz
+/platform/ @berkayhuz
+/packages/dotnet/ @berkayhuz
+
+# Native systems
+/native/ @berkayhuz
+
+# Deploy and infra
+/deploy/ @berkayhuz
+
+# Tests
+/tests/ @berkayhuz
+
+# DevEx / tooling
+/scripts/ @berkayhuz
+/tools/ @berkayhuz
+
+# Documentation
+/docs/ @berkayhuz

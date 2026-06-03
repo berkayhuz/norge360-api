@@ -1,0 +1,1 @@
+using Microsoft.Extensions.Hosting; namespace Norge360.Community.Worker.HostedServices; public sealed class OrphanMediaCleanupPlaceholderService : BackgroundService { protected override Task ExecuteAsync(CancellationToken stoppingToken) => Task.CompletedTask; }

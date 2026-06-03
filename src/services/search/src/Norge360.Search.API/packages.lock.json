@@ -1,0 +1,141 @@
+{
+  "version": 2,
+  "dependencies": {
+    "net10.0": {
+      "Microsoft.AspNetCore.Authentication.JwtBearer": {
+        "type": "Direct",
+        "requested": "[10.0.7, )",
+        "resolved": "10.0.7",
+        "contentHash": "g8klpd7OFJfJOq1EJKcBO8C8I8Dp0QUWoKDPUvvJYe+xunVyBHq6YxfF2CAc6+rkniV25iaWl+6RK87c25n4lA==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Protocols.OpenIdConnect": "8.0.1"
+        }
+      },
+      "Microsoft.CodeAnalysis.NetAnalyzers": {
+        "type": "Direct",
+        "requested": "[10.0.202, )",
+        "resolved": "10.0.202",
+        "contentHash": "ZC4WsiOnzyUHIZ3uGN4popaYPh2NgYcXZ/CpMpAb3mVF/HvBGlBtlredzZMKgcHqlm+ygqJh6qfhUSc/OJ0hWQ=="
+      },
+      "MediatR.Contracts": {
+        "type": "Transitive",
+        "resolved": "2.0.1",
+        "contentHash": "FYv95bNT4UwcNA+G/J1oX5OpRiSUxteXaUt2BJbRSdRNiIUNbggJF69wy6mnk2wYToaanpdXZdCwVylt96MpwQ=="
+      },
+      "Microsoft.IdentityModel.Abstractions": {
+        "type": "Transitive",
+        "resolved": "8.17.0",
+        "contentHash": "6NrxQGcZg6IunkN8K2F0UVMavNpfCjbjjjON7PYcL8FwI8aULKUreiHsRX/yaA8j3XsTJnQKUYpoQk5gBjULZw=="
+      },
+      "Microsoft.IdentityModel.Logging": {
+        "type": "Transitive",
+        "resolved": "8.17.0",
+        "contentHash": "w1vjfri0BWqW7RkSZY3ZsqekNfIJJg5BQSFs2j+a+pCXOVrkezmJcn74pT3djwjXJh71577C6wJQgNc2UPz30w==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Abstractions": "8.17.0"
+        }
+      },
+      "norge360.aspnetcore": {
+        "type": "Project",
+        "dependencies": {
+          "Norge360.Localization": "[1.0.0, )"
+        }
+      },
+      "norge360.authorization.claims": {
+        "type": "Project"
+      },
+      "norge360.localization": {
+        "type": "Project"
+      },
+      "norge360.search.application": {
+        "type": "Project",
+        "dependencies": {
+          "MediatR": "[14.1.0, )",
+          "Norge360.Search.Contracts": "[1.0.0, )",
+          "Norge360.Search.Domain": "[1.0.0, )"
+        }
+      },
+      "norge360.search.contracts": {
+        "type": "Project"
+      },
+      "norge360.search.domain": {
+        "type": "Project"
+      },
+      "norge360.search.infrastructure": {
+        "type": "Project",
+        "dependencies": {
+          "MeiliSearch": "[0.18.0, )",
+          "Norge360.Search.Application": "[1.0.0, )",
+          "Norge360.Search.Contracts": "[1.0.0, )",
+          "Norge360.Search.Domain": "[1.0.0, )"
+        }
+      },
+      "MediatR": {
+        "type": "CentralTransitive",
+        "requested": "[14.1.0, )",
+        "resolved": "14.1.0",
+        "contentHash": "pdxza1pLqAk+06LV3THzNJrw5K5Ah6EC17TEkoC90gsAxwtXDJAQrGuDSDinHGgxWKWEn5ebqTNN3k1bLJOb0g==",
+        "dependencies": {
+          "MediatR.Contracts": "[2.0.1, 3.0.0)",
+          "Microsoft.IdentityModel.JsonWebTokens": "8.14.0"
+        }
+      },
+      "MeiliSearch": {
+        "type": "CentralTransitive",
+        "requested": "[0.18.0, )",
+        "resolved": "0.18.0",
+        "contentHash": "gejqLq8TqeZsZuc50ofZD3MRsS/+a14vjrS9LRKqDfNKWYJWQaB+PXVOaRV/pzpXsl9FQO/vc5qqaqCMedlvCA==",
+        "dependencies": {
+          "System.IdentityModel.Tokens.Jwt": "8.7.0"
+        }
+      },
+      "Microsoft.IdentityModel.JsonWebTokens": {
+        "type": "CentralTransitive",
+        "requested": "[8.17.0, )",
+        "resolved": "8.17.0",
+        "contentHash": "JbFZ3OVwtvqcqgBL0cIkhRYbIP7u9GIUYLOgbNqLWtBtZY8tGDpdGyXMzUVX0gVHq1ovuHsKZrkVv+ziHEnBHw==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Tokens": "8.17.0"
+        }
+      },
+      "Microsoft.IdentityModel.Protocols": {
+        "type": "CentralTransitive",
+        "requested": "[8.17.0, )",
+        "resolved": "8.17.0",
+        "contentHash": "TYbO2KMvWvu8bxbEDCgzggNckCGjwr6NxFf2VYW7PpmCRbsoMNNgVYlCiRvy748t6gj5MJ8v/jcqWrcLMg6PaQ==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Tokens": "8.17.0"
+        }
+      },
+      "Microsoft.IdentityModel.Protocols.OpenIdConnect": {
+        "type": "CentralTransitive",
+        "requested": "[8.17.0, )",
+        "resolved": "8.17.0",
+        "contentHash": "8DuZM96o2epBioyp56Q+H8bdGwO8FnU4nQMa0c6pboe9+monH9PZGY+CHKmsdw90ObJ5OXtiKG1TWuLbJp2VvQ==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Protocols": "8.17.0",
+          "System.IdentityModel.Tokens.Jwt": "8.17.0"
+        }
+      },
+      "Microsoft.IdentityModel.Tokens": {
+        "type": "CentralTransitive",
+        "requested": "[8.17.0, )",
+        "resolved": "8.17.0",
+        "contentHash": "teaW35URIV2x78Tzk+dVJiC4M62/9mQoSEoDjDGoEZmcQa3H2rE+XQpm9Tmdo9KK1Lcrnve4zoyLavl69kCFGg==",
+        "dependencies": {
+          "Microsoft.IdentityModel.Logging": "8.17.0"
+        }
+      },
+      "System.IdentityModel.Tokens.Jwt": {
+        "type": "CentralTransitive",
+        "requested": "[8.17.0, )",
+        "resolved": "8.17.0",
+        "contentHash": "nKikRYheDeSaXA3wGr2otwaiRFygBa25m+hc7MEomZVIEWZvKVqd8wgP9yn+8QpLRGgw//dUs4LErGx9gtVmAA==",
+        "dependencies": {
+          "Microsoft.IdentityModel.JsonWebTokens": "8.17.0",
+          "Microsoft.IdentityModel.Tokens": "8.17.0"
+        }
+      }
+    }
+  }
+}
