@@ -27,7 +27,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: auth-api
-          image: ghcr.io/norge360/norge360-auth-api:latest
+          image: ghcr.io/berkayhuz/norge360-auth-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -176,7 +176,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: discovery-api
-          image: ghcr.io/norge360/norge360-discovery-api:latest
+          image: ghcr.io/berkayhuz/norge360-discovery-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -287,7 +287,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: search-api
-          image: ghcr.io/norge360/norge360-search-api:latest
+          image: ghcr.io/berkayhuz/norge360-search-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -386,7 +386,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: accounts-worker
-          image: ghcr.io/norge360/norge360-accounts-worker:latest
+          image: ghcr.io/berkayhuz/norge360-accounts-worker:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -469,7 +469,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: community-worker
-          image: ghcr.io/norge360/norge360-community-worker:latest
+          image: ghcr.io/berkayhuz/norge360-community-worker:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -541,7 +541,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: discovery-worker
-          image: ghcr.io/norge360/norge360-discovery-worker:latest
+          image: ghcr.io/berkayhuz/norge360-discovery-worker:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -617,7 +617,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: search-worker
-          image: ghcr.io/norge360/norge360-search-worker:latest
+          image: ghcr.io/berkayhuz/norge360-search-worker:latest
           imagePullPolicy: Always
           env:
             - name: DOTNET_ENVIRONMENT
@@ -686,7 +686,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: notification-worker
-          image: ghcr.io/norge360/norge360-notification-worker:latest
+          image: ghcr.io/berkayhuz/norge360-notification-worker:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: DOTNET_ENVIRONMENT
@@ -786,7 +786,7 @@ spec:
         - name: ghcr-pull-secret
       containers:
         - name: gateway
-          image: ghcr.io/norge360/norge360-api-gateway:latest
+          image: ghcr.io/berkayhuz/norge360-api-gateway:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -885,7 +885,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: accounts-api
-          image: ghcr.io/norge360/norge360-accounts-api:latest
+          image: ghcr.io/berkayhuz/norge360-accounts-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -1021,7 +1021,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: community-api
-          image: ghcr.io/norge360/norge360-community-api:latest
+          image: ghcr.io/berkayhuz/norge360-community-api:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 8080

@@ -29,6 +29,7 @@ jobs:
         env:
           IMAGE_TAG: latest
           IMAGE_SHA: ${{ github.sha }}
+          IMAGE_OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
 
@@ -40,12 +41,12 @@ jobs:
 
             docker build \
               -f "$dockerfile" \
-              -t "ghcr.io/norge360/$image_name:$IMAGE_TAG" \
-              -t "ghcr.io/norge360/$image_name:$IMAGE_SHA" \
+              -t "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_TAG" \
+              -t "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA" \
               .
 
-            docker push "ghcr.io/norge360/$image_name:$IMAGE_TAG"
-            docker push "ghcr.io/norge360/$image_name:$IMAGE_SHA"
+            docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_TAG"
+            docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
           }
 
           build_and_push "norge360-auth-api" "src/services/auth/deploy/Norge360.Auth.API.Dockerfile"
@@ -105,6 +106,7 @@ jobs:
       - name: Rollout immutable images
         env:
           IMAGE_SHA: ${{ github.sha }}
+          IMAGE_OWNER: ${{ github.repository_owner }}
         run: |
           set -euo pipefail
 
@@ -116,7 +118,7 @@ jobs:
             local image_name="$3"
 
             kubectl -n "$namespace" set image "deployment/$deployment_name" \
-              "$container_name=ghcr.io/norge360/$image_name:$IMAGE_SHA"
+              "$container_name=ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
             kubectl -n "$namespace" rollout status "deployment/$deployment_name" --timeout=10m
           }
 
