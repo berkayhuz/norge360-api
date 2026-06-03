@@ -1,0 +1,22 @@
+name: Runner Smoke Test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke-test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Print environment
+        run: |
+          set -euo pipefail
+
+          echo "runner=$(hostname)"
+          echo "whoami=$(whoami)"
+          uname -a
+          kubectl get nodes
+          kubectl get pods -A
