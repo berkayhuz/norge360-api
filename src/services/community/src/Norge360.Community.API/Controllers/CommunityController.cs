@@ -1,11 +1,16 @@
+// <copyright file="CommunityController.cs" company="Norge360">
+// Copyright (c) 2026 Norge360. All rights reserved.
+// Norge360 is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Norge360.Community.API.Models;
 using Norge360.Community.Application.Abstractions;
+using Norge360.Community.Application.Models;
 using Norge360.Community.Contracts.Requests;
 using Norge360.Community.Contracts.Responses;
-using Norge360.Community.Application.Models;
 using Norge360.Community.Domain.Entities;
 using Norge360.Community.Domain.Enums;
 using Norge360.CurrentUser;

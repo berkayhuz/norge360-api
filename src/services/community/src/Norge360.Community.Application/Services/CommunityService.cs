@@ -1,3 +1,8 @@
+// <copyright file="CommunityService.cs" company="Norge360">
+// Copyright (c) 2026 Norge360. All rights reserved.
+// Norge360 is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore;
 using Norge360.Community.Application.Abstractions;
 using Norge360.Community.Application.Models;
@@ -248,7 +253,10 @@ public sealed class CommunityService(
         ValidateReaction(request);
         if (!await IsActivePost(postId, cancellationToken)) return null;
         var existing = await dbContext.CommunityPostReactions.FirstOrDefaultAsync(x => x.PostId == postId && x.UserId == userId, cancellationToken);
-        if (existing is null) dbContext.CommunityPostReactions.Add(new CommunityPostReaction { PostId = postId, UserId = userId, Emoji = request.Emoji.Trim(), EmojiCode = request.EmojiCode.Trim() });
+        if (existing is null)
+        {
+            dbContext.CommunityPostReactions.Add(new CommunityPostReaction { PostId = postId, UserId = userId, Emoji = request.Emoji.Trim(), EmojiCode = request.EmojiCode.Trim() });
+        }
         else { existing.Emoji = request.Emoji.Trim(); existing.EmojiCode = request.EmojiCode.Trim(); existing.UpdatedAt = DateTime.UtcNow; }
         await dbContext.SaveChangesAsync(cancellationToken);
         return await BuildPostReactionSummary(postId, cancellationToken);
@@ -273,7 +281,10 @@ public sealed class CommunityService(
         ValidateReaction(request);
         if (!await dbContext.CommunityComments.AnyAsync(x => x.Id == commentId, cancellationToken)) return null;
         var existing = await dbContext.CommunityCommentReactions.FirstOrDefaultAsync(x => x.CommentId == commentId && x.UserId == userId, cancellationToken);
-        if (existing is null) dbContext.CommunityCommentReactions.Add(new CommunityCommentReaction { CommentId = commentId, UserId = userId, Emoji = request.Emoji.Trim(), EmojiCode = request.EmojiCode.Trim() });
+        if (existing is null)
+        {
+            dbContext.CommunityCommentReactions.Add(new CommunityCommentReaction { CommentId = commentId, UserId = userId, Emoji = request.Emoji.Trim(), EmojiCode = request.EmojiCode.Trim() });
+        }
         else { existing.Emoji = request.Emoji.Trim(); existing.EmojiCode = request.EmojiCode.Trim(); existing.UpdatedAt = DateTime.UtcNow; }
         await dbContext.SaveChangesAsync(cancellationToken);
         return await BuildCommentReactionSummary(commentId, cancellationToken);

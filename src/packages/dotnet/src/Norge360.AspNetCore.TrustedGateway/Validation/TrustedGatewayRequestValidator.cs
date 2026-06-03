@@ -3,10 +3,10 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
+using System.Buffers;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
-using System.Buffers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Norge360.AspNetCore.Security;

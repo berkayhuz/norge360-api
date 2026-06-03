@@ -25,6 +25,18 @@ jobs:
           set -euo pipefail
           echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Node dependencies
+        run: |
+          set -euo pipefail
+
+          cd "$GITHUB_WORKSPACE"
+          npm install --ignore-scripts --no-package-lock
+
       - name: Build and push images
         env:
           IMAGE_TAG: latest

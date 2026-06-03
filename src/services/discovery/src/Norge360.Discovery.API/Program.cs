@@ -1,3 +1,8 @@
+// <copyright file="Program.cs" company="Norge360">
+// Copyright (c) 2026 Norge360. All rights reserved.
+// Norge360 is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -13,8 +18,8 @@ using Norge360.Discovery.API.Options;
 using Norge360.Discovery.API.Security;
 using Norge360.Discovery.API.Services;
 using Norge360.Discovery.Application.DependencyInjection;
-using Norge360.Discovery.Infrastructure.HealthChecks;
 using Norge360.Discovery.Infrastructure.DependencyInjection;
+using Norge360.Discovery.Infrastructure.HealthChecks;
 using Norge360.Discovery.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -3,13 +3,13 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Norge360.AspNetCore.Health;
-using Norge360.Search.Application.DependencyInjection;
 using Norge360.Search.API.Endpoints;
 using Norge360.Search.API.Security;
+using Norge360.Search.Application.DependencyInjection;
 using Norge360.Search.Infrastructure.DependencyInjection;
 using Norge360.Search.Infrastructure.Health;
 

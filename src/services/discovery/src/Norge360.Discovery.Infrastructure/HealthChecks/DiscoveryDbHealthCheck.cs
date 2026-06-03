@@ -1,6 +1,11 @@
+// <copyright file="DiscoveryDbHealthCheck.cs" company="Norge360">
+// Copyright (c) 2026 Norge360. All rights reserved.
+// Norge360 is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Norge360.Discovery.Infrastructure.Persistence;
 
 namespace Norge360.Discovery.Infrastructure.HealthChecks;

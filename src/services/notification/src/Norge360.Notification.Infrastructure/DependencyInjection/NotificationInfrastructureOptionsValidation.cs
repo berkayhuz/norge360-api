@@ -6,10 +6,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Npgsql;
 using Norge360.Notification.Infrastructure.Integration;
 using Norge360.Notification.Infrastructure.Modules.Email.Infrastructure.Options;
 using Norge360.Notification.Infrastructure.Options;
+using Npgsql;
 
 namespace Norge360.Notification.Infrastructure.DependencyInjection;
 

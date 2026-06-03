@@ -3,8 +3,8 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
-using Norge360.Search.Application.Security;
 using Norge360.Search.Application.Queries;
+using Norge360.Search.Application.Security;
 using Norge360.Search.Contracts.Documents;
 
 namespace Norge360.Search.Infrastructure.Meilisearch.Documents;

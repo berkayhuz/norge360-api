@@ -29,43 +29,43 @@ public sealed class SearchIntegrationEventMessageDispatcher(
             switch (ResolveEventKind(routingKey))
             {
                 case SearchIntegrationEventKind.Index:
-                {
-                    var integrationEvent = Deserialize<SearchDocumentIndexRequestedV1>(payload, nameof(SearchDocumentIndexRequestedV1));
-                    await ingestionService.HandleAsync(integrationEvent, cancellationToken);
+                    {
+                        var integrationEvent = Deserialize<SearchDocumentIndexRequestedV1>(payload, nameof(SearchDocumentIndexRequestedV1));
+                        await ingestionService.HandleAsync(integrationEvent, cancellationToken);
 
-                    logger.LogInformation(
-                        "Search index integration event dispatched. RoutingKey={RoutingKey} EventId={EventId} DocumentId={DocumentId} Source={Source}",
-                        routingKey,
-                        integrationEvent.EventId,
-                        integrationEvent.Document.Id,
-                        integrationEvent.Document.Source);
-                    return SearchIntegrationDispatchStatus.Dispatched;
-                }
+                        logger.LogInformation(
+                            "Search index integration event dispatched. RoutingKey={RoutingKey} EventId={EventId} DocumentId={DocumentId} Source={Source}",
+                            routingKey,
+                            integrationEvent.EventId,
+                            integrationEvent.Document.Id,
+                            integrationEvent.Document.Source);
+                        return SearchIntegrationDispatchStatus.Dispatched;
+                    }
                 case SearchIntegrationEventKind.Delete:
-                {
-                    var integrationEvent = Deserialize<SearchDocumentDeleteRequestedV1>(payload, nameof(SearchDocumentDeleteRequestedV1));
-                    await ingestionService.HandleAsync(integrationEvent, cancellationToken);
+                    {
+                        var integrationEvent = Deserialize<SearchDocumentDeleteRequestedV1>(payload, nameof(SearchDocumentDeleteRequestedV1));
+                        await ingestionService.HandleAsync(integrationEvent, cancellationToken);
 
-                    logger.LogInformation(
-                        "Search delete integration event dispatched. RoutingKey={RoutingKey} EventId={EventId} DocumentId={DocumentId} Source={Source}",
-                        routingKey,
-                        integrationEvent.EventId,
-                        integrationEvent.DocumentId,
-                        integrationEvent.Source);
-                    return SearchIntegrationDispatchStatus.Dispatched;
-                }
+                        logger.LogInformation(
+                            "Search delete integration event dispatched. RoutingKey={RoutingKey} EventId={EventId} DocumentId={DocumentId} Source={Source}",
+                            routingKey,
+                            integrationEvent.EventId,
+                            integrationEvent.DocumentId,
+                            integrationEvent.Source);
+                        return SearchIntegrationDispatchStatus.Dispatched;
+                    }
                 case SearchIntegrationEventKind.Reindex:
-                {
-                    var integrationEvent = Deserialize<SearchReindexRequestedV1>(payload, nameof(SearchReindexRequestedV1));
-                    await ingestionService.HandleAsync(integrationEvent, cancellationToken);
+                    {
+                        var integrationEvent = Deserialize<SearchReindexRequestedV1>(payload, nameof(SearchReindexRequestedV1));
+                        await ingestionService.HandleAsync(integrationEvent, cancellationToken);
 
-                    logger.LogInformation(
-                        "Search reindex integration event dispatched (deferred behavior). RoutingKey={RoutingKey} EventId={EventId} Source={Source}",
-                        routingKey,
-                        integrationEvent.EventId,
-                        integrationEvent.Source);
-                    return SearchIntegrationDispatchStatus.Dispatched;
-                }
+                        logger.LogInformation(
+                            "Search reindex integration event dispatched (deferred behavior). RoutingKey={RoutingKey} EventId={EventId} Source={Source}",
+                            routingKey,
+                            integrationEvent.EventId,
+                            integrationEvent.Source);
+                        return SearchIntegrationDispatchStatus.Dispatched;
+                    }
                 default:
                     logger.LogWarning(
                         "Search integration event skipped due to unsupported routing key. RoutingKey={RoutingKey}",

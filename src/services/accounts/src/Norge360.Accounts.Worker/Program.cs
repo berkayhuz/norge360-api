@@ -5,10 +5,10 @@
 
 using Microsoft.Extensions.Options;
 using Norge360.Accounts.Application.DependencyInjection;
+using Norge360.Accounts.Application.Options;
 using Norge360.Accounts.Infrastructure.DependencyInjection;
 using Norge360.Accounts.Infrastructure.Initialization;
 using Norge360.Accounts.Infrastructure.Options;
-using Norge360.Accounts.Application.Options;
 using Norge360.Accounts.Worker.Infrastructure;
 using Norge360.Accounts.Worker.Integration;
 using Norge360.Accounts.Worker.Options;

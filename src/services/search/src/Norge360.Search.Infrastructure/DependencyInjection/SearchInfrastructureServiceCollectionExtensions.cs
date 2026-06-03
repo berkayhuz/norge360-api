@@ -3,9 +3,9 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
+using Meilisearch;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Meilisearch;
 using Norge360.Search.Application.Abstractions;
 using Norge360.Search.Infrastructure.Abstractions;
 using Norge360.Search.Infrastructure.Accounts;

@@ -1,4 +1,8 @@
-// <copyright file="20260601135720_AddUserBlocks.cs" company="Norge360">`r`n// Copyright (c) 2026 Norge360. All rights reserved.`r`n// Norge360 is proprietary software. See the LICENSE file in the repository root.`r`n// </copyright>`r`n`r`nusing System;
+// <copyright file="20260601135720_AddUserBlocks.cs" company="Norge360">
+// Copyright (c) 2026 Norge360. All rights reserved.
+// Norge360 is proprietary software. See the LICENSE file in the repository root.
+// </copyright>
+
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable

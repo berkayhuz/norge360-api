@@ -10,11 +10,11 @@ using Norge360.Search.Application.Filtering;
 using Norge360.Search.Application.Queries;
 using Norge360.Search.Application.Security;
 using Norge360.Search.Contracts.Documents;
+using Norge360.Search.Infrastructure.Abstractions;
 using Norge360.Search.Infrastructure.Meilisearch.Client;
 using Norge360.Search.Infrastructure.Meilisearch.Documents;
 using Norge360.Search.Infrastructure.Meilisearch.Indexing;
 using Norge360.Search.Infrastructure.Options;
-using Norge360.Search.Infrastructure.Abstractions;
 
 namespace Norge360.Search.Infrastructure.Meilisearch.Queries;
 

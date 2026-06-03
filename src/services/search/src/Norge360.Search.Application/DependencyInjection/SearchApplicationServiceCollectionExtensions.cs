@@ -5,8 +5,8 @@
 
 using Microsoft.Extensions.DependencyInjection;
 using Norge360.Search.Application.Abstractions;
-using Norge360.Search.Application.StaticDocuments;
 using Norge360.Search.Application.IntegrationEvents;
+using Norge360.Search.Application.StaticDocuments;
 
 namespace Norge360.Search.Application.DependencyInjection;
 

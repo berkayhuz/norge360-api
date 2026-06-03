@@ -3,13 +3,13 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
+using System.Text.Json;
 using Norge360.Accounts.Application.Abstractions;
 using Norge360.Accounts.Contracts.IntegrationEvents.V1;
 using Norge360.Accounts.Domain.Entities;
 using Norge360.Accounts.Domain.Enums;
 using Norge360.Clock;
 using Norge360.Search.Contracts.IntegrationEvents.V1;
-using System.Text.Json;
 
 namespace Norge360.Accounts.Application.Services;
 
