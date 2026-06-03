@@ -65,6 +65,41 @@ jobs:
           build_and_push "norge360-search-worker" "src/services/search/deploy/Norge360.Search.Worker.Dockerfile"
           build_and_push "norge360-notification-worker" "src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile"
 
+      - name: Sync Kubernetes secrets
+        env:
+          ACCOUNT_INTERNAL_SECRET: ${{ secrets.Security__TrustedGateway__Keys__1__Secret }}
+          ACCOUNTS_CONNECTION: ${{ secrets.ConnectionStrings__AccountsConnection }}
+          AUTH_JWT_SIGNING_PRIVATE_KEY_PEM: ${{ secrets.AUTH_JWT_SIGNING_PRIVATE_KEY_PEM }}
+          COMMUNITY_CONNECTION: ${{ secrets.ConnectionStrings__CommunityConnection }}
+          DISCOVERY_CONNECTION: ${{ secrets.ConnectionStrings__DiscoveryConnection }}
+          DISCOVERY_INTERNAL_TOKEN: ${{ secrets.Discovery__InternalEvents__Token }}
+          GATEWAY_TRUSTED_SECRET: ${{ secrets.Security__TrustedGateway__Keys__0__Secret }}
+          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
+          GHCR_READ_USER: ${{ secrets.GHCR_READ_USER }}
+          IDENTITY_CONNECTION: ${{ secrets.ConnectionStrings__IdentityConnection }}
+          MESSAGING_RABBITMQ_URI: ${{ secrets.Messaging__RabbitMq__Uri }}
+          MEILISEARCH_API_KEY: ${{ secrets.Meilisearch__ApiKey }}
+          NOTIFICATION_CONNECTION: ${{ secrets.ConnectionStrings__NotificationConnection }}
+          NOTIFICATION_RABBITMQ_PASSWORD: ${{ secrets.Notification__RabbitMq__Password }}
+          NOTIFICATION_RABBITMQ_USERNAME: ${{ secrets.Notification__RabbitMq__Username }}
+          NOTIFICATION_SMTP_FROM_ADDRESS: notifications@norge360.com
+          NOTIFICATION_SMTP_FROM_NAME: Norge360 Notifications
+          NOTIFICATION_SMTP_HOST: email-smtp.eu-west-1.amazonaws.com
+          NOTIFICATION_SMTP_PASSWORD: ${{ secrets.Notification__Email__Smtp__Password }}
+          NOTIFICATION_SMTP_PORT: "587"
+          NOTIFICATION_SMTP_USERNAME: ${{ secrets.Notification__Email__Smtp__UserName }}
+          R2_ACCOUNT_ID: ${{ secrets.Media__CloudflareR2__AccountId }}
+          R2_ACCESS_KEY_ID: ${{ secrets.Media__CloudflareR2__AccessKeyId }}
+          R2_BUCKET_NAME: ${{ secrets.Media__CloudflareR2__BucketName }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.Media__CloudflareR2__SecretAccessKey }}
+          REDIS_CONNECTION: ${{ secrets.Infrastructure__DistributedCache__RedisConnectionString }}
+          TURNSTILE_SECRET: ${{ secrets.Cloudflare__Turnstile__SecretKey }}
+        run: |
+          set -euo pipefail
+
+          cd /opt/norge360
+          node scripts/tools/sync-k8s-production-secrets.mjs
+
       - name: Apply Kubernetes manifests
         run: |
           set -euo pipefail
@@ -72,21 +107,13 @@ jobs:
           cd /opt/norge360
           kubectl apply -k k8s/production
 
-      - name: Sync GHCR pull secret and rollout immutable images
+      - name: Rollout immutable images
         env:
-          GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
-          GHCR_READ_USER: ${{ secrets.GHCR_READ_USER }}
           IMAGE_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
           namespace=norge360-production
-
-          kubectl -n "$namespace" create secret docker-registry ghcr-pull-secret \
-            --docker-server=ghcr.io \
-            --docker-username="$GHCR_READ_USER" \
-            --docker-password="$GHCR_READ_TOKEN" \
-            --dry-run=client -o yaml | kubectl apply -f -
 
           set_image_and_wait() {
             local deployment_name="$1"

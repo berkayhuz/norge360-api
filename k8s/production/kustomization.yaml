@@ -5,7 +5,6 @@ namespace: norge360-production
 
 resources:
   - namespace.yaml
-  - secrets.yaml
   - services.yaml
   - deployments.yaml
   - statefulsets.yaml

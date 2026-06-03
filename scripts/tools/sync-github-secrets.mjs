@@ -2,8 +2,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { execFileSync } from 'node:child_process';
-import { createHash } from 'node:crypto';
-import nacl from 'tweetnacl';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const sodium = require('libsodium-wrappers');
 
 const DEFAULT_FILE = '.env.secrets.local';
 const GITHUB_API = 'https://api.github.com';
@@ -168,15 +170,10 @@ async function updateSecret({ repo, token, name, value, dryRun }) {
     headers,
   });
 
-  const recipientPublicKey = Buffer.from(publicKey.key, 'base64');
-  const ephemeralKeyPair = nacl.box.keyPair();
-  const nonce = createHash('blake2b512')
-    .update(Buffer.concat([Buffer.from(ephemeralKeyPair.publicKey), recipientPublicKey]))
-    .digest()
-    .subarray(0, nacl.box.nonceLength);
-  const sharedKey = nacl.box.before(recipientPublicKey, ephemeralKeyPair.secretKey);
-  const ciphertext = nacl.box.after(Buffer.from(value, 'utf8'), nonce, sharedKey);
-  const encryptedValue = Buffer.concat([Buffer.from(ephemeralKeyPair.publicKey), Buffer.from(ciphertext)]).toString('base64');
+  const binkey = sodium.from_base64(publicKey.key, sodium.base64_variants.ORIGINAL);
+  const binsec = sodium.from_string(value);
+  const encBytes = sodium.crypto_box_seal(binsec, binkey);
+  const encryptedValue = sodium.to_base64(encBytes, sodium.base64_variants.ORIGINAL);
 
   if (dryRun) {
     console.log(`Would sync secret: ${name}`);
@@ -215,6 +212,8 @@ async function main() {
   if (secrets.length === 0) {
     throw new Error(`No secrets found in ${args.file}`);
   }
+
+  await sodium.ready;
 
   console.log(`Repository: ${repo}`);
   console.log(`Source file: ${filePath}`);

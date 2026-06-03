@@ -26,9 +26,11 @@ kubectl apply -k k8s/production
 
 ## Before applying
 
-- Replace placeholder values in `secrets.yaml`.
+- Secret values are synced from GitHub repository secrets by the deploy workflow into the cluster before manifests are applied.
+- `secrets.yaml` is now a template/reference file for manual or local cluster setup; it is not part of the automated overlay.
 - The deploy workflow pushes commit-SHA tagged images to GHCR and updates live workloads to that immutable tag during rollout.
 - The deploy workflow also creates/refreshes the `ghcr-pull-secret` secret in the target namespace from the long-lived `GHCR_READ_USER` and `GHCR_READ_TOKEN` repository secrets.
+- Required GitHub repository secrets include application connection strings, RabbitMQ, Cloudflare R2, SMTP, Turnstile, Redis, and the auth signing private key PEM.
 - Keep the Hetzner firewall restricted to the frontend server only. This overlay also whitelists `10.0.0.4/32` at the ingress layer so the gateway stays private.
 - Auth now uses Redis-backed shared Data Protection keys, so it can run with multiple replicas without a local key-ring PVC.
 - NetworkPolicy rules deny all ingress by default, allow same-namespace service-to-service traffic, and allow the ingress controller namespace to reach the edge pods.

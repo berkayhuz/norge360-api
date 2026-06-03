@@ -5,12 +5,16 @@
     "prepare": "husky",
     "gitleaks": "node scripts/gitleaks.mjs",
     "secret:gen": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/new-random-secret.ps1",
-    "secrets:sync": "node scripts/tools/sync-github-secrets.mjs"
+    "secrets:sync": "node scripts/tools/sync-github-secrets.mjs",
+    "install:secrets": "npm run secrets:sync -- --repo berkayhuz/norge360-api",
+    "format:csharp": "dotnet csharpier .",
+    "dotnet:format": "dotnet format --folder --check",
+    "dotnet:format:fix": "dotnet format --folder"
   },
   "devDependencies": {
     "husky": "^9.1.7"
   },
   "dependencies": {
-    "tweetnacl": "^1.0.3"
+    "libsodium-wrappers": "^0.7.16"
   }
 }

@@ -8,9 +8,9 @@ importers:
 
   .:
     dependencies:
-      tweetnacl:
-        specifier: ^1.0.3
-        version: 1.0.3
+      libsodium-wrappers:
+        specifier: ^0.7.16
+        version: 0.7.16
     devDependencies:
       husky:
         specifier: ^9.1.7
@@ -23,11 +23,18 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  tweetnacl@1.0.3:
-    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
+  libsodium-wrappers@0.7.16:
+    resolution: {integrity: sha512-Gtr/WBx4dKjvRL1pvfwZqu7gO6AfrQ0u9vFL+kXihtHf6NfkROR8pjYWn98MFDI3jN19Ii1ZUfPR9afGiPyfHg==}
+
+  libsodium@0.7.16:
+    resolution: {integrity: sha512-3HrzSPuzm6Yt9aTYCDxYEG8x8/6C0+ag655Y7rhhWZM9PT4NpdnbqlzXhGZlDnkgR6MeSTnOt/VIyHLs9aSf+Q==}
 
 snapshots:
 
   husky@9.1.7: {}
 
-  tweetnacl@1.0.3: {}
+  libsodium-wrappers@0.7.16:
+    dependencies:
+      libsodium: 0.7.16
+
+  libsodium@0.7.16: {}
