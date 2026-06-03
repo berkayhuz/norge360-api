@@ -1,0 +1,168 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: norge360-meilisearch
+spec:
+  serviceName: norge360-meilisearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: norge360-meilisearch
+  template:
+    metadata:
+      labels:
+        app: norge360-meilisearch
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: meilisearch
+          image: getmeili/meilisearch:v1.45.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 7700
+              name: http
+          env:
+            - name: MEILI_ENV
+              value: production
+            - name: MEILI_NO_ANALYTICS
+              value: "true"
+            - name: MEILI_DB_PATH
+              value: /meili_data
+            - name: MEILI_MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: meilisearch-api-key
+          volumeMounts:
+            - name: data
+              mountPath: /meili_data
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 2Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: norge360-meilisearch-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: norge360-meilisearch-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: norge360-rabbitmq
+spec:
+  serviceName: norge360-rabbitmq
+  replicas: 1
+  selector:
+    matchLabels:
+      app: norge360-rabbitmq
+  template:
+    metadata:
+      labels:
+        app: norge360-rabbitmq
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      terminationGracePeriodSeconds: 60
+      containers:
+        - name: rabbitmq
+          image: rabbitmq:4.3.1-management
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 5672
+              name: amqp
+            - containerPort: 15672
+              name: management
+          env:
+            - name: RABBITMQ_DEFAULT_USER
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-rabbitmq-username
+            - name: RABBITMQ_DEFAULT_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-rabbitmq-password
+            - name: RABBITMQ_DEFAULT_VHOST
+              value: /
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/rabbitmq
+          startupProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            periodSeconds: 20
+            timeoutSeconds: 10
+          readinessProbe:
+            exec:
+              command: ["rabbitmq-diagnostics", "-q", "ping"]
+            periodSeconds: 10
+            timeoutSeconds: 10
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: norge360-rabbitmq-data
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: norge360-rabbitmq-data
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

@@ -5,11 +5,11 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props ./
 COPY .nuget/NuGet.Config ./.nuget/NuGet.Config
-COPY packages/dotnet/src ./packages/dotnet/src
-COPY services/auth/src ./services/auth/src
+COPY src/packages/dotnet/src ./src/packages/dotnet/src
+COPY src/services/auth/src ./src/services/auth/src
 
-RUN dotnet restore services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj --force-evaluate
-RUN dotnet publish services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
+RUN dotnet restore src/services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj --force-evaluate
+RUN dotnet publish src/services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj -c Release --no-restore -o /app/publish /p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

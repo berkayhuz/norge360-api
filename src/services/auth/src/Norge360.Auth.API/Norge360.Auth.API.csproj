@@ -23,6 +23,7 @@
     <Compile Include="Security\Turnstile\TurnstileValidationFilter.cs" />
     <Compile Include="Security\Turnstile\TurnstileVerificationResult.cs" />
     <Compile Include="Security\Turnstile\CloudflareTurnstileVerifier.cs" />
+    <Compile Include="Health\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

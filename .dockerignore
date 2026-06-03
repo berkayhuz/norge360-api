@@ -4,6 +4,7 @@
 .git
 .gitignore
 .gitattributes
+.vs/
 
 # -------------------------
 # Docker local files
@@ -42,9 +43,12 @@ certificates/
 **/out/
 **/publish/
 **/artifacts/
+.vs/
 
 # NuGet local packages/cache
-**/packages/
+.nuget/*
+!.nuget/NuGet.Config
+.nuget/packages/
 *.nupkg
 *.snupkg
 
@@ -150,11 +154,17 @@ temp/
 !Directory.Build.props
 !Directory.Build.targets
 !Directory.Packages.props
-!**/*.csproj
-!**/*.fsproj
-!**/*.vbproj
-!**/Dockerfile
-!**/*.cs
-!**/*.json
-!**/*.yml
-!**/*.yaml
+!.nuget/NuGet.Config
+!.env.example
+!.env.template
+!src/
+!src/**
+
+# Re-ignore generated outputs under source trees
+src/**/bin/
+src/**/obj/
+src/**/out/
+src/**/publish/
+src/**/artifacts/
+src/**/TestResults/
+src/**/coverage/

@@ -478,11 +478,18 @@ internal sealed class AuthDataProtectionOptionsValidation(IHostEnvironment envir
             failures.Add("Infrastructure:DataProtection:KeyRingPath must be an absolute path when configured.");
         }
 
+        if (!string.IsNullOrWhiteSpace(options.RedisConnectionString) &&
+            !options.RedisConnectionString.Contains("=", StringComparison.Ordinal))
+        {
+            failures.Add("Infrastructure:DataProtection:RedisConnectionString must be a valid connection string when configured.");
+        }
+
         if (environment.IsProduction() &&
             options.RequirePersistentKeyRingInProduction &&
-            string.IsNullOrWhiteSpace(options.KeyRingPath))
+            string.IsNullOrWhiteSpace(options.KeyRingPath) &&
+            string.IsNullOrWhiteSpace(options.RedisConnectionString))
         {
-            failures.Add("Infrastructure:DataProtection:KeyRingPath is required in production when persistent keys are enforced.");
+            failures.Add("Infrastructure:DataProtection:KeyRingPath or RedisConnectionString is required in production when persistent keys are enforced.");
         }
 
         return failures.Count > 0

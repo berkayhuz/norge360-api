@@ -5,12 +5,12 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props Norge360.slnx ./
 COPY .nuget/NuGet.Config ./.nuget/NuGet.Config
-COPY packages/dotnet/src ./packages/dotnet/src
-COPY services/auth/src/Norge360.Auth.Contracts ./services/auth/src/Norge360.Auth.Contracts
-COPY services/notification/src ./services/notification/src
+COPY src/packages/dotnet/src ./src/packages/dotnet/src
+COPY src/services/auth/src/Norge360.Auth.Contracts ./src/services/auth/src/Norge360.Auth.Contracts
+COPY src/services/notification/src ./src/services/notification/src
 
-RUN dotnet restore services/notification/src/Norge360.Notification.Worker/Norge360.Notification.Worker.csproj --force-evaluate
-RUN dotnet publish services/notification/src/Norge360.Notification.Worker/Norge360.Notification.Worker.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
+RUN dotnet restore src/services/notification/src/Norge360.Notification.Worker/Norge360.Notification.Worker.csproj --force-evaluate
+RUN dotnet publish src/services/notification/src/Norge360.Notification.Worker/Norge360.Notification.Worker.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

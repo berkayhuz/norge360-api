@@ -50,25 +50,25 @@ jobs:
 
       - name: Restore architecture test project
         run: |
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
 
       - name: Run architecture tests (default)
         run: |
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
 
   architecture-strict:
     name: Architecture (strict baseline)
@@ -86,27 +86,27 @@ jobs:
 
       - name: Restore architecture test project
         run: |
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
 
       - name: Run architecture tests (strict)
         env:
           N360_API_BASELINE_STRICT: "true"
         run: |
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore
-          dotnet test packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore.CurrentUser/Norge360.AspNetCore.CurrentUser.Architecture.Tests/Norge360.AspNetCore.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization/Norge360.Authorization.Architecture.Tests/Norge360.Authorization.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization.AspNetCore/Norge360.Authorization.AspNetCore.Architecture.Tests/Norge360.Authorization.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore
+          dotnet test src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
 
   performance-guardrails:
     name: Performance guardrails
@@ -123,23 +123,23 @@ jobs:
 
       - name: Restore architecture test project
         run: |
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
-          dotnet restore packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj
+          dotnet restore src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj
 
       - name: Run performance guardrail tests
         run: |
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
-          dotnet test packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
-          dotnet test packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
-          dotnet test packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
-          dotnet test packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Architecture.Tests/Norge360.AspNetCore.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
+          dotnet test src/packages/dotnet/tests/Norge360.AspNetCore.TrustedGateway/Norge360.AspNetCore.TrustedGateway.Architecture.Tests/Norge360.AspNetCore.TrustedGateway.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
+          dotnet test src/packages/dotnet/tests/Norge360.Authorization.Claims/Norge360.Authorization.Claims.Architecture.Tests/Norge360.Authorization.Claims.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
+          dotnet test src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
+          dotnet test src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore --filter "Category=PerformanceGuardrail"
 
       - name: Benchmark regression threshold (AuthorizationClaims.HasPermission)
         run: |
-          dotnet run -c Release --project packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*AuthorizationClaimsBenchmarks.HasPermission*" -j short --warmupCount 1 --iterationCount 3
+          dotnet run -c Release --project src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*AuthorizationClaimsBenchmarks.HasPermission*" -j short --warmupCount 1 --iterationCount 3
           report_file="BenchmarkDotNet.Artifacts/results/Norge360.AspNetCore.Benchmarks.AuthorizationClaimsBenchmarks-report.csv"
           mean_ns=$(awk -F',' '/HasPermission/ {v=$2; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
           alloc_b=$(awk -F',' '/HasPermission/ {v=$5; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
@@ -150,7 +150,7 @@ jobs:
 
       - name: Benchmark regression threshold (Clock.ReadUtcNow)
         run: |
-          dotnet run -c Release --project packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*ClockBenchmarks.ReadUtcNow*" -j short --warmupCount 1 --iterationCount 3
+          dotnet run -c Release --project src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*ClockBenchmarks.ReadUtcNow*" -j short --warmupCount 1 --iterationCount 3
           report_file="BenchmarkDotNet.Artifacts/results/Norge360.AspNetCore.Benchmarks.ClockBenchmarks-report.csv"
           mean_ns=$(awk -F',' '/ReadUtcNow/ {v=$2; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
           alloc_b=$(awk -F',' '/ReadUtcNow/ {v=$5; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
@@ -161,7 +161,7 @@ jobs:
 
       - name: Benchmark regression threshold (CurrentUserCore.IsAuthenticated)
         run: |
-          dotnet run -c Release --project packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*CurrentUserCoreBenchmarks.IsAuthenticated*" -j short --warmupCount 1 --iterationCount 3
+          dotnet run -c Release --project src/packages/dotnet/tests/Norge360.AspNetCore/Norge360.AspNetCore.Benchmarks -- -f "*CurrentUserCoreBenchmarks.IsAuthenticated*" -j short --warmupCount 1 --iterationCount 3
           report_file="BenchmarkDotNet.Artifacts/results/Norge360.AspNetCore.Benchmarks.CurrentUserCoreBenchmarks-report.csv"
           mean_ns=$(awk -F',' '/IsAuthenticated/ {v=$2; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
           alloc_b=$(awk -F',' '/IsAuthenticated/ {v=$5; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
@@ -172,7 +172,7 @@ jobs:
 
       - name: Benchmark regression threshold (Auth CookieOriginProtection allow path)
         run: |
-          dotnet run -c Release --project services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- -f "*CookieOriginProtectionMiddlewareBenchmarks.Allow_UnsafeCookieRequest_With_AllowedOrigin*" -j short --warmupCount 1 --iterationCount 3
+          dotnet run -c Release --project src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- -f "*CookieOriginProtectionMiddlewareBenchmarks.Allow_UnsafeCookieRequest_With_AllowedOrigin*" -j short --warmupCount 1 --iterationCount 3
           report_file="BenchmarkDotNet.Artifacts/results/Norge360.Auth.Benchmarks.CookieOriginProtectionMiddlewareBenchmarks-report.csv"
           mean_ns=$(awk -F',' '/Allow_UnsafeCookieRequest_With_AllowedOrigin/ {v=$2; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
           alloc_b=$(awk -F',' '/Allow_UnsafeCookieRequest_With_AllowedOrigin/ {v=$5; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
@@ -183,7 +183,7 @@ jobs:
 
       - name: Benchmark regression threshold (Auth CookieOriginProtection reject path)
         run: |
-          dotnet run -c Release --project services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- -f "*CookieOriginProtectionMiddlewareBenchmarks.Reject_UnsafeCookieRequest_With_DisallowedOrigin*" -j short --warmupCount 1 --iterationCount 3
+          dotnet run -c Release --project src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- -f "*CookieOriginProtectionMiddlewareBenchmarks.Reject_UnsafeCookieRequest_With_DisallowedOrigin*" -j short --warmupCount 1 --iterationCount 3
           report_file="BenchmarkDotNet.Artifacts/results/Norge360.Auth.Benchmarks.CookieOriginProtectionMiddlewareBenchmarks-report.csv"
           mean_ns=$(awk -F',' '/Reject_UnsafeCookieRequest_With_DisallowedOrigin/ {v=$2; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)
           alloc_b=$(awk -F',' '/Reject_UnsafeCookieRequest_With_DisallowedOrigin/ {v=$5; gsub(/[^0-9.]/,"",v); print v}' "$report_file" | head -n1)

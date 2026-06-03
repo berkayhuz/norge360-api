@@ -13,5 +13,7 @@ public sealed class AuthDataProtectionOptions
 
     public string? KeyRingPath { get; set; }
 
+    public string? RedisConnectionString { get; set; }
+
     public bool RequirePersistentKeyRingInProduction { get; set; } = true;
 }

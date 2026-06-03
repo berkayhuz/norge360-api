@@ -1,0 +1,1128 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-auth-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-auth-api
+  template:
+    metadata:
+      labels:
+        app: norge360-auth-api
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: auth-api
+          image: ghcr.io/norge360/norge360-auth-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: AllowedHosts
+              value: auth.norge360.com;norge360-auth-api
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: ConnectionStrings__IdentityConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: identity-connection
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Infrastructure__DistributedCache__RedisConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: redis-connection
+            - name: Infrastructure__DataProtection__RedisConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: redis-connection
+            - name: Infrastructure__DataProtection__KeyRingPath
+              value: ""
+            - name: Infrastructure__AwsParameterStore__Enabled
+              value: "false"
+            - name: Auth__Login__AccountsGatewayBaseUrl
+              value: http://norge360-gateway:8080/
+            - name: Cloudflare__Turnstile__Enabled
+              value: "true"
+            - name: Cloudflare__Turnstile__SecretKey
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: turnstile-secret
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Security__TrustedGateway__Keys__1__KeyId
+              value: account-internal-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__1__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: account-internal-secret
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__0
+              value: 10.0.0.0/8
+            - name: Jwt__Issuer
+              value: https://auth.norge360.com
+            - name: Jwt__Audience
+              value: api://norge360
+            - name: Jwt__SigningKeys__0__KeyId
+              value: auth-k8s-rsa-2026-01
+            - name: Jwt__SigningKeys__0__IsCurrent
+              value: "true"
+            - name: Jwt__SigningKeys__0__PrivateKeyPath
+              value: /run/secrets/Norge360-auth-signing.pem
+            - name: Database__ApplyMigrationsOnStartup
+              value: "false"
+          volumeMounts:
+            - name: auth-signing-key
+              mountPath: /run/secrets/Norge360-auth-signing.pem
+              subPath: auth-jwt-signing.pem
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-auth-api
+      volumes:
+        - name: auth-signing-key
+          secret:
+            secretName: norge360-auth-signing-key
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-discovery-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-discovery-api
+  template:
+    metadata:
+      labels:
+        app: norge360-discovery-api
+    spec:
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: discovery-api
+          image: ghcr.io/norge360/norge360-discovery-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: ConnectionStrings__DiscoveryConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: discovery-connection
+            - name: Authentication__JwtBearer__Authority
+              value: http://norge360-auth-api:8080
+            - name: Authentication__JwtBearer__MetadataAddress
+              value: http://norge360-auth-api:8080/.well-known/openid-configuration
+            - name: Authentication__JwtBearer__Issuer
+              value: https://auth.norge360.com
+            - name: Authentication__JwtBearer__Audience
+              value: api://norge360
+            - name: Authentication__JwtBearer__RequireHttpsMetadata
+              value: "false"
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__0
+              value: 10.0.0.0/8
+            - name: Security__InternalEvents__Enabled
+              value: "true"
+            - name: Security__InternalEvents__HeaderName
+              value: X-Discovery-Internal-Token
+            - name: Security__InternalEvents__Token
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: discovery-internal-token
+            - name: Discovery__Database__MigrateOnStartup
+              value: "false"
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-discovery-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-search-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-search-api
+  template:
+    metadata:
+      labels:
+        app: norge360-search-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: search-api
+          image: ghcr.io/norge360/norge360-search-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: Authentication__Jwt__Issuer
+              value: https://auth.norge360.com
+            - name: Authentication__Jwt__Audience
+              value: api://norge360
+            - name: Authentication__Jwt__Authority
+              value: http://norge360-auth-api:8080
+            - name: Authentication__Jwt__MetadataAddress
+              value: http://norge360-auth-api:8080/.well-known/openid-configuration
+            - name: Search__Provider
+              value: Meilisearch
+            - name: Search__IndexName
+              value: searchdocuments
+            - name: Search__StaticIndexing__Enabled
+              value: "false"
+            - name: Search__BlockFilter__Enabled
+              value: "true"
+            - name: Search__BlockFilter__AccountsApiBaseUrl
+              value: http://norge360-accounts-api:8080
+            - name: Meilisearch__Endpoint
+              value: http://norge360-meilisearch:7700
+            - name: Meilisearch__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: meilisearch-api-key
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-search-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-accounts-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-accounts-worker
+  template:
+    metadata:
+      labels:
+        app: norge360-accounts-worker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: accounts-worker
+          image: ghcr.io/norge360/norge360-accounts-worker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: DOTNET_ENVIRONMENT
+              value: Kubernetes
+            - name: ConnectionStrings__AccountsConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: accounts-connection
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__Exchange
+              value: Norge360.integration
+            - name: SearchBootstrap__ReindexUsersOnStartup
+              value: "true"
+            - name: SearchBootstrap__BatchSize
+              value: "250"
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-community-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-community-worker
+  template:
+    metadata:
+      labels:
+        app: norge360-community-worker
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: community-worker
+          image: ghcr.io/norge360/norge360-community-worker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: DOTNET_ENVIRONMENT
+              value: Kubernetes
+            - name: ConnectionStrings__CommunityConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: community-connection
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-discovery-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-discovery-worker
+  template:
+    metadata:
+      labels:
+        app: norge360-discovery-worker
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: discovery-worker
+          image: ghcr.io/norge360/norge360-discovery-worker:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: DOTNET_ENVIRONMENT
+              value: Kubernetes
+            - name: ConnectionStrings__DiscoveryConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: discovery-connection
+            - name: Discovery__RankingWorker__Enabled
+              value: "true"
+            - name: Discovery__RankingWorker__IntervalSeconds
+              value: "300"
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-search-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-search-worker
+  template:
+    metadata:
+      labels:
+        app: norge360-search-worker
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: search-worker
+          image: ghcr.io/norge360/norge360-search-worker:latest
+          imagePullPolicy: Always
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: Kubernetes
+            - name: Search__Provider
+              value: Meilisearch
+            - name: Search__IndexName
+              value: searchdocuments
+            - name: Search__StaticIndexing__Enabled
+              value: "false"
+            - name: Search__StaticIndexing__SeedOnStartup
+              value: "false"
+            - name: Search__IntegrationConsumer__Enabled
+              value: "true"
+            - name: Search__IntegrationConsumer__QueueName
+              value: norge360.search.indexer
+            - name: Search__IntegrationConsumer__RoutingKeyPatterns__0
+              value: search.document.index.requested.v1
+            - name: Search__IntegrationConsumer__RoutingKeyPatterns__1
+              value: search.document.delete.requested.v1
+            - name: Search__IntegrationConsumer__RoutingKeyPatterns__2
+              value: search.reindex.requested.v1
+            - name: Meilisearch__Endpoint
+              value: http://norge360-meilisearch:7700
+            - name: Meilisearch__ApiKey
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: meilisearch-api-key
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__Exchange
+              value: Norge360.integration
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-notification-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: norge360-notification-worker
+  template:
+    metadata:
+      labels:
+        app: norge360-notification-worker
+    spec:
+      automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: notification-worker
+          image: ghcr.io/norge360/norge360-notification-worker:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: DOTNET_ENVIRONMENT
+              value: Kubernetes
+            - name: Infrastructure__AwsParameterStore__Enabled
+              value: "false"
+            - name: ConnectionStrings__NotificationConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-connection
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Notification__RabbitMq__Host
+              value: norge360-rabbitmq
+            - name: Notification__RabbitMq__Port
+              value: "5672"
+            - name: Notification__RabbitMq__Username
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-rabbitmq-username
+            - name: Notification__RabbitMq__Password
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-rabbitmq-password
+            - name: Notification__IntegrationConsumer__Enabled
+              value: "true"
+            - name: Notification__Email__Provider
+              value: smtp
+            - name: Notification__Email__Smtp__Host
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-host
+            - name: Notification__Email__Smtp__Port
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-port
+            - name: Notification__Email__Smtp__UserName
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-username
+            - name: Notification__Email__Smtp__Password
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-password
+            - name: Notification__Email__Smtp__FromAddress
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-from-address
+            - name: Notification__Email__Smtp__FromName
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: notification-smtp-from-name
+            - name: Notification__Email__Smtp__UseStartTls
+              value: "true"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 256Mi
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-gateway
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-gateway
+  template:
+    metadata:
+      labels:
+        app: norge360-gateway
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      containers:
+        - name: gateway
+          image: ghcr.io/norge360/norge360-api-gateway:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: AllowedHosts
+              value: norge360.com
+            - name: Security__Cors__AllowedOrigins__0
+              value: https://norge360.com
+            - name: Security__Cors__AllowCredentials
+              value: "true"
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__0
+              value: 10.0.0.0/8
+            - name: ReverseProxy__Clusters__auth-api-cluster__Destinations__destination1__Address
+              value: http://norge360-auth-api:8080/
+            - name: ReverseProxy__Clusters__accounts-api-cluster__Destinations__destination1__Address
+              value: http://norge360-accounts-api:8080/
+            - name: ReverseProxy__Clusters__search-api-cluster__Destinations__destination1__Address
+              value: http://norge360-search-api:8080/
+            - name: ReverseProxy__Clusters__community-api-cluster__Destinations__destination1__Address
+              value: http://norge360-community-api:8080/
+            - name: ReverseProxy__Clusters__discovery-api-cluster__Destinations__destination1__Address
+              value: http://norge360-discovery-api:8080/
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 200m
+              memory: 256Mi
+            limits:
+              cpu: 1000m
+              memory: 512Mi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-gateway
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-accounts-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-accounts-api
+  template:
+    metadata:
+      labels:
+        app: norge360-accounts-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: accounts-api
+          image: ghcr.io/norge360/norge360-accounts-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: ConnectionStrings__AccountsConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: accounts-connection
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__Exchange
+              value: Norge360.integration
+            - name: Authentication__JwtBearer__Authority
+              value: http://norge360-auth-api:8080
+            - name: Authentication__JwtBearer__MetadataAddress
+              value: http://norge360-auth-api:8080/.well-known/openid-configuration
+            - name: Authentication__JwtBearer__Issuer
+              value: https://auth.norge360.com
+            - name: Authentication__JwtBearer__Audience
+              value: api://norge360
+            - name: Authentication__JwtBearer__RequireHttpsMetadata
+              value: "false"
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Services__Discovery__Enabled
+              value: "true"
+            - name: Services__Discovery__BaseUrl
+              value: http://norge360-discovery-api:8080
+            - name: Services__Discovery__InternalTokenHeaderName
+              value: X-Discovery-Internal-Token
+            - name: Services__Discovery__InternalToken
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: discovery-internal-token
+            - name: Media__CloudflareR2__AccountId
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-account-id
+            - name: Media__CloudflareR2__BucketName
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-bucket-name
+            - name: Media__CloudflareR2__AccessKeyId
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-access-key-id
+            - name: Media__CloudflareR2__SecretAccessKey
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-secret-access-key
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-accounts-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: norge360-community-api
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: norge360-community-api
+  template:
+    metadata:
+      labels:
+        app: norge360-community-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: community-api
+          image: ghcr.io/norge360/norge360-community-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Kubernetes
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: ConnectionStrings__CommunityConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: community-connection
+            - name: Authentication__JwtBearer__Authority
+              value: http://norge360-auth-api:8080
+            - name: Authentication__JwtBearer__MetadataAddress
+              value: http://norge360-auth-api:8080/.well-known/openid-configuration
+            - name: Authentication__JwtBearer__Issuer
+              value: https://auth.norge360.com
+            - name: Authentication__JwtBearer__Audience
+              value: api://norge360
+            - name: Authentication__JwtBearer__RequireHttpsMetadata
+              value: "false"
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__0
+              value: 10.0.0.0/8
+            - name: Services__Accounts__BaseUrl
+              value: http://norge360-gateway:8080
+            - name: Services__Discovery__Enabled
+              value: "true"
+            - name: Services__Discovery__BaseUrl
+              value: http://norge360-discovery-api:8080
+            - name: Services__Discovery__InternalTokenHeaderName
+              value: X-Discovery-Internal-Token
+            - name: Services__Discovery__InternalToken
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: discovery-internal-token
+            - name: InternalServices__Signing__Enabled
+              value: "false"
+            - name: Media__CloudflareR2__AccountId
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-account-id
+            - name: Media__CloudflareR2__BucketName
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-bucket-name
+            - name: Media__CloudflareR2__AccessKeyId
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-access-key-id
+            - name: Media__CloudflareR2__SecretAccessKey
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: r2-secret-access-key
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              cpu: 1000m
+              memory: 1Gi
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-community-api

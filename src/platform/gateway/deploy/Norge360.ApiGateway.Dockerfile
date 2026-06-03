@@ -5,11 +5,11 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props Norge360.slnx ./
 COPY .nuget/NuGet.Config ./.nuget/NuGet.Config
-COPY packages/dotnet/src ./packages/dotnet/src
-COPY platform/gateway/src ./platform/gateway/src
+COPY src/packages/dotnet/src ./src/packages/dotnet/src
+COPY src/platform/gateway/src ./src/platform/gateway/src
 
-RUN dotnet restore platform/gateway/src/Norge360.ApiGateway/Norge360.ApiGateway.csproj --force-evaluate
-RUN dotnet publish platform/gateway/src/Norge360.ApiGateway/Norge360.ApiGateway.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
+RUN dotnet restore src/platform/gateway/src/Norge360.ApiGateway/Norge360.ApiGateway.csproj --force-evaluate
+RUN dotnet publish src/platform/gateway/src/Norge360.ApiGateway/Norge360.ApiGateway.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

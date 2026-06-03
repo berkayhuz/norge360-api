@@ -19,4 +19,6 @@ builder.Services
 builder.Services.AddHostedService<OrphanMediaCleanupHostedService>();
 
 var app = builder.Build();
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");
 await app.RunAsync();

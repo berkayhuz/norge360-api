@@ -1,0 +1,64 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-auth-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-auth-api
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-gateway
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-gateway
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-accounts-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-accounts-api
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-community-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-community-api
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-discovery-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-discovery-api
+
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: norge360-search-api
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: norge360-search-api

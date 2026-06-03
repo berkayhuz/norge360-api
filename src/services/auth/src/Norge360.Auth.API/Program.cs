@@ -1,7 +1,10 @@
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Norge360.Auth.API.Accessors;
 using Norge360.Auth.API.Cookies;
+using Norge360.Auth.API.Health;
 using Norge360.Auth.API.Security.Turnstile;
 using Norge360.Auth.Application.DependencyInjection;
+using Norge360.AspNetCore.Health;
 using Norge360.Auth.Infrastructure.DependencyInjection;
 using Microsoft.Extensions.Options;
 
@@ -37,6 +40,13 @@ builder.Services.PostConfigure<TurnstileOptions>(options =>
 builder.Services.AddSingleton<IValidateOptions<TurnstileOptions>, TurnstileOptionsValidation>();
 builder.Services.AddAuthApplication();
 builder.Services.AddAuthInfrastructure(builder.Configuration);
+builder.Services.AddHealthChecks()
+    .AddCheck("self", () => HealthCheckResult.Healthy("Auth process is running."), tags: ["live"])
+    .AddCheck<AuthDatabaseHealthCheck>("auth-database", tags: ["ready"])
+    .AddCheck<AuthPendingMigrationsHealthCheck>("auth-pending-migrations", tags: ["ready", "startup"])
+    .AddCheck<DistributedCacheAvailabilityHealthCheck>("auth-cache", tags: ["ready"])
+    .AddCheck<JwtSigningKeyHealthCheck>("auth-jwt-signing", tags: ["ready"])
+    .AddCheck<TrustedGatewayConfigurationHealthCheck>("auth-trusted-gateway", tags: ["ready", "startup"]);
 
 var app = builder.Build();
 
@@ -49,6 +59,14 @@ if (app.Environment.IsDevelopment())
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks(
+        "/health/live",
+        HealthResponseWriter.CreateMinimalOptions(registration => registration.Tags.Contains("live")))
+    .AllowAnonymous();
+app.MapHealthChecks(
+        "/health/ready",
+        HealthResponseWriter.CreateMinimalOptions(registration => registration.Tags.Contains("ready")))
+    .AllowAnonymous();
 await app.RunAsync();
 
 public partial class Program;

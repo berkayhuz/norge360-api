@@ -84,6 +84,8 @@ if (runReservedUsernameSeed)
     }
 }
 
+app.MapHealthChecks("/health/live");
+app.MapHealthChecks("/health/ready");
 await app.RunAsync();
 
 return 0;

@@ -2,7 +2,7 @@ services:
   auth:
     build:
       context: .
-      dockerfile: services/auth/deploy/Norge360.Auth.API.Dockerfile
+      dockerfile: src/services/auth/deploy/Norge360.Auth.API.Dockerfile
     container_name: norge360-auth
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -22,8 +22,8 @@ services:
       InvitationDelivery__SenderAddress: "${InvitationDelivery__SenderAddress}"
       InvitationDelivery__SenderName: "${InvitationDelivery__SenderName}"
       InvitationDelivery__DisableDelivery: "${InvitationDelivery__DisableDelivery}"
-      Security__TrustedGateway__Keys__0__Secret: "norge360_gateway_auth_shared_secret_2026!"
-      Security__TrustedGateway__Keys__1__Secret: "norge360_account_internal_secret_2026!"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
+      Security__TrustedGateway__Keys__1__Secret: "${Security__TrustedGateway__Keys__1__Secret:-LOCAL_DEV_ACCOUNT_INTERNAL_SECRET}"
       Security__TrustedGateway__AllowedGatewayNetworks__0: "172.16.0.0/12"
       Jwt__Issuer: "https://auth.local"
       Jwt__Audience: "api://norge360"
@@ -45,7 +45,7 @@ services:
       Kestrel__Endpoints__Https__Url: "http://+:8081"
       Security__TrustedGateway__CurrentKeyId: "local-dev-key"
       Security__TrustedGateway__Keys__0__KeyId: "local-dev-key"
-      Security__TrustedGateway__Keys__0__Secret: "norge360_gateway_auth_shared_secret_2026!"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
       ReverseProxy__Clusters__auth-api-cluster__Destinations__destination1__Address: "http://auth:8080/"
       ReverseProxy__Clusters__accounts-api-cluster__Destinations__destination1__Address: "http://accounts-api:8080/"
       ReverseProxy__Clusters__search-api-cluster__Destinations__destination1__Address: "http://search-api:8080/"
@@ -68,7 +68,7 @@ services:
   accounts-api:
     build:
       context: .
-      dockerfile: services/accounts/deploy/Norge360.Accounts.API.Dockerfile
+      dockerfile: src/services/accounts/deploy/Norge360.Accounts.API.Dockerfile
     container_name: norge360-accounts-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -86,7 +86,7 @@ services:
       Authentication__JwtBearer__RequireHttpsMetadata: "false"
       Security__TrustedGateway__CurrentKeyId: "local-dev-key"
       Security__TrustedGateway__Keys__0__KeyId: "local-dev-key"
-      Security__TrustedGateway__Keys__0__Secret: "norge360_gateway_auth_shared_secret_2026!"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
       InternalServices__Signing__Enabled: "${InternalServices__Signing__Enabled:-false}"
       InternalServices__Signing__Secret: "${InternalServices__Signing__Secret:-}"
       InternalServices__Signing__ClockSkewSeconds: "${InternalServices__Signing__ClockSkewSeconds:-120}"
@@ -108,7 +108,7 @@ services:
   community-api:
     build:
       context: .
-      dockerfile: services/community/deploy/Norge360.Community.API.Dockerfile
+      dockerfile: src/services/community/deploy/Norge360.Community.API.Dockerfile
     container_name: norge360-community-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -124,7 +124,7 @@ services:
       Authentication__JwtBearer__RequireHttpsMetadata: "false"
       Security__TrustedGateway__CurrentKeyId: "local-dev-key"
       Security__TrustedGateway__Keys__0__KeyId: "local-dev-key"
-      Security__TrustedGateway__Keys__0__Secret: "norge360_gateway_auth_shared_secret_2026!"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
       Security__TrustedGateway__AllowedGatewayNetworks__0: "172.16.0.0/12"
       Services__Accounts__BaseUrl: "http://gateway:8080"
       Services__Discovery__Enabled: "true"
@@ -148,7 +148,7 @@ services:
   discovery-api:
     build:
       context: .
-      dockerfile: services/discovery/deploy/Norge360.Discovery.API.Dockerfile
+      dockerfile: src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile
     container_name: norge360-discovery-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -156,7 +156,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=host.docker.internal;Port=5433;Database=norge360_discovery;Username=admin_norge360;Password=Minezuh3447!!;Include Error Detail=true}"
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=host.docker.internal;Port=5433;Database=norge360_discovery;Username=admin_norge360;Password=DB_PASSWORD;Include Error Detail=true}"
       Authentication__JwtBearer__Authority: "https://auth.local"
       Authentication__JwtBearer__MetadataAddress: "http://auth:8080/.well-known/openid-configuration"
       Authentication__JwtBearer__Issuer: "https://auth.local"
@@ -164,7 +164,7 @@ services:
       Authentication__JwtBearer__RequireHttpsMetadata: "false"
       Security__TrustedGateway__CurrentKeyId: "local-dev-key"
       Security__TrustedGateway__Keys__0__KeyId: "local-dev-key"
-      Security__TrustedGateway__Keys__0__Secret: "norge360_gateway_auth_shared_secret_2026!"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
       Security__TrustedGateway__AllowedGatewayNetworks__0: "172.16.0.0/12"
       Security__InternalEvents__Enabled: "true"
       Security__InternalEvents__HeaderName: "X-Discovery-Internal-Token"
@@ -181,11 +181,11 @@ services:
   discovery-worker:
     build:
       context: .
-      dockerfile: services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile
+      dockerfile: src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile
     container_name: norge360-discovery-worker
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=host.docker.internal;Port=5433;Database=norge360_discovery;Username=admin_norge360;Password=Minezuh3447!!;Include Error Detail=true}"
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=host.docker.internal;Port=5433;Database=norge360_discovery;Username=admin_norge360;Password=DB_PASSWORD;Include Error Detail=true}"
       Discovery__RankingWorker__Enabled: "true"
       Discovery__RankingWorker__IntervalSeconds: "300"
     restart: unless-stopped
@@ -206,7 +206,7 @@ services:
   notification-worker:
     build:
       context: .
-      dockerfile: services/notification/deploy/Norge360.Notification.Worker.Dockerfile
+      dockerfile: src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile
     container_name: norge360-notification-worker
     environment:
       DOTNET_ENVIRONMENT: Development
@@ -242,7 +242,7 @@ services:
   accounts-worker:
     build:
       context: .
-      dockerfile: services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile
+      dockerfile: src/services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile
     container_name: norge360-accounts-worker
     environment:
       DOTNET_ENVIRONMENT: Development
@@ -267,7 +267,7 @@ services:
   community-worker:
     build:
       context: .
-      dockerfile: services/community/deploy/Norge360.Community.Worker.Dockerfile
+      dockerfile: src/services/community/deploy/Norge360.Community.Worker.Dockerfile
     container_name: norge360-community-worker
     environment:
       DOTNET_ENVIRONMENT: Development
@@ -284,7 +284,7 @@ services:
   search-api:
     build:
       context: .
-      dockerfile: services/search/deploy/Norge360.Search.API.Dockerfile
+      dockerfile: src/services/search/deploy/Norge360.Search.API.Dockerfile
     container_name: norge360-search-api
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -303,7 +303,7 @@ services:
       Search__BlockFilter__Enabled: "true"
       Search__BlockFilter__AccountsApiBaseUrl: "http://accounts-api:8080"
       Meilisearch__Endpoint: "http://meilisearch:7700"
-      Meilisearch__ApiKey: "NORGE360_DEV_MEILI_MASTER_KEY_2026_0001"
+      Meilisearch__ApiKey: "${Meilisearch__ApiKey:-MEILI_MASTER_KEY}"
     ports:
       - "5299:8080"
     depends_on:
@@ -317,7 +317,7 @@ services:
   search-worker:
     build:
       context: .
-      dockerfile: services/search/deploy/Norge360.Search.Worker.Dockerfile
+      dockerfile: src/services/search/deploy/Norge360.Search.Worker.Dockerfile
     container_name: norge360-search-worker
     environment:
       DOTNET_ENVIRONMENT: Development
@@ -331,7 +331,7 @@ services:
       Search__IntegrationConsumer__RoutingKeyPatterns__1: "search.document.delete.requested.v1"
       Search__IntegrationConsumer__RoutingKeyPatterns__2: "search.reindex.requested.v1"
       Meilisearch__Endpoint: "http://meilisearch:7700"
-      Meilisearch__ApiKey: "NORGE360_DEV_MEILI_MASTER_KEY_2026_0001"
+      Meilisearch__ApiKey: "${Meilisearch__ApiKey:-MEILI_MASTER_KEY}"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri}"
       Messaging__RabbitMq__Exchange: "Norge360.integration"
     restart: unless-stopped
@@ -349,13 +349,16 @@ services:
     image: getmeili/meilisearch:latest
     container_name: norge360-meilisearch
     environment:
-      MEILI_MASTER_KEY: "NORGE360_DEV_MEILI_MASTER_KEY_2026_0001"
+      MEILI_MASTER_KEY: "${MEILI_MASTER_KEY:-MEILI_MASTER_KEY}"
     ports:
       - "7700:7700"
 
   rabbitmq:
     image: rabbitmq:3-management
     container_name: norge360-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_USER}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_PASSWORD}"
     ports:
       - "5672:5672"
       - "15672:15672"

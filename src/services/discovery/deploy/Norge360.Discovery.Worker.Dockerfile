@@ -1,7 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 WORKDIR /src
 COPY . .
-RUN dotnet publish services/discovery/src/Norge360.Discovery.Worker/Norge360.Discovery.Worker.csproj -c Release -o /app/publish
+RUN dotnet publish src/services/discovery/src/Norge360.Discovery.Worker/Norge360.Discovery.Worker.csproj -c Release -o /app/publish
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app

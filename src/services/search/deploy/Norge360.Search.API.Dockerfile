@@ -5,11 +5,11 @@ WORKDIR /src
 
 COPY global.json Directory.Build.props Directory.Build.targets Directory.Packages.props Norge360.slnx ./
 COPY .nuget/NuGet.Config ./.nuget/NuGet.Config
-COPY packages/dotnet/src ./packages/dotnet/src
-COPY services/search/src ./services/search/src
+COPY src/packages/dotnet/src ./src/packages/dotnet/src
+COPY src/services/search/src ./src/services/search/src
 
-RUN dotnet restore services/search/src/Norge360.Search.API/Norge360.Search.API.csproj --force-evaluate
-RUN dotnet publish services/search/src/Norge360.Search.API/Norge360.Search.API.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
+RUN dotnet restore src/services/search/src/Norge360.Search.API/Norge360.Search.API.csproj --force-evaluate
+RUN dotnet publish src/services/search/src/Norge360.Search.API/Norge360.Search.API.csproj -c Release --no-restore -o /app/publish -p:UseAppHost=false
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 WORKDIR /app

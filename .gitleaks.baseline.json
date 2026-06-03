@@ -1,0 +1,42 @@
+[
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 5152,
+  "EndLine": 5152,
+  "StartColumn": 92,
+  "EndColumn": 131,
+  "Match": "password. By default, Rfc2898DeriveByte'",
+  "Secret": "Rfc2898DeriveByte",
+  "File": ".nuget/packages/microsoft.codeanalysis.netanalyzers/10.0.202/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.xml",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.6901164,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": ".nuget/packages/microsoft.codeanalysis.netanalyzers/10.0.202/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.xml:generic-api-key:5152"
+ },
+ {
+  "RuleID": "generic-api-key",
+  "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+  "StartLine": 5161,
+  "EndLine": 5161,
+  "StartColumn": 112,
+  "EndColumn": 151,
+  "Match": "password. By default, Rfc2898DeriveByte'",
+  "Secret": "Rfc2898DeriveByte",
+  "File": ".nuget/packages/microsoft.codeanalysis.netanalyzers/10.0.202/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.xml",
+  "SymlinkFile": "",
+  "Commit": "",
+  "Entropy": 3.6901164,
+  "Author": "",
+  "Email": "",
+  "Date": "",
+  "Message": "",
+  "Tags": [],
+  "Fingerprint": ".nuget/packages/microsoft.codeanalysis.netanalyzers/10.0.202/analyzers/dotnet/Microsoft.CodeAnalysis.NetAnalyzers.xml:generic-api-key:5161"
+ }
+]

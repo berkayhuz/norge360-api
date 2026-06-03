@@ -1,5 +1,8 @@
+using System.IO;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +17,7 @@ using Norge360.Auth.Infrastructure.Persistence;
 using Norge360.Auth.Infrastructure.Services;
 using Norge360.Clock;
 using Norge360.Messaging.RabbitMq.DependencyInjection;
+using StackExchange.Redis;
 
 namespace Norge360.Auth.Infrastructure.DependencyInjection;
 
@@ -27,9 +31,15 @@ public static class InfrastructureDependencyInjection
         services.AddOptions<TokenTransportOptions>().Bind(configuration.GetSection(TokenTransportOptions.SectionName)).ValidateOnStart();
         services.AddOptions<PasswordPolicyOptions>().Bind(configuration.GetSection(PasswordPolicyOptions.SectionName)).ValidateOnStart();
         services.AddOptions<OutboxOptions>().Bind(configuration.GetSection(OutboxOptions.SectionName)).ValidateOnStart();
+        services.AddOptions<DistributedCacheOptions>().Bind(configuration.GetSection(DistributedCacheOptions.SectionName)).ValidateOnStart();
+        services.AddOptions<AuthDataProtectionOptions>().Bind(configuration.GetSection(AuthDataProtectionOptions.SectionName)).ValidateOnStart();
 
         var connectionString = configuration.GetConnectionString("IdentityConnection")
             ?? throw new InvalidOperationException("Connection string 'IdentityConnection' is missing.");
+        var distributedCacheOptions = configuration.GetSection(DistributedCacheOptions.SectionName).Get<DistributedCacheOptions>()
+            ?? throw new InvalidOperationException("Distributed cache options are missing.");
+        var authDataProtectionOptions = configuration.GetSection(AuthDataProtectionOptions.SectionName).Get<AuthDataProtectionOptions>()
+            ?? throw new InvalidOperationException("Auth data protection options are missing.");
 
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(connectionString));
@@ -47,6 +57,34 @@ public static class InfrastructureDependencyInjection
         services.AddSingleton<IClock, SystemClock>();
         services.AddSingleton<ITokenSigningKeyProvider, TokenSigningKeyProvider>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
+
+        var redisConnectionString = authDataProtectionOptions.RedisConnectionString;
+        if (string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            redisConnectionString = distributedCacheOptions.RedisConnectionString;
+        }
+
+        IConnectionMultiplexer? redisConnectionMultiplexer = null;
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            redisConnectionMultiplexer = ConnectionMultiplexer.Connect(redisConnectionString);
+            services.AddSingleton(redisConnectionMultiplexer);
+        }
+
+        var dataProtectionBuilder = services.AddDataProtection()
+            .SetApplicationName(authDataProtectionOptions.ApplicationName);
+
+        if (!string.IsNullOrWhiteSpace(redisConnectionString))
+        {
+            dataProtectionBuilder.PersistKeysToStackExchangeRedis(
+                redisConnectionMultiplexer ?? throw new InvalidOperationException("Redis connection multiplexer is missing."),
+                $"{authDataProtectionOptions.ApplicationName}:DataProtection:KeyRing");
+        }
+        else if (!string.IsNullOrWhiteSpace(authDataProtectionOptions.KeyRingPath))
+        {
+            dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(authDataProtectionOptions.KeyRingPath));
+        }
+
         services.AddHttpClient(AccountsUsernameResolverClientName, client =>
         {
             var baseUrl = configuration["Auth:Login:AccountsGatewayBaseUrl"];
@@ -122,10 +160,5 @@ public static class InfrastructureDependencyInjection
 
         services.AddAuthorization();
         return services;
-    }
-
-    public static Task InitializeAuthInfrastructureAsync(this IServiceProvider services, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 }

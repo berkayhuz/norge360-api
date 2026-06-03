@@ -73,6 +73,7 @@ yarn.lock
 .env
 .env.*
 !.env.example
+!.env.secrets.local.example
 !**/.env.example
 *.secrets.json
 

@@ -3,9 +3,14 @@
   "private": true,
   "scripts": {
     "prepare": "husky",
-    "gitleaks": "node scripts/gitleaks.mjs"
+    "gitleaks": "node scripts/gitleaks.mjs",
+    "secret:gen": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/new-random-secret.ps1",
+    "secrets:sync": "node scripts/tools/sync-github-secrets.mjs"
   },
   "devDependencies": {
     "husky": "^9.1.7"
+  },
+  "dependencies": {
+    "tweetnacl": "^1.0.3"
   }
 }

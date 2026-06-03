@@ -1,0 +1,24 @@
+title = "Norge360 Gitleaks config"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Ignore explicit local-development placeholders and sample values"
+regexTarget = "line"
+regexes = [
+  '''LOCAL_DEV_[A-Z0-9_]+''',
+  '''CHANGE_ME_[A-Z0-9_]+''',
+  '''MEILI_MASTER_KEY''',
+  '''DB_PASSWORD''',
+  '''R2_[A-Z0-9_]+''',
+  '''SMTP_[A-Z0-9_]+''',
+]
+
+[[allowlists]]
+description = "Ignore known non-secret development identifiers"
+regexTarget = "line"
+regexes = [
+  '''local-dev-key''',
+  '''local-dev-discovery-internal-token-change-me''',
+]
