@@ -5,6 +5,7 @@
     "prepare": "husky",
     "gitleaks": "node scripts/gitleaks.mjs",
     "secret:gen": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/new-random-secret.ps1",
+    "auth:key:gen": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/new-rsa-signing-key.ps1",
     "secrets:sync": "node scripts/tools/sync-github-secrets.mjs",
     "install:secrets": "npm run secrets:sync -- --repo berkayhuz/norge360-api",
     "format:csharp": "dotnet csharpier .",
