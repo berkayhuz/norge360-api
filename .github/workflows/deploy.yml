@@ -376,7 +376,13 @@ jobs:
             kubectl -n "$namespace" scale "deployment/$deployment_name" --replicas=1
             kubectl -n "$namespace" set image "deployment/$deployment_name" \
               "$container_name=ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
-            kubectl -n "$namespace" rollout status "deployment/$deployment_name" --timeout=10m
+            if ! kubectl -n "$namespace" rollout status "deployment/$deployment_name" --timeout=10m; then
+              kubectl -n "$namespace" get pods -l "app=$deployment_name" -o wide || true
+              kubectl -n "$namespace" describe pods -l "app=$deployment_name" || true
+              kubectl -n "$namespace" logs -l "app=$deployment_name" --all-containers --tail=200 || true
+              kubectl -n "$namespace" logs -l "app=$deployment_name" --all-containers --previous --tail=200 || true
+              return 1
+            fi
           }
 
           if [ "$rollout_all" = true ] || [ "${#selected_deployments[@]}" -eq 0 ]; then

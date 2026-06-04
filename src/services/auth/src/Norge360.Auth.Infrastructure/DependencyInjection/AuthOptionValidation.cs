@@ -28,10 +28,16 @@ internal sealed class JwtOptionsValidation(IHostEnvironment environment) : IVali
             failures.Add("Jwt:Issuer cannot point to localhost in production.");
         }
 
-        if (!Uri.TryCreate(options.Audience, UriKind.Absolute, out var audienceUri) ||
-            (audienceUri.Scheme != Uri.UriSchemeHttps && !IsDevelopmentHttpLoopback(audienceUri)))
+        if (string.IsNullOrWhiteSpace(options.Audience) ||
+            !Uri.TryCreate(options.Audience, UriKind.Absolute, out var audienceUri))
         {
-            failures.Add("Jwt:Audience must be an absolute HTTPS URL.");
+            failures.Add("Jwt:Audience must be an absolute URI.");
+        }
+        else if ((audienceUri.Scheme == Uri.UriSchemeHttp || audienceUri.Scheme == Uri.UriSchemeHttps) &&
+                 audienceUri.Scheme != Uri.UriSchemeHttps &&
+                 !IsDevelopmentHttpLoopback(audienceUri))
+        {
+            failures.Add("Jwt:Audience must use HTTPS when configured as an HTTP URL.");
         }
         else if (environment.IsProduction() && IsLocalhost(audienceUri))
         {
