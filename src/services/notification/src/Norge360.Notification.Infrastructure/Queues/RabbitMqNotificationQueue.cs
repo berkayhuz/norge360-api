@@ -4,6 +4,8 @@
 // </copyright>
 
 using System.Collections.Concurrent;
+using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
@@ -185,6 +187,12 @@ public sealed class RabbitMqNotificationQueue(
                 factory.Ssl.ServerName = string.IsNullOrWhiteSpace(value.SslServerName)
                     ? value.Host
                     : value.SslServerName;
+
+                if (!string.IsNullOrWhiteSpace(value.CaCertificatePath))
+                {
+                    factory.Ssl.CertificateValidationCallback =
+                        CreateCaCertificateValidationCallback(value.CaCertificatePath);
+                }
             }
 
             connection?.Dispose();
@@ -195,6 +203,33 @@ public sealed class RabbitMqNotificationQueue(
         {
             connectionLock.Release();
         }
+    }
+
+    private static RemoteCertificateValidationCallback CreateCaCertificateValidationCallback(string caCertificatePath)
+    {
+        var caCertificate = X509Certificate2.CreateFromPemFile(caCertificatePath);
+        return (_, certificate, _, sslPolicyErrors) =>
+        {
+            if (certificate is null ||
+                sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNotAvailable) ||
+                sslPolicyErrors.HasFlag(SslPolicyErrors.RemoteCertificateNameMismatch))
+            {
+                return false;
+            }
+
+            using var serverCertificate = new X509Certificate2(certificate);
+            using var chain = new X509Chain
+            {
+                ChainPolicy =
+                {
+                    RevocationMode = X509RevocationMode.NoCheck,
+                    TrustMode = X509ChainTrustMode.CustomRootTrust
+                }
+            };
+
+            chain.ChainPolicy.CustomTrustStore.Add(caCertificate);
+            return chain.Build(serverCertificate);
+        };
     }
 
     private async Task<IChannel> GetConsumerChannelAsync(CancellationToken cancellationToken)

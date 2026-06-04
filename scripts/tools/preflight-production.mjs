@@ -159,12 +159,16 @@ function validateRabbitMqUri(value, settingName, services) {
   const service = services.get(host);
   const isInternalService = Boolean(service);
 
-  if (uri.protocol === 'amqp:' && !isInternalService) {
-    fail(`${settingName} uses non-TLS amqp:// with host '${host}', but that host is not a production Kubernetes Service.`);
+  if (uri.protocol === 'amqp:') {
+    fail(`${settingName} must use TLS amqps:// in production.`);
   }
 
-  if (uri.protocol === 'amqp:' && isInternalService && !service.ports.includes(5672)) {
-    fail(`${settingName} points to service '${host}', but that Service does not expose port 5672.`);
+  if (uri.protocol === 'amqps:' && isInternalService && !service.ports.includes(5671)) {
+    fail(`${settingName} points to service '${host}', but that Service does not expose TLS port 5671.`);
+  }
+
+  if (uri.protocol === 'amqps:' && uri.port && uri.port !== '5671') {
+    fail(`${settingName} must use port 5671 for amqps production RabbitMQ connections.`);
   }
 
   if (host === 'rabbitmq') {
@@ -442,6 +446,78 @@ function validateStatefulSetProbes() {
   }
 }
 
+function validateRabbitMqTlsConfiguration(services, deployments) {
+  const service = services.get('norge360-rabbitmq');
+  if (!service) {
+    fail('norge360-rabbitmq Service is missing.');
+  } else {
+    if (!service.ports.includes(5671)) {
+      fail('norge360-rabbitmq Service must expose TLS port 5671.');
+    }
+
+    if (service.ports.includes(5672)) {
+      fail('norge360-rabbitmq Service must not expose non-TLS port 5672 in production.');
+    }
+  }
+
+  const statefulSets = exists('k8s/production/statefulsets.yaml')
+    ? read('k8s/production/statefulsets.yaml')
+    : '';
+  const rabbitDocument = splitYamlDocuments(statefulSets)
+    .find(document => scalarAfter(document, 'kind') === 'StatefulSet' && metadataName(document) === 'norge360-rabbitmq');
+
+  if (rabbitDocument) {
+    if (!rabbitDocument.includes('containerPort: 5671')) {
+      fail('norge360-rabbitmq StatefulSet must expose containerPort 5671.');
+    }
+
+    if (rabbitDocument.includes('containerPort: 5672')) {
+      fail('norge360-rabbitmq StatefulSet must not expose non-TLS containerPort 5672 in production.');
+    }
+
+    if (!rabbitDocument.includes('secretName: norge360-rabbitmq-tls')) {
+      fail('norge360-rabbitmq StatefulSet must mount the norge360-rabbitmq-tls secret.');
+    }
+
+    if (!statefulSets.includes('listeners.ssl.default = 5671')) {
+      fail('norge360-rabbitmq config must enable the TLS listener on port 5671.');
+    }
+  }
+
+  const rabbitMqConsumers = deployments.filter(deployment =>
+    deployment.env.some(entry => entry.name === 'Messaging__RabbitMq__Uri'));
+
+  for (const deployment of rabbitMqConsumers) {
+    const caPath = deployment.env.find(entry => entry.name === 'Messaging__RabbitMq__CaCertificatePath')?.value;
+    if (caPath !== '/etc/norge360/rabbitmq-ca/ca.crt') {
+      fail(`${deployment.name}: Messaging__RabbitMq__CaCertificatePath must point to the mounted RabbitMQ CA certificate.`);
+    }
+
+    if (!deployment.document.includes('secretName: norge360-rabbitmq-tls')) {
+      fail(`${deployment.name}: must mount the norge360-rabbitmq-tls secret for RabbitMQ TLS verification.`);
+    }
+  }
+
+  const notificationWorker = deployments.find(deployment => deployment.name === 'norge360-notification-worker');
+  if (notificationWorker) {
+    const useTls = notificationWorker.env.find(entry => entry.name === 'Notification__RabbitMq__UseTls')?.value;
+    const port = notificationWorker.env.find(entry => entry.name === 'Notification__RabbitMq__Port')?.value;
+    const caPath = notificationWorker.env.find(entry => entry.name === 'Notification__RabbitMq__CaCertificatePath')?.value;
+
+    if (useTls?.toLowerCase() !== 'true') {
+      fail('norge360-notification-worker: Notification__RabbitMq__UseTls must be true.');
+    }
+
+    if (port !== '5671') {
+      fail('norge360-notification-worker: Notification__RabbitMq__Port must be 5671.');
+    }
+
+    if (caPath !== '/etc/norge360/rabbitmq-ca/ca.crt') {
+      fail('norge360-notification-worker: Notification__RabbitMq__CaCertificatePath must point to the mounted RabbitMQ CA certificate.');
+    }
+  }
+}
+
 function validateTrustedGatewayHealthBypass() {
   const middlewareFiles = [
     'src/services/accounts/src/Norge360.Accounts.API/Middlewares/TrustedGatewayMiddleware.cs',
@@ -505,6 +581,7 @@ function main() {
   validateJwtMetadataConfiguration(deployments);
   validateAwsParameterStoreConfiguration(deployments);
   validateStatefulSetProbes();
+  validateRabbitMqTlsConfiguration(services, deployments);
   validateTrustedGatewayHealthBypass();
   validateRuntimeSecrets(services);
 

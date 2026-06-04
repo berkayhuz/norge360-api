@@ -117,6 +117,18 @@ public sealed class NotificationRabbitMqOptionsValidation(IHostEnvironment envir
             failures.Add("Notification:RabbitMq:Port must not use the non-TLS AMQP port in production.");
         }
 
+        if (options.UseTls && options.Port != 5671)
+        {
+            failures.Add("Notification:RabbitMq:Port must be 5671 when Notification:RabbitMq:UseTls is true.");
+        }
+
+        if (options.UseTls &&
+            isInternalKubernetesBroker &&
+            string.IsNullOrWhiteSpace(options.CaCertificatePath))
+        {
+            failures.Add("Notification:RabbitMq:CaCertificatePath is required when the internal Kubernetes RabbitMQ broker uses TLS.");
+        }
+
         if (string.Equals(options.Username, "guest", StringComparison.OrdinalIgnoreCase) ||
             ContainsUnsafeMarker(options.Username))
         {

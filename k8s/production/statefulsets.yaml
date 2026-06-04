@@ -83,6 +83,21 @@ spec:
       storage: 20Gi
 
 ---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: norge360-rabbitmq-config
+data:
+  rabbitmq.conf: |
+    listeners.tcp = none
+    listeners.ssl.default = 5671
+    ssl_options.cacertfile = /etc/rabbitmq/tls/ca.crt
+    ssl_options.certfile = /etc/rabbitmq/tls/tls.crt
+    ssl_options.keyfile = /etc/rabbitmq/tls/tls.key
+    ssl_options.verify = verify_none
+    ssl_options.fail_if_no_peer_cert = false
+
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -108,8 +123,8 @@ spec:
           image: rabbitmq:4.3.1-management
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 5672
-              name: amqp
+            - containerPort: 5671
+              name: amqps
             - containerPort: 15672
               name: management
           env:
@@ -128,6 +143,13 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /var/lib/rabbitmq
+            - name: config
+              mountPath: /etc/rabbitmq/conf.d/20-norge360-tls.conf
+              subPath: rabbitmq.conf
+              readOnly: true
+            - name: tls
+              mountPath: /etc/rabbitmq/tls
+              readOnly: true
           startupProbe:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]
@@ -155,6 +177,12 @@ spec:
         - name: data
           persistentVolumeClaim:
             claimName: norge360-rabbitmq-data
+        - name: config
+          configMap:
+            name: norge360-rabbitmq-config
+        - name: tls
+          secret:
+            secretName: norge360-rabbitmq-tls
 
 ---
 apiVersion: v1

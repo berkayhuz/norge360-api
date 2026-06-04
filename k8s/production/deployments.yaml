@@ -51,6 +51,8 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Infrastructure__DistributedCache__RedisConnectionString
               valueFrom:
                 secretKeyRef:
@@ -123,6 +125,9 @@ spec:
               mountPath: /run/secrets/Norge360-auth-signing.pem
               subPath: auth-jwt-signing.pem
               readOnly: true
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
           startupProbe:
             httpGet:
               path: /health/live
@@ -168,6 +173,12 @@ spec:
         - name: auth-signing-key
           secret:
             secretName: norge360-auth-signing-key
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
 
 ---
 apiVersion: apps/v1
@@ -433,12 +444,18 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Messaging__RabbitMq__Exchange
               value: Norge360.integration
             - name: SearchBootstrap__ReindexUsersOnStartup
               value: "true"
             - name: SearchBootstrap__BatchSize
               value: "250"
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
           startupProbe:
             httpGet:
               path: /health/live
@@ -464,6 +481,13 @@ spec:
             limits:
               cpu: 250m
               memory: 192Mi
+      volumes:
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
 
 ---
 apiVersion: apps/v1
@@ -677,8 +701,14 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Messaging__RabbitMq__Exchange
               value: Norge360.integration
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
           resources:
             requests:
               cpu: 50m
@@ -686,6 +716,13 @@ spec:
             limits:
               cpu: 250m
               memory: 192Mi
+      volumes:
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
 
 ---
 apiVersion: apps/v1
@@ -730,10 +767,18 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Notification__RabbitMq__Host
               value: norge360-rabbitmq
             - name: Notification__RabbitMq__Port
-              value: "5672"
+              value: "5671"
+            - name: Notification__RabbitMq__UseTls
+              value: "true"
+            - name: Notification__RabbitMq__SslServerName
+              value: norge360-rabbitmq
+            - name: Notification__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Notification__RabbitMq__Username
               valueFrom:
                 secretKeyRef:
@@ -780,6 +825,10 @@ spec:
                   key: notification-smtp-from-name
             - name: Notification__Email__Smtp__UseStartTls
               value: "true"
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
           resources:
             requests:
               cpu: 50m
@@ -787,6 +836,13 @@ spec:
             limits:
               cpu: 250m
               memory: 192Mi
+      volumes:
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
 
 ---
 apiVersion: apps/v1
@@ -943,6 +999,8 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
             - name: Messaging__RabbitMq__Exchange
               value: Norge360.integration
             - name: Authentication__JwtBearer__Authority
@@ -999,6 +1057,10 @@ spec:
               value: Noop
             - name: Media__RequireSecurityScannerInProduction
               value: "false"
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
           startupProbe:
             httpGet:
               path: /health/live
@@ -1024,6 +1086,13 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+      volumes:
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname

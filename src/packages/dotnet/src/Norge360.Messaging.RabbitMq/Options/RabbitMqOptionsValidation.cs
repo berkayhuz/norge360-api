@@ -22,7 +22,7 @@ public sealed class RabbitMqOptionsValidation(IHostEnvironment environment) : IV
         }
         else if (environment.IsProduction())
         {
-            ValidateProductionUri(uri, failures);
+            ValidateProductionUri(uri, options, failures);
         }
 
         if (string.IsNullOrWhiteSpace(options.Exchange))
@@ -40,11 +40,18 @@ public sealed class RabbitMqOptionsValidation(IHostEnvironment environment) : IV
             : ValidateOptionsResult.Success;
     }
 
-    private static void ValidateProductionUri(Uri uri, List<string> failures)
+    private static void ValidateProductionUri(Uri uri, RabbitMqOptions options, List<string> failures)
     {
         if (uri.Scheme != "amqps" && !IsInternalKubernetesRabbitMqHost(uri.Host))
         {
             failures.Add("Messaging:RabbitMq:Uri must use amqps in production.");
+        }
+
+        if (uri.Scheme == "amqps" &&
+            IsInternalKubernetesRabbitMqHost(uri.Host) &&
+            string.IsNullOrWhiteSpace(options.CaCertificatePath))
+        {
+            failures.Add("Messaging:RabbitMq:CaCertificatePath is required when the internal Kubernetes RabbitMQ broker uses TLS.");
         }
 
         if (uri.IsLoopback)

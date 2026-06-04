@@ -46,4 +46,6 @@ public sealed class NotificationRabbitMqOptions
     public bool UseTls { get; init; }
 
     public string? SslServerName { get; init; }
+
+    public string? CaCertificatePath { get; init; }
 }

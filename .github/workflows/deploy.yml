@@ -322,6 +322,13 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           node scripts/tools/sync-k8s-production-secrets.mjs
 
+      - name: Ensure RabbitMQ TLS secret
+        run: |
+          set -euo pipefail
+
+          cd "$GITHUB_WORKSPACE"
+          bash scripts/tools/ensure-rabbitmq-tls-secret.sh
+
       - name: Apply Kubernetes manifests
         run: |
           set -euo pipefail

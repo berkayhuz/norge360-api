@@ -25,4 +25,6 @@ public sealed class RabbitMqOptions
 
     [Range(1, 1024)]
     public ushort PrefetchCount { get; set; } = 16;
+
+    public string? CaCertificatePath { get; set; }
 }
