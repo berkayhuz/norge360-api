@@ -7,6 +7,7 @@ import { execFileSync } from 'node:child_process';
 const namespace = process.env.K8S_NAMESPACE ?? 'norge360-production';
 const namespaceManifest = path.resolve(process.cwd(), 'k8s/production/namespace.yaml');
 const dryRun = process.argv.includes('--dry-run');
+const kubectlTimeoutMs = 120_000;
 
 function requireEnv(name, { optional = false, fallback = undefined } = {}) {
   const value = process.env[name] ?? fallback;
@@ -17,12 +18,24 @@ function requireEnv(name, { optional = false, fallback = undefined } = {}) {
 }
 
 function runKubectl(args, { input } = {}) {
-  const result = execFileSync('kubectl', args, {
-    encoding: 'utf8',
-    input,
-    maxBuffer: 10 * 1024 * 1024,
-  });
-  return result;
+  const startedAt = Date.now();
+  console.log(`> kubectl ${args.join(' ')}`);
+
+  try {
+    return execFileSync('kubectl', args, {
+      encoding: 'utf8',
+      input,
+      maxBuffer: 10 * 1024 * 1024,
+      timeout: kubectlTimeoutMs,
+    });
+  } catch (error) {
+    const elapsedMs = Date.now() - startedAt;
+    console.error(`kubectl failed after ${elapsedMs}ms`);
+    throw error;
+  } finally {
+    const elapsedMs = Date.now() - startedAt;
+    console.log(`< kubectl completed in ${elapsedMs}ms`);
+  }
 }
 
 function applyYaml(yaml) {
@@ -41,12 +54,14 @@ function createSecretYaml(args) {
 
 async function main() {
   await fs.access(namespaceManifest);
+  console.log(`[1/4] Applying namespace manifest: ${namespaceManifest}`);
   if (!dryRun) {
-    runKubectl(['apply', '-f', namespaceManifest]);
+    runKubectl(['apply', '--request-timeout=30s', '-f', namespaceManifest]);
   } else {
     console.log(`# would apply namespace: ${namespaceManifest}`);
   }
 
+  console.log('[2/4] Syncing production secrets');
   const productionSecrets = [
     ['identity-connection', requireEnv('IDENTITY_CONNECTION')],
     ['accounts-connection', requireEnv('ACCOUNTS_CONNECTION')],
@@ -91,6 +106,7 @@ async function main() {
   const productionSecretYaml = createSecretYaml(secretArgs);
   applyYaml(productionSecretYaml);
 
+  console.log('[3/4] Syncing auth signing key secret');
   const authSigningKey = requireEnv('AUTH_JWT_SIGNING_PRIVATE_KEY_PEM');
   const authKeyPath = path.join(os.tmpdir(), `norge360-auth-jwt-${Date.now()}.pem`);
   await fs.writeFile(authKeyPath, authSigningKey, 'utf8');
@@ -119,6 +135,7 @@ async function main() {
   const ghcrUser = requireEnv('GHCR_READ_USER');
   const ghcrToken = requireEnv('GHCR_READ_TOKEN');
 
+  console.log('[4/4] Syncing GHCR pull secret');
   const ghcrArgs = [
     'create',
     'secret',
@@ -136,6 +153,8 @@ async function main() {
 
   const ghcrSecretYaml = createSecretYaml(ghcrArgs);
   applyYaml(ghcrSecretYaml);
+
+  console.log('All Kubernetes secrets synced successfully.');
 }
 
 main().catch((error) => {
