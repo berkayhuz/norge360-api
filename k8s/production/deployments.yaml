@@ -238,27 +238,18 @@ spec:
             httpGet:
               path: /health/live
               port: http
-              httpHeaders:
-                - name: Host
-                  value: norge360.com
             periodSeconds: 10
             failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /health/live
               port: http
-              httpHeaders:
-                - name: Host
-                  value: norge360.com
             periodSeconds: 15
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /health/ready
               port: http
-              httpHeaders:
-                - name: Host
-                  value: norge360.com
             periodSeconds: 10
             timeoutSeconds: 5
           resources:
@@ -845,18 +836,27 @@ spec:
             httpGet:
               path: /health/live
               port: http
+              httpHeaders:
+                - name: Host
+                  value: norge360.com
             periodSeconds: 10
             failureThreshold: 30
           livenessProbe:
             httpGet:
               path: /health/live
               port: http
+              httpHeaders:
+                - name: Host
+                  value: norge360.com
             periodSeconds: 15
             timeoutSeconds: 5
           readinessProbe:
             httpGet:
               path: /health/ready
               port: http
+              httpHeaders:
+                - name: Host
+                  value: norge360.com
             periodSeconds: 10
             timeoutSeconds: 5
           resources:

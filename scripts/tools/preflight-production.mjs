@@ -307,6 +307,27 @@ function validateDockerUsers(deployments) {
 }
 
 function validateManifestReferences(deployments, services) {
+  function probeBlock(document, probeName) {
+    const lines = document.split(/\r?\n/);
+    const start = lines.findIndex(line => line.trim() === `${probeName}:`);
+    if (start === -1) {
+      return '';
+    }
+
+    const indent = lines[start].match(/^\s*/)[0].length;
+    const block = [lines[start]];
+    for (let index = start + 1; index < lines.length; index += 1) {
+      const line = lines[index];
+      if (line.trim() && line.match(/^\s*/)[0].length <= indent) {
+        break;
+      }
+
+      block.push(line);
+    }
+
+    return block.join('\n');
+  }
+
   for (const deployment of deployments) {
     const allowedHosts = deployment.env.find(entry => entry.name === 'AllowedHosts')?.value
       ?.split(';')
@@ -315,8 +336,7 @@ function validateManifestReferences(deployments, services) {
 
     if (allowedHosts && !allowedHosts.includes('*')) {
       for (const probeName of ['startupProbe', 'livenessProbe', 'readinessProbe']) {
-        const probeMatch = deployment.document.match(new RegExp(`${probeName}:\\n([\\s\\S]*?)(?:\\n\\s{10}[a-zA-Z]|\\n\\s{8}[a-zA-Z]|\\n\\s{6}[a-zA-Z]|$)`));
-        const probeText = probeMatch?.[1] ?? '';
+        const probeText = probeBlock(deployment.document, probeName);
         const hostHeader = probeText.match(/name:\s*Host\s*\n\s*value:\s*(.+?)\s*$/m)?.[1]?.replace(/^["']|["']$/g, '').toLowerCase();
 
         if (probeText.includes('httpGet:') && (!hostHeader || !allowedHosts.includes(hostHeader))) {
