@@ -352,6 +352,7 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
           kubectl apply -k k8s/production
+          kubectl -n norge360-production rollout status statefulset/norge360-rabbitmq --timeout=10m
 
       - name: Rollout immutable images
         env:
