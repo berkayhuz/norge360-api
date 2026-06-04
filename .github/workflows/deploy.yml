@@ -249,6 +249,23 @@ jobs:
 
           declare -A seen=()
 
+          retry() {
+            local attempts="$1"
+            local delay_seconds="$2"
+            shift 2
+
+            local attempt=1
+            until "$@"; do
+              if [ "$attempt" -ge "$attempts" ]; then
+                return 1
+              fi
+
+              echo "Command failed, retrying in ${delay_seconds}s (${attempt}/${attempts}): $*"
+              sleep "$delay_seconds"
+              attempt=$((attempt + 1))
+            done
+          }
+
           build_and_push() {
             local image_name="$1"
             local dockerfile="$2"
@@ -259,8 +276,8 @@ jobs:
               -t "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA" \
               .
 
-            docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_TAG"
-            docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
+            retry 5 10 docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_TAG"
+            retry 5 10 docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
           }
 
           if [ "$build_all" = true ]; then
