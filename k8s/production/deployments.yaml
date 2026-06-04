@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: norge360-auth-api
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -129,8 +129,8 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -152,7 +152,7 @@ kind: Deployment
 metadata:
   name: norge360-discovery-api
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -245,8 +245,8 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -264,7 +264,7 @@ kind: Deployment
 metadata:
   name: norge360-search-api
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -344,8 +344,8 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -767,7 +767,7 @@ kind: Deployment
 metadata:
   name: norge360-gateway
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -847,7 +847,7 @@ spec:
               memory: 256Mi
             limits:
               cpu: 1000m
-              memory: 512Mi
+              memory: 256Mi
       topologySpreadConstraints:
         - maxSkew: 1
           topologyKey: kubernetes.io/hostname
@@ -862,7 +862,7 @@ kind: Deployment
 metadata:
   name: norge360-accounts-api
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -979,8 +979,8 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 1000m
               memory: 1Gi
@@ -998,7 +998,7 @@ kind: Deployment
 metadata:
   name: norge360-community-api
 spec:
-  replicas: 2
+  replicas: 1
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -1119,8 +1119,8 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 250m
-              memory: 512Mi
+              cpu: 100m
+              memory: 256Mi
             limits:
               cpu: 1000m
               memory: 1Gi
