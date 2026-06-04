@@ -43,7 +43,7 @@ jobs:
             run --summary-export=/artifacts/summary.json - < loadtests/k6/auth-openid.js
 
       - name: Upload k6 artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-smoke-report
           path: .artifacts/k6
