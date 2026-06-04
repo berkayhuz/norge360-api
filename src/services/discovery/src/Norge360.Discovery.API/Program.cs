@@ -56,8 +56,8 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
     var jwtBearer = configuration.GetSection("Authentication:JwtBearer");
     options.RequireHttpsMetadata = jwtBearer.GetValue("RequireHttpsMetadata", true);
     options.SaveToken = false;
-    options.Authority = jwtBearer["Authority"];
-    options.MetadataAddress = jwtBearer["MetadataAddress"];
+    options.Authority = jwtBearer["Authority"] ?? string.Empty;
+    options.MetadataAddress = jwtBearer["MetadataAddress"] ?? string.Empty;
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = !string.IsNullOrWhiteSpace(jwtBearer["Issuer"]),

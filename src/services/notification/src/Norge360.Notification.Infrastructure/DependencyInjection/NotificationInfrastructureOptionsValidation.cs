@@ -78,7 +78,7 @@ public sealed class NotificationDatabaseOptionsValidation(
         }
     }
 
-    private static bool IsUnsafeHost(string host) =>
+    private static bool IsUnsafeHost(string? host) =>
         string.IsNullOrWhiteSpace(host) ||
         Uri.CheckHostName(host) == UriHostNameType.Unknown ||
         ContainsUnsafeMarker(host);
@@ -292,7 +292,7 @@ public sealed class SmtpEmailProviderOptionsValidation(
         value.Contains('@', StringComparison.Ordinal) &&
         value.Contains('.', StringComparison.Ordinal);
 
-    private static bool IsUnsafeHost(string value) =>
+    private static bool IsUnsafeHost(string? value) =>
         string.IsNullOrWhiteSpace(value) ||
         Uri.CheckHostName(value) == UriHostNameType.Unknown ||
         ContainsUnsafeMarker(value);

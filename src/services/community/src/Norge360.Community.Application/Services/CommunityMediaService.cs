@@ -3,7 +3,6 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
-using Microsoft.Extensions.Options;
 using Norge360.Community.Application.Abstractions;
 using Norge360.Community.Application.Models;
 using Norge360.Media;
@@ -19,8 +18,7 @@ namespace Norge360.Community.Application.Services;
 public sealed class CommunityMediaService(
     IImageValidator imageValidator,
     IMediaStorageProvider storageProvider,
-    IMediaUrlBuilder mediaUrlBuilder,
-    IOptions<Media.Options.MediaOptions> mediaOptions) : ICommunityMediaService
+    IMediaUrlBuilder mediaUrlBuilder) : ICommunityMediaService
 {
     private const int TargetMaxBytes = 1 * 1024 * 1024;
     private const int InputMaxBytes = 15 * 1024 * 1024;
