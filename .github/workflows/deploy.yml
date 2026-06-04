@@ -151,12 +151,15 @@ jobs:
         with:
           node-version: 22
 
+      - name: Enable Corepack
+        run: corepack enable
+
       - name: Install Node dependencies
         run: |
           set -euo pipefail
 
           cd "$GITHUB_WORKSPACE"
-          npm ci --ignore-scripts
+          pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Build and push images
         env:
@@ -189,7 +192,7 @@ jobs:
             [ -n "$file" ] || continue
 
             case "$file" in
-              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|package-lock.json|src/packages/dotnet/*)
+              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|pnpm-lock.yaml|src/packages/dotnet/*)
                 mark_all
                 ;;
               src/services/auth/*)
@@ -332,7 +335,7 @@ jobs:
           while IFS= read -r file; do
             [ -n "$file" ] || continue
             case "$file" in
-              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|package-lock.json|src/packages/dotnet/*)
+              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|pnpm-lock.yaml|src/packages/dotnet/*)
                 mark_all
                 ;;
               src/services/auth/*)
