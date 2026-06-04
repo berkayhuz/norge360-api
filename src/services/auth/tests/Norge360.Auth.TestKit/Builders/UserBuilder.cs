@@ -11,8 +11,6 @@ public sealed class UserBuilder
 {
     private readonly User _user = new()
     {
-        UserName = "jane.doe",
-        NormalizedUserName = "JANE.DOE",
         Email = "jane.doe@example.com",
         NormalizedEmail = "JANE.DOE@EXAMPLE.COM",
         PasswordHash = "HASH",
@@ -33,8 +31,7 @@ public sealed class UserBuilder
 
     public UserBuilder WithIdentity(string userName, string email)
     {
-        _user.UserName = userName;
-        _user.NormalizedUserName = userName.ToUpperInvariant();
+        _ = userName;
         _user.Email = email;
         _user.NormalizedEmail = email.ToUpperInvariant();
         return this;

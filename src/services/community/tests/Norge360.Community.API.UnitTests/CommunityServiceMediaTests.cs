@@ -6,7 +6,6 @@ using Norge360.Community.Application.Services;
 using Norge360.Media.Abstractions;
 using Norge360.Media;
 using Norge360.Media.Models;
-using Norge360.Media.Options;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats.Png;
 using SixLabors.ImageSharp.PixelFormats;
@@ -144,7 +143,7 @@ public sealed class CommunityServiceMediaTests
             UrlBuilder.Setup(x => x.BuildPublicUrl(It.IsAny<string>()))
                 .Returns((string key) => $"https://cdn.test/{key}");
 
-            Service = new CommunityMediaService(Validator.Object, Storage.Object, UrlBuilder.Object, Options.Create(new MediaOptions()));
+            Service = new CommunityMediaService(Validator.Object, Storage.Object, UrlBuilder.Object);
         }
 
         public Mock<IImageValidator> Validator { get; } = new();

@@ -10,7 +10,126 @@ permissions:
   packages: write
 
 jobs:
+  quality:
+    name: Quality gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore solution
+        run: dotnet restore Norge360.slnx
+
+      - name: Verify formatting
+        run: dotnet format Norge360.slnx --verify-no-changes --no-restore
+
+      - name: Build with analyzers
+        run: dotnet build Norge360.slnx -c Release --no-restore
+
+  secret-scan:
+    name: Secret scan gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Scan repository with Gitleaks
+        run: node scripts/gitleaks.mjs dir
+
+  preflight:
+    name: Preflight unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - src/services/auth/tests/Norge360.Auth.Application.UnitTests/Norge360.Auth.Application.UnitTests.csproj
+          - src/services/auth/tests/Norge360.Auth.Contracts.Tests/Norge360.Auth.Contracts.Tests.csproj
+          - src/services/auth/tests/Norge360.Auth.Domain.UnitTests/Norge360.Auth.Domain.UnitTests.csproj
+          - src/services/auth/tests/Norge360.Auth.ArchitectureTests/Norge360.Auth.ArchitectureTests.csproj
+          - src/services/accounts/tests/Norge360.Accounts.Application.UnitTests/Norge360.Accounts.Application.UnitTests.csproj
+          - src/services/community/tests/Norge360.Community.API.UnitTests/Norge360.Community.API.UnitTests.csproj
+          - src/services/discovery/tests/Norge360.Discovery.Application.UnitTests/Norge360.Discovery.Application.UnitTests.csproj
+          - src/services/notification/tests/Norge360.Notification.UnitTests/Norge360.Notification.UnitTests.csproj
+          - src/services/search/tests/Norge360.Search.Application.UnitTests/Norge360.Search.Application.UnitTests.csproj
+          - src/services/search/tests/Norge360.Search.Worker.UnitTests/Norge360.Search.Worker.UnitTests.csproj
+          - src/platform/gateway/tests/Norge360.ApiGateway.UnitTests/Norge360.ApiGateway.UnitTests.csproj
+          - src/packages/dotnet/tests/Norge360.Configuration/Norge360.Configuration.UnitTests/Norge360.Configuration.UnitTests.csproj
+          - src/services/search/tests/Norge360.Search.ArchitectureTests/Norge360.Search.ArchitectureTests.csproj
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+
+      - name: Test
+        run: dotnet test ${{ matrix.project }} --configuration Release --no-restore
+
+  package-architecture-tests:
+    name: Package architecture tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore package architecture tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Architecture.Tests.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package architecture tests found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Restoring $project"
+            dotnet restore "$project"
+          done
+
+      - name: Run package architecture tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Architecture.Tests.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package architecture tests found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Testing $project"
+            dotnet test "$project" --configuration Release --no-restore
+          done
+
   deploy:
+    needs:
+      - quality
+      - secret-scan
+      - preflight
+      - package-architecture-tests
     runs-on: self-hosted
 
     steps:
@@ -37,7 +156,7 @@ jobs:
           set -euo pipefail
 
           cd "$GITHUB_WORKSPACE"
-          npm install --ignore-scripts --no-package-lock
+          npm ci --ignore-scripts
 
       - name: Build and push images
         env:
@@ -282,3 +401,30 @@ jobs:
               set_image_and_wait "$deployment_name" "$container_name" "$image_name"
             fi
           done
+
+      - name: Smoke test gateway
+        run: |
+          set -euo pipefail
+
+          namespace=norge360-production
+          port_forward_log="$(mktemp)"
+
+          kubectl -n "$namespace" port-forward svc/norge360-gateway 18080:8080 >"$port_forward_log" 2>&1 &
+          pf_pid=$!
+
+          cleanup() {
+            kill "$pf_pid" >/dev/null 2>&1 || true
+            wait "$pf_pid" >/dev/null 2>&1 || true
+            rm -f "$port_forward_log"
+          }
+          trap cleanup EXIT
+
+          for _ in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:18080/health/ready >/dev/null; then
+              break
+            fi
+            sleep 1
+          done
+
+          curl -fsS http://127.0.0.1:18080/health/ready >/dev/null
+          curl -fsS http://127.0.0.1:18080/.well-known/openid-configuration >/dev/null

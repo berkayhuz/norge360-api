@@ -1,0 +1,102 @@
+name: benchmarks
+
+on:
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 3 * * 0"
+
+jobs:
+  auth-benchmarks:
+    name: Auth benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore benchmark project
+        run: dotnet restore src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj
+
+      - name: Run auth benchmarks
+        run: dotnet run -c Release --project src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- --filter "*" -j short
+
+      - name: Check benchmark thresholds
+        shell: pwsh
+        run: ./scripts/tools/assert-auth-benchmark-thresholds.ps1 -InputDir ./BenchmarkDotNet.Artifacts/results
+
+      - name: Merge benchmark reports
+        shell: pwsh
+        run: ./scripts/merge-benchmark-reports.ps1 -InputDir ./BenchmarkDotNet.Artifacts/results -OutputFile ./BenchmarkDotNet.Artifacts/results/reports.html
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: auth-benchmark-reports
+          path: BenchmarkDotNet.Artifacts/results
+          if-no-files-found: error
+
+  package-benchmarks:
+    name: Package benchmarks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore package benchmarks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Benchmarks.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package benchmarks found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Restoring $project"
+            dotnet restore "$project"
+          done
+
+      - name: Run package benchmarks
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Benchmarks.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package benchmarks found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Running $project"
+            dotnet run -c Release --project "$project" -- --filter "*" -j short
+          done
+
+      - name: Check package benchmark thresholds
+        shell: pwsh
+        run: ./scripts/tools/assert-package-benchmark-thresholds.ps1 -InputDir ./BenchmarkDotNet.Artifacts/results
+
+      - name: Merge benchmark reports
+        shell: pwsh
+        run: ./scripts/merge-benchmark-reports.ps1 -InputDir ./BenchmarkDotNet.Artifacts/results -OutputFile ./BenchmarkDotNet.Artifacts/results/package-reports.html
+
+      - name: Upload package benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: package-benchmark-reports
+          path: BenchmarkDotNet.Artifacts/results
+          if-no-files-found: error

@@ -33,6 +33,12 @@ public sealed class CookieOriginProtectionMiddleware(
         new("/swagger")
     ];
 
+    private readonly Uri[] _allowedOrigins = corsOptions.Value.AllowedOrigins
+        .Select(origin => Uri.TryCreate(origin, UriKind.Absolute, out var parsedOrigin) ? parsedOrigin : null)
+        .Where(origin => origin is not null)
+        .Select(origin => origin!)
+        .ToArray();
+
     public async Task InvokeAsync(HttpContext context)
     {
         if (SafeMethods.Contains(context.Request.Method) ||
@@ -61,7 +67,7 @@ public sealed class CookieOriginProtectionMiddleware(
         }
 
         if (!TryResolveRequestOrigin(context.Request, out var requestOrigin) ||
-            !IsAllowedOrigin(requestOrigin, corsOptions.Value.AllowedOrigins))
+            !IsAllowedOrigin(requestOrigin, _allowedOrigins))
         {
             logger.LogWarning(
                 "Cookie-origin protection rejected request for {Path}. Origin={Origin}",
@@ -105,7 +111,7 @@ public sealed class CookieOriginProtectionMiddleware(
         return false;
     }
 
-    private static bool IsAllowedOrigin(Uri? requestOrigin, IEnumerable<string> allowedOrigins)
+    private static bool IsAllowedOrigin(Uri? requestOrigin, IEnumerable<Uri> allowedOrigins)
     {
         if (requestOrigin is null)
         {
@@ -114,12 +120,7 @@ public sealed class CookieOriginProtectionMiddleware(
 
         foreach (var allowedOrigin in allowedOrigins)
         {
-            if (!Uri.TryCreate(allowedOrigin, UriKind.Absolute, out var configuredOrigin))
-            {
-                continue;
-            }
-
-            if (Uri.Compare(requestOrigin, configuredOrigin, UriComponents.SchemeAndServer, UriFormat.Unescaped, StringComparison.OrdinalIgnoreCase) == 0)
+            if (Uri.Compare(requestOrigin, allowedOrigin, UriComponents.SchemeAndServer, UriFormat.Unescaped, StringComparison.OrdinalIgnoreCase) == 0)
             {
                 return true;
             }

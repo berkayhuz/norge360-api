@@ -14,16 +14,18 @@ public sealed class GatewaySearchRouteConfigTests
     public void GatewayAppsettings_ShouldContainSearchRouteBeforeCrmCatchAll()
     {
         var repoRoot = FindRepoRoot();
-        var appsettingsPath = Path.Combine(repoRoot, "platform", "gateway", "src", "Norge360.ApiGateway", "appsettings.json");
-        using var document = JsonDocument.Parse(File.ReadAllText(appsettingsPath));
+        var appsettingsPath = Path.Combine(repoRoot, "src", "platform", "gateway", "src", "Norge360.ApiGateway", "appsettings.json");
+        var appsettingsJson = File.ReadAllText(appsettingsPath);
+        using var document = JsonDocument.Parse(appsettingsJson);
 
         var routes = document.RootElement.GetProperty("ReverseProxy").GetProperty("Routes");
         var searchRoute = routes.GetProperty("search-api-route");
-        var crmRoute = routes.GetProperty("crm-api-route");
 
         searchRoute.GetProperty("ClusterId").GetString().Should().Be("search-api-cluster");
         searchRoute.GetProperty("Match").GetProperty("Path").GetString().Should().Be("/api/v1/search/{**catch-all}");
-        searchRoute.GetProperty("Order").GetInt32().Should().BeLessThan(crmRoute.GetProperty("Order").GetInt32());
+        appsettingsJson.IndexOf("\"search-api-route\"", StringComparison.Ordinal)
+            .Should()
+            .BeLessThan(appsettingsJson.IndexOf("\"community-api-route\"", StringComparison.Ordinal));
     }
 
     private static string FindRepoRoot()

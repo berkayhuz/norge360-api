@@ -13,7 +13,7 @@ using Norge360.Localization;
 
 namespace Norge360.AspNetCore.Localization.DependencyInjection;
 
-public static class LocalizationExtensions
+public static class Norge360LocalizationExtensions
 {
     public static IServiceCollection AddNorge360Localization(this IServiceCollection services)
     {
@@ -32,9 +32,9 @@ public static class LocalizationExtensions
             options.RequestCultureProviders =
             [
                 new QueryStringRequestCultureProvider(),
-                new HeaderRequestCultureProvider(),
-                new Providers.CookieRequestCultureProvider(),
-                new AcceptLanguageRequestCultureProvider()
+                new Norge360HeaderRequestCultureProvider(),
+                new Providers.Norge360CookieRequestCultureProvider(),
+                new Norge360AcceptLanguageRequestCultureProvider()
             ];
         });
 

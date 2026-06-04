@@ -40,12 +40,15 @@
   </Folder>
   <Folder Name="/src/services/" />
   <Folder Name="/src/services/auth/" />
+  <Folder Name="/src/services/auth/benchmarks/" />
   <Folder Name="/src/services/auth/src/">
-    <Project Path="src/services/auth/src/Norge360.Auth.API/Norge360.Auth.API.csproj" />
     <Project Path="src/services/auth/src/Norge360.Auth.Application/Norge360.Auth.Application.csproj" />
     <Project Path="src/services/auth/src/Norge360.Auth.Contracts/Norge360.Auth.Contracts.csproj" />
     <Project Path="src/services/auth/src/Norge360.Auth.Domain/Norge360.Auth.Domain.csproj" />
     <Project Path="src/services/auth/src/Norge360.Auth.Infrastructure/Norge360.Auth.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/auth/benchmarks/Norge360.Auth.Benchmarks/">
+    <Project Path="src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj" />
   </Folder>
   <Folder Name="/src/services/notification/" />
   <Folder Name="/src/services/notification/src/">

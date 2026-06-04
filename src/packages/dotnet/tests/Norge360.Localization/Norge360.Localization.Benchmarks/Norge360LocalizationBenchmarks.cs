@@ -11,7 +11,7 @@ namespace Norge360.Localization.Benchmarks;
 public class Norge360LocalizationBenchmarks
 {
     [Benchmark(Baseline = true)]
-    public string NormalizeOrDefault() => Norge360Cultures.NormalizeOrDefault("tr");
+    public string NormalizeOrDefault() => Norge360Cultures.NormalizeOrDefault("nb");
 
     [Benchmark]
     public bool IsSupportedCulture() => Norge360Cultures.IsSupportedCulture("en-US");

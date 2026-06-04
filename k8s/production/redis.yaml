@@ -56,6 +56,10 @@ spec:
             - redis-server
             - --appendonly
             - "yes"
+            - --maxmemory
+            - 256mb
+            - --maxmemory-policy
+            - allkeys-lru
             - --save
             - "60"
             - "1000"
@@ -87,11 +91,11 @@ spec:
             timeoutSeconds: 5
           resources:
             requests:
-              cpu: 100m
-              memory: 256Mi
+              cpu: 50m
+              memory: 128Mi
             limits:
-              cpu: 500m
-              memory: 512Mi
+              cpu: 250m
+              memory: 256Mi
   volumeClaimTemplates:
     - metadata:
         name: data

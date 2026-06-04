@@ -7,22 +7,15 @@
 
   <ItemGroup>
     <Compile Include="Program.cs" />
-    <Compile Include="Controllers\AuthController.cs" />
-    <Compile Include="Controllers\WellKnownController.cs" />
-    <Compile Include="Accessors\AuthRequestContextAccessor.cs" />
-    <Compile Include="Cookies\AuthCookieService.cs" />
-    <Compile Include="Security\ApiCorsOptions.cs" />
-    <Compile Include="Security\ApiForwardedHeadersOptions.cs" />
-    <Compile Include="Security\ApiSecurityHeadersOptions.cs" />
-    <Compile Include="Security\AuthApiOptionsValidation.cs" />
-    <Compile Include="Security\AuthRateLimitingOptions.cs" />
-    <Compile Include="Security\Turnstile\ITurnstileVerifier.cs" />
-    <Compile Include="Security\Turnstile\RequireTurnstileAttribute.cs" />
-    <Compile Include="Security\Turnstile\TurnstileOptions.cs" />
-    <Compile Include="Security\Turnstile\TurnstileOptionsValidation.cs" />
-    <Compile Include="Security\Turnstile\TurnstileValidationFilter.cs" />
-    <Compile Include="Security\Turnstile\TurnstileVerificationResult.cs" />
-    <Compile Include="Security\Turnstile\CloudflareTurnstileVerifier.cs" />
+    <Compile Include="Controllers\*.cs" />
+    <Compile Include="Accessors\*.cs" />
+    <Compile Include="Cookies\*.cs" />
+    <Compile Include="Configurations\*.cs" />
+    <Compile Include="Middlewares\*.cs" />
+    <Compile Include="Permissions\*.cs" />
+    <Compile Include="Security\*.cs" />
+    <Compile Include="Security\Turnstile\*.cs" />
+    <Compile Include="Writers\*.cs" />
     <Compile Include="Health\*.cs" />
   </ItemGroup>
 

@@ -1,0 +1,31 @@
+name: quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  format-and-analyze:
+    name: Format and analyze
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore solution
+        run: dotnet restore Norge360.slnx
+
+      - name: Verify formatting
+        run: dotnet format Norge360.slnx --verify-no-changes --no-restore
+
+      - name: Build with analyzers
+        run: dotnet build Norge360.slnx -c Release --no-restore

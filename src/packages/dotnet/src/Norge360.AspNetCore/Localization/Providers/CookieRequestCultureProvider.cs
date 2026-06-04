@@ -9,7 +9,7 @@ using Norge360.Localization;
 
 namespace Norge360.AspNetCore.Localization.Providers;
 
-public sealed class CookieRequestCultureProvider : RequestCultureProvider
+public sealed class Norge360CookieRequestCultureProvider : RequestCultureProvider
 {
     public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext)
     {

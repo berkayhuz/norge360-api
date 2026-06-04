@@ -11,9 +11,9 @@ namespace Norge360.ApiGateway.UnitTests.Configuration;
 public sealed class GatewayRouteConfigurationTests
 {
     [Theory]
-    [InlineData("platform/gateway/src/Norge360.ApiGateway/appsettings.json")]
-    [InlineData("platform/gateway/src/Norge360.ApiGateway/appsettings.Development.json")]
-    public void Config_Should_Expose_Search_Api_Route_Before_Crm_CatchAll(string configurationPath)
+    [InlineData("platform/gateway/src/Norge360.ApiGateway/appsettings.json", true)]
+    [InlineData("platform/gateway/src/Norge360.ApiGateway/appsettings.Development.json", false)]
+    public void Config_Should_Expose_Search_Route_And_Optional_Community_Route(string configurationPath, bool expectCommunityRoute)
     {
         using var document = JsonDocument.Parse(File.ReadAllText(FindRepoFile(configurationPath)));
         var reverseProxy = document.RootElement.GetProperty("ReverseProxy");
@@ -24,8 +24,16 @@ public sealed class GatewayRouteConfigurationTests
         searchRoute.GetProperty("ClusterId").GetString().Should().Be("search-api-cluster");
         searchRoute.GetProperty("Match").GetProperty("Path").GetString().Should().Be("/api/v1/search/{**catch-all}");
 
-        routes.TryGetProperty("crm-api-route", out var crmRoute).Should().BeTrue();
-        searchRoute.GetProperty("Order").GetInt32().Should().BeLessThan(crmRoute.GetProperty("Order").GetInt32());
+        if (expectCommunityRoute)
+        {
+            routes.TryGetProperty("community-api-route", out var communityRoute).Should().BeTrue();
+            communityRoute.GetProperty("ClusterId").GetString().Should().Be("community-api-cluster");
+            communityRoute.GetProperty("Match").GetProperty("Path").GetString().Should().Be("/api/community/{**catch-all}");
+        }
+        else
+        {
+            routes.TryGetProperty("community-api-route", out _).Should().BeFalse();
+        }
 
         clusters.TryGetProperty("search-api-cluster", out var searchCluster).Should().BeTrue();
         searchCluster
@@ -34,7 +42,7 @@ public sealed class GatewayRouteConfigurationTests
             .GetProperty("Address")
             .GetString()
             .Should()
-            .Be("http://localhost:5310/");
+            .Be("http://localhost:64515/");
     }
 
     [Theory]

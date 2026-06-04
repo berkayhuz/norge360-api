@@ -1,0 +1,107 @@
+name: tests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  unit-tests:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - src/services/auth/tests/Norge360.Auth.Application.UnitTests/Norge360.Auth.Application.UnitTests.csproj
+          - src/services/auth/tests/Norge360.Auth.Contracts.Tests/Norge360.Auth.Contracts.Tests.csproj
+          - src/services/auth/tests/Norge360.Auth.Domain.UnitTests/Norge360.Auth.Domain.UnitTests.csproj
+          - src/services/accounts/tests/Norge360.Accounts.Application.UnitTests/Norge360.Accounts.Application.UnitTests.csproj
+          - src/services/community/tests/Norge360.Community.API.UnitTests/Norge360.Community.API.UnitTests.csproj
+          - src/services/discovery/tests/Norge360.Discovery.Application.UnitTests/Norge360.Discovery.Application.UnitTests.csproj
+          - src/services/notification/tests/Norge360.Notification.UnitTests/Norge360.Notification.UnitTests.csproj
+          - src/services/search/tests/Norge360.Search.Application.UnitTests/Norge360.Search.Application.UnitTests.csproj
+          - src/services/search/tests/Norge360.Search.Worker.UnitTests/Norge360.Search.Worker.UnitTests.csproj
+          - src/platform/gateway/tests/Norge360.ApiGateway.UnitTests/Norge360.ApiGateway.UnitTests.csproj
+          - src/packages/dotnet/tests/Norge360.Configuration/Norge360.Configuration.UnitTests/Norge360.Configuration.UnitTests.csproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+
+      - name: Test
+        run: dotnet test ${{ matrix.project }} --configuration Release --no-restore
+
+  auth-architecture-tests:
+    name: Auth architecture tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore src/services/auth/tests/Norge360.Auth.ArchitectureTests/Norge360.Auth.ArchitectureTests.csproj
+
+      - name: Test
+        run: dotnet test src/services/auth/tests/Norge360.Auth.ArchitectureTests/Norge360.Auth.ArchitectureTests.csproj --configuration Release --no-restore
+
+  search-architecture-tests:
+    name: Search architecture tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore src/services/search/tests/Norge360.Search.ArchitectureTests/Norge360.Search.ArchitectureTests.csproj
+
+      - name: Test
+        run: dotnet test src/services/search/tests/Norge360.Search.ArchitectureTests/Norge360.Search.ArchitectureTests.csproj --configuration Release --no-restore
+
+  functional-and-integration-tests:
+    name: Functional and integration tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    strategy:
+      fail-fast: false
+      matrix:
+        project:
+          - src/services/auth/tests/Norge360.Auth.Api.FunctionalTests/Norge360.Auth.Api.FunctionalTests.csproj
+          - src/services/auth/tests/Norge360.Auth.Infrastructure.IntegrationTests/Norge360.Auth.Infrastructure.IntegrationTests.csproj
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore
+        run: dotnet restore ${{ matrix.project }}
+
+      - name: Test
+        run: dotnet test ${{ matrix.project }} --configuration Release --no-restore

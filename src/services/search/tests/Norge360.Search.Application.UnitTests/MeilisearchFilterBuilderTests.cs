@@ -94,11 +94,11 @@ public sealed class MeilisearchFilterBuilderTests
     [Fact]
     public void LocaleFilter_ShouldIncludeRequestedLocaleAndNeutralDocuments()
     {
-        var request = new SearchRequest(Locale: "tr");
+        var request = new SearchRequest(Locale: "nb");
 
         var filter = BuildFilter(request, SearchAccessContext.Anonymous);
 
-        filter.Should().Contain("(locale = \"tr-TR\" OR locale = \"neutral\")");
+        filter.Should().Contain("(locale = \"nb-NO\" OR locale = \"neutral\")");
     }
 
     [Fact]

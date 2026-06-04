@@ -8,6 +8,9 @@ namespace Norge360.Search.Contracts.Documents;
 public static class SearchDocumentLocales
 {
     public const string EnglishUnitedStates = "en-US";
-    public const string TurkishTurkey = "tr-TR";
+    public const string NorwegianBokmalNorway = "nb-NO";
+    public const string DanishDenmark = "da-DK";
+    public const string GermanGermany = "de-DE";
+    public const string SwedishSweden = "sv-SE";
     public const string Neutral = "neutral";
 }

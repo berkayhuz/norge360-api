@@ -1,0 +1,50 @@
+name: k6-loadtest
+
+on:
+  workflow_dispatch:
+    inputs:
+      base_url:
+        description: "Target base URL"
+        required: true
+        default: "https://auth.norge360.com"
+      target_path:
+        description: "Target path"
+        required: true
+        default: "/.well-known/openid-configuration"
+      vus:
+        description: "Virtual users"
+        required: true
+        default: "5"
+      duration:
+        description: "Test duration"
+        required: true
+        default: "30s"
+
+jobs:
+  loadtest:
+    name: K6 smoke load test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run k6 smoke test
+        shell: bash
+        run: |
+          mkdir -p .artifacts/k6
+          docker run --rm \
+            -e BASE_URL='${{ inputs.base_url }}' \
+            -e TARGET_PATH='${{ inputs.target_path }}' \
+            -e K6_VUS='${{ inputs.vus }}' \
+            -e K6_DURATION='${{ inputs.duration }}' \
+            -v "${{ github.workspace }}/.artifacts/k6:/artifacts" \
+            grafana/k6:0.53.0 \
+            run --summary-export=/artifacts/summary.json - < loadtests/k6/auth-openid.js
+
+      - name: Upload k6 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: k6-smoke-report
+          path: .artifacts/k6
+          if-no-files-found: error

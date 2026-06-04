@@ -12,19 +12,19 @@ namespace Norge360.AspNetCore.Benchmarks;
 public class Norge360CulturesBenchmarks
 {
     [Benchmark]
-    public string? Normalize_TurkishShort() => Norge360Cultures.Normalize("tr");
+    public string? Normalize_NorwegianShort() => Norge360Cultures.Normalize("nb");
 
     [Benchmark]
     public string? Normalize_EnglishShort() => Norge360Cultures.Normalize("en");
 
     [Benchmark]
-    public string? Normalize_TurkishFull() => Norge360Cultures.Normalize("tr-TR");
+    public string? Normalize_NorwegianFull() => Norge360Cultures.Normalize("nb-NO");
 
     [Benchmark]
     public string? Normalize_EnglishFull() => Norge360Cultures.Normalize("en-US");
 
     [Benchmark]
-    public string? Normalize_TurkishUnderscore() => Norge360Cultures.Normalize("tr_TR");
+    public string? Normalize_NorwegianUnderscore() => Norge360Cultures.Normalize("nb_NO");
 
     [Benchmark]
     public string? Normalize_UnsupportedCulture() => Norge360Cultures.Normalize("zz-ZZ");

@@ -16,11 +16,11 @@ public class PerformanceGuardrailTests
     {
         static void ExerciseHotPath()
         {
-            _ = Norge360Cultures.Normalize("tr");
             _ = Norge360Cultures.Normalize("en");
-            _ = Norge360Cultures.Normalize("tr-TR");
+            _ = Norge360Cultures.Normalize("nb");
+            _ = Norge360Cultures.Normalize("nb-NO");
             _ = Norge360Cultures.Normalize("en-US");
-            _ = Norge360Cultures.Normalize("tr_TR");
+            _ = Norge360Cultures.Normalize("nb_NO");
             _ = Norge360Cultures.Normalize("en_US");
         }
 

@@ -159,7 +159,7 @@ public sealed class SearchApiEndpointTests
             ["q"] = "pricing",
             ["source"] = new StringValues(["Public,Tools", "Crm"]),
             ["type"] = "page",
-            ["locale"] = "tr",
+            ["locale"] = "nb",
             ["tags"] = new StringValues(["marketing,pricing", "public"]),
             ["page"] = "2",
             ["pageSize"] = "30",
@@ -175,7 +175,7 @@ public sealed class SearchApiEndpointTests
         queryService.LastRequest.Page.Should().Be(2);
         queryService.LastRequest.PageSize.Should().Be(30);
         queryService.LastRequest.Type.Should().Be("page");
-        queryService.LastRequest.Locale.Should().Be("tr-TR");
+        queryService.LastRequest.Locale.Should().Be("nb-NO");
         queryService.LastRequest.Sort.Should().Be("updatedAtUtc:desc");
         queryService.LastRequest.Sources.Should().BeEquivalentTo(new[]
         {

@@ -14,20 +14,30 @@ public static class SearchLocale
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             [SearchDocumentLocales.EnglishUnitedStates] = SearchDocumentLocales.EnglishUnitedStates,
-            [SearchDocumentLocales.TurkishTurkey] = SearchDocumentLocales.TurkishTurkey
+            [SearchDocumentLocales.NorwegianBokmalNorway] = SearchDocumentLocales.NorwegianBokmalNorway,
+            [SearchDocumentLocales.DanishDenmark] = SearchDocumentLocales.DanishDenmark,
+            [SearchDocumentLocales.GermanGermany] = SearchDocumentLocales.GermanGermany,
+            [SearchDocumentLocales.SwedishSweden] = SearchDocumentLocales.SwedishSweden
         };
 
     private static readonly IReadOnlyDictionary<string, string> SupportedLocaleByLanguage =
         new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
         {
             ["en"] = SearchDocumentLocales.EnglishUnitedStates,
-            ["tr"] = SearchDocumentLocales.TurkishTurkey
+            ["nb"] = SearchDocumentLocales.NorwegianBokmalNorway,
+            ["no"] = SearchDocumentLocales.NorwegianBokmalNorway,
+            ["da"] = SearchDocumentLocales.DanishDenmark,
+            ["de"] = SearchDocumentLocales.GermanGermany,
+            ["sv"] = SearchDocumentLocales.SwedishSweden
         };
 
     public static IReadOnlyCollection<string> SupportedStaticLocales { get; } =
     [
         SearchDocumentLocales.EnglishUnitedStates,
-        SearchDocumentLocales.TurkishTurkey
+        SearchDocumentLocales.NorwegianBokmalNorway,
+        SearchDocumentLocales.DanishDenmark,
+        SearchDocumentLocales.GermanGermany,
+        SearchDocumentLocales.SwedishSweden
     ];
 
     public static string DefaultLocale => SearchDocumentLocales.EnglishUnitedStates;

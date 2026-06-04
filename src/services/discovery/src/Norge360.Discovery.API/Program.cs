@@ -56,8 +56,8 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
     var jwtBearer = configuration.GetSection("Authentication:JwtBearer");
     options.RequireHttpsMetadata = jwtBearer.GetValue("RequireHttpsMetadata", true);
     options.SaveToken = false;
-    options.Authority = jwtBearer["Authority"] ?? string.Empty;
-    options.MetadataAddress = jwtBearer["MetadataAddress"] ?? string.Empty;
+    options.Authority = RequireJwtBearerSetting(jwtBearer, "Authority");
+    options.MetadataAddress = RequireJwtBearerSetting(jwtBearer, "MetadataAddress");
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = !string.IsNullOrWhiteSpace(jwtBearer["Issuer"]),
@@ -84,6 +84,17 @@ builder.Services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationSc
 });
 builder.Services.AddAuthorization();
 builder.Services.AddHealthChecks().AddCheck<DiscoveryDbHealthCheck>("discovery-db");
+
+static string RequireJwtBearerSetting(IConfigurationSection jwtBearer, string key)
+{
+    var value = jwtBearer[key];
+    if (string.IsNullOrWhiteSpace(value))
+    {
+        throw new InvalidOperationException($"Authentication:JwtBearer:{key} is required.");
+    }
+
+    return value;
+}
 
 var app = builder.Build();
 

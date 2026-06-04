@@ -13,12 +13,16 @@ namespace Norge360.Localization;
 public static class Norge360Cultures
 {
     public const string DefaultCulture = "en-US";
-    public const string TurkishCulture = "tr-TR";
     public const string EnglishCulture = "en-US";
+    public const string NorwegianBokmalCulture = "nb-NO";
+    public const string DanishCulture = "da-DK";
+    public const string GermanCulture = "de-DE";
+    public const string SwedishCulture = "sv-SE";
     public const string CookieName = "nm_culture";
     public const string HeaderName = "X-Norge360-Culture";
 
-    public static readonly IReadOnlyList<string> SupportedCultureNames = [EnglishCulture, TurkishCulture];
+    public static readonly IReadOnlyList<string> SupportedCultureNames =
+        [EnglishCulture, NorwegianBokmalCulture, DanishCulture, GermanCulture, SwedishCulture];
     private static readonly FrozenDictionary<string, string> CultureNameLookup = BuildCultureNameLookup();
 
     public static bool IsSupportedCulture(string? culture)
@@ -40,26 +44,45 @@ public static class Norge360Cultures
             return null;
         }
 
-        if (valueSpan.Equals("tr", StringComparison.OrdinalIgnoreCase))
-        {
-            return TurkishCulture;
-        }
-
         if (valueSpan.Equals("en", StringComparison.OrdinalIgnoreCase))
         {
             return EnglishCulture;
-        }
-
-        if (valueSpan.Equals(TurkishCulture, StringComparison.OrdinalIgnoreCase) ||
-            valueSpan.Equals("tr_TR", StringComparison.OrdinalIgnoreCase))
-        {
-            return TurkishCulture;
         }
 
         if (valueSpan.Equals(EnglishCulture, StringComparison.OrdinalIgnoreCase) ||
             valueSpan.Equals("en_US", StringComparison.OrdinalIgnoreCase))
         {
             return EnglishCulture;
+        }
+
+        if (valueSpan.Equals("nb", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("no", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals(NorwegianBokmalCulture, StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("nb_NO", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("no_NO", StringComparison.OrdinalIgnoreCase))
+        {
+            return NorwegianBokmalCulture;
+        }
+
+        if (valueSpan.Equals("da", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals(DanishCulture, StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("da_DK", StringComparison.OrdinalIgnoreCase))
+        {
+            return DanishCulture;
+        }
+
+        if (valueSpan.Equals("de", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals(GermanCulture, StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("de_DE", StringComparison.OrdinalIgnoreCase))
+        {
+            return GermanCulture;
+        }
+
+        if (valueSpan.Equals("sv", StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals(SwedishCulture, StringComparison.OrdinalIgnoreCase) ||
+            valueSpan.Equals("sv_SE", StringComparison.OrdinalIgnoreCase))
+        {
+            return SwedishCulture;
         }
 
         var value = valueSpan.IndexOf('_') >= 0

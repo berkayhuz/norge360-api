@@ -61,7 +61,7 @@ resource "null_resource" "backend_k3s_bootstrap" {
   provisioner "remote-exec" {
     inline = [
       "set -eu",
-      "if ! command -v k3s >/dev/null 2>&1; then curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --disable traefik --disable servicelb --write-kubeconfig-mode 644' sh -; fi",
+      "if ! command -v k3s >/dev/null 2>&1; then curl -sfL https://get.k3s.io | INSTALL_K3S_EXEC='server --write-kubeconfig-mode 644' sh -; fi",
       "systemctl enable --now k3s",
       "k3s kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/components.yaml",
       "k3s kubectl -n kube-system rollout status deploy/metrics-server --timeout=5m",

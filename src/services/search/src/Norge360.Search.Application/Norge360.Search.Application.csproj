@@ -3,6 +3,14 @@
     <PackageReference Include="MediatR" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="StaticDocuments\messages\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>messages\%(Filename)%(Extension)</TargetPath>
+    </Content>
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Norge360.Search.Contracts\Norge360.Search.Contracts.csproj" />
     <ProjectReference Include="..\Norge360.Search.Domain\Norge360.Search.Domain.csproj" />

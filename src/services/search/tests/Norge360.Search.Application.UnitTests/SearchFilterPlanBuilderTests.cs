@@ -108,19 +108,23 @@ public sealed class SearchFilterPlanBuilderTests
     {
         var request = new SearchRequest(
             Type: "  page  ",
-            Locale: "  tr  ",
+            Locale: "  nb  ",
             Tags: ["  docs  ", "Docs", " howto "]);
 
         var plan = BuildPlan(request, SearchAccessContext.Anonymous);
 
         plan.Type.Should().Be("page");
-        plan.Locale.Should().Be("tr-TR");
+        plan.Locale.Should().Be("nb-NO");
         plan.Tags.Should().BeEquivalentTo(["docs", "howto"]);
     }
 
     [Theory]
-    [InlineData("tr", "tr-TR")]
-    [InlineData("tr-TR", "tr-TR")]
+    [InlineData("nb", "nb-NO")]
+    [InlineData("no", "nb-NO")]
+    [InlineData("nb-NO", "nb-NO")]
+    [InlineData("da", "da-DK")]
+    [InlineData("de", "de-DE")]
+    [InlineData("sv", "sv-SE")]
     [InlineData("en", "en-US")]
     [InlineData("en-US", "en-US")]
     [InlineData("zh-CN", "en-US")]

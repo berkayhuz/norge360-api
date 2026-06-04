@@ -168,12 +168,12 @@ public sealed class AuthLayeringTests
                 "Norge360.Auth.Contracts.csproj",
                 "Norge360.Configuration.csproj"
             ]
-        };
+            };
 
         foreach (var (projectName, allowedReferences) in expectedReferences)
         {
             var projectPath = Directory
-                .GetFiles(Path.Combine(repoRoot, "services", "auth", "src"), projectName, SearchOption.AllDirectories)
+                .GetFiles(Path.Combine(repoRoot, "src", "services", "auth", "src"), projectName, SearchOption.AllDirectories)
                 .Single();
             var document = XDocument.Load(projectPath);
             var references = document

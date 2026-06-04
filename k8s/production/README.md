@@ -31,9 +31,10 @@ kubectl apply -k k8s/production
 - The deploy workflow pushes commit-SHA tagged images to GHCR and updates live workloads to that immutable tag during rollout.
 - The deploy workflow also creates/refreshes the `ghcr-pull-secret` secret in the target namespace from the long-lived `GHCR_READ_USER` and `GHCR_READ_TOKEN` repository secrets.
 - Required GitHub repository secrets include application connection strings, RabbitMQ, Cloudflare R2, SMTP, Turnstile, and the auth signing private key PEM. Redis is deployed in-cluster and the connection string is derived from the internal service name.
-- Keep the Hetzner firewall restricted to the frontend server only. This overlay also whitelists `10.0.0.4/32` at the ingress layer so the gateway stays private.
+- Keep the Hetzner firewall restricted to the frontend server only. The gateway is exposed through the cluster ingress controller and should only be reachable from the frontend server network path.
 - Auth now uses Redis-backed shared Data Protection keys, so it can run with multiple replicas without a local key-ring PVC.
-- NetworkPolicy rules deny all ingress by default, allow same-namespace service-to-service traffic, and allow the ingress controller namespace to reach the edge pods.
+- NetworkPolicy rules deny all ingress by default, allow same-namespace service-to-service traffic, and allow the cluster ingress controller namespace to reach the edge pods.
+- This overlay is tuned for a single backend node with 8 GB RAM, so rolling updates favor lower peak usage over zero-downtime surge capacity.
 
 ## Notes
 

@@ -21,7 +21,7 @@ public sealed class StaticSearchDocumentRegistryTests
         var documents = await registry.GetDocumentsAsync(CancellationToken.None);
 
         documents.Should().HaveCount(StaticSearchDocumentRegistry.ManifestItems.Count * 2);
-        documents.Select(document => document.Locale).Distinct().Should().BeEquivalentTo("en-US", "tr-TR");
+        documents.Select(document => document.Locale).Distinct().Should().BeEquivalentTo("en-US", "nb-NO", "da-DK", "de-DE", "sv-SE");
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public sealed class StaticSearchDocumentRegistryTests
         var documents = await registry.GetDocumentsAsync(CancellationToken.None);
 
         documents.Should().Contain(d => d.Id == "account-page-mfa-en-US" && d.Title == "MFA" && d.Url == "/security/mfa");
-        documents.Should().Contain(d => d.Id == "account-page-mfa-tr-TR" && d.Title == "MFA" && d.Url == "/security/mfa");
+        documents.Should().Contain(d => d.Id == "account-page-mfa-nb-NO" && d.Title == "MFA" && d.Url == "/security/mfa");
     }
 
     [Fact]
@@ -140,9 +140,9 @@ public sealed class StaticSearchDocumentRegistryTests
         var documents = await registry.GetDocumentsAsync(CancellationToken.None);
 
         documents.Should().Contain(d => d.Id == "public-page-home-en-US" && d.Url == "/");
-        documents.Should().Contain(d => d.Id == "public-page-tools-landing-tr-TR" && d.Url == "/tools");
+        documents.Should().Contain(d => d.Id == "public-page-tools-landing-nb-NO" && d.Url == "/tools");
         documents.Should().Contain(d => d.Id == "account-page-profile-en-US" && d.Url == "/profile");
-        documents.Should().Contain(d => d.Id == "account-page-profile-tr-TR" && d.Url == "/profile");
+        documents.Should().Contain(d => d.Id == "account-page-profile-nb-NO" && d.Url == "/profile");
     }
 
     [Fact]
@@ -154,7 +154,10 @@ public sealed class StaticSearchDocumentRegistryTests
         documents.Should().OnlyContain(document => Regex.IsMatch(document.Id, "^[A-Za-z0-9-]+$"));
         documents.Should().OnlyContain(document =>
             document.Id.EndsWith("-en-US", StringComparison.Ordinal) ||
-            document.Id.EndsWith("-tr-TR", StringComparison.Ordinal));
+            document.Id.EndsWith("-nb-NO", StringComparison.Ordinal) ||
+            document.Id.EndsWith("-da-DK", StringComparison.Ordinal) ||
+            document.Id.EndsWith("-de-DE", StringComparison.Ordinal) ||
+            document.Id.EndsWith("-sv-SE", StringComparison.Ordinal));
     }
 
     [Fact]
@@ -163,9 +166,9 @@ public sealed class StaticSearchDocumentRegistryTests
         var registry = new StaticSearchDocumentRegistry();
         var documents = await registry.GetDocumentsAsync(CancellationToken.None);
 
-        var turkishHome = documents.Single(d => d.Id == "public-page-home-tr-TR");
-        turkishHome.Content.Should().NotBeNullOrWhiteSpace();
-        turkishHome.Tags.Should().BeEquivalentTo("public", "home", "platform");
+        var norwegianHome = documents.Single(d => d.Id == "public-page-home-nb-NO");
+        norwegianHome.Content.Should().NotBeNullOrWhiteSpace();
+        norwegianHome.Tags.Should().BeEquivalentTo("public", "home", "platform");
     }
 
     [Fact]
@@ -178,7 +181,7 @@ public sealed class StaticSearchDocumentRegistryTests
                 ["title"] = "English title",
                 ["summary"] = "English summary"
             },
-            ["tr-TR"] = new Dictionary<string, string>(StringComparer.Ordinal)
+            ["nb-NO"] = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["title"] = "Turkce baslik"
             }
@@ -195,7 +198,7 @@ public sealed class StaticSearchDocumentRegistryTests
 
         var documents = factory.CreateDocuments(item);
 
-        documents.Single(d => d.Locale == "tr-TR").Summary.Should().Be("English summary");
+        documents.Single(d => d.Locale == "nb-NO").Summary.Should().Be("English summary");
     }
 
     [Fact]
@@ -207,7 +210,7 @@ public sealed class StaticSearchDocumentRegistryTests
             {
                 ["title"] = "English title"
             },
-            ["tr-TR"] = new Dictionary<string, string>(StringComparer.Ordinal)
+            ["nb-NO"] = new Dictionary<string, string>(StringComparer.Ordinal)
             {
                 ["title"] = "Turkce baslik"
             }

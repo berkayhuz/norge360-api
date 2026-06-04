@@ -26,16 +26,16 @@ public class RequestCultureProviderBenchmarks
     public void Setup()
     {
         _headerContext = new DefaultHttpContext();
-        _headerContext.Request.Headers[Norge360Cultures.HeaderName] = "tr-TR";
+        _headerContext.Request.Headers[Norge360Cultures.HeaderName] = "nb-NO";
 
         _cookieContext = new DefaultHttpContext();
-        _cookieContext.Request.Headers.Cookie = $"{Norge360Cultures.CookieName}=tr-TR";
+        _cookieContext.Request.Headers.Cookie = $"{Norge360Cultures.CookieName}=nb-NO";
 
         _cookieFrameworkFormatContext = new DefaultHttpContext();
-        _cookieFrameworkFormatContext.Request.Headers.Cookie = $"{Norge360Cultures.CookieName}=c=tr-TR|uic=tr-TR";
+        _cookieFrameworkFormatContext.Request.Headers.Cookie = $"{Norge360Cultures.CookieName}=c=nb-NO|uic=nb-NO";
 
         _acceptLanguageContext = new DefaultHttpContext();
-        _acceptLanguageContext.Request.Headers.AcceptLanguage = "tr-TR,tr;q=0.9,en-US;q=0.7,en;q=0.5";
+        _acceptLanguageContext.Request.Headers.AcceptLanguage = "nb-NO,nb;q=0.9,en-US;q=0.7,en;q=0.5";
     }
 
     [Benchmark]

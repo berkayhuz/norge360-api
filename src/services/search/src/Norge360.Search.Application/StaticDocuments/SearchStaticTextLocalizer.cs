@@ -10,7 +10,7 @@ namespace Norge360.Search.Application.StaticDocuments;
 
 public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
 {
-    private const string MessagesPathEnvironmentVariable = "NORGE360_SEARCH_I18N_MESSAGES_PATH";
+    private const string MessagesPathEnvironmentVariable = "NORGE360_SEARCH_MESSAGES_PATH";
     private static readonly char[] KeywordDelimiters = [',', ';', '\n', '\r'];
 
     private readonly IReadOnlyDictionary<string, IReadOnlyDictionary<string, string>> _messagesByLocale;
@@ -137,16 +137,19 @@ public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
     {
         var fileName = locale switch
         {
-            "en-US" => "en.json",
-            "tr-TR" => "tr.json",
+            "en-US" => "en-US.json",
+            "nb-NO" => "nb-NO.json",
+            "da-DK" => "da-DK.json",
+            "de-DE" => "de-DE.json",
+            "sv-SE" => "sv-SE.json",
             _ => $"{locale}.json"
         };
         var filePath = Path.Combine(messageDirectory, fileName);
         if (!File.Exists(filePath))
         {
             throw new FileNotFoundException(
-                $"Static search i18n message file '{fileName}' was not found in '{messageDirectory}'. " +
-                $"Set {MessagesPathEnvironmentVariable} to a directory containing en.json and tr.json.",
+                $"Static search message file '{fileName}' was not found in '{messageDirectory}'. " +
+                $"Set {MessagesPathEnvironmentVariable} to a directory containing en-US.json, nb-NO.json, da-DK.json, de-DE.json and sv-SE.json.",
                 filePath);
         }
 
@@ -154,7 +157,7 @@ public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
         var messages = JsonSerializer.Deserialize<Dictionary<string, string>>(stream);
         if (messages is null)
         {
-            throw new InvalidOperationException($"Static search i18n message file '{filePath}' is empty or invalid.");
+            throw new InvalidOperationException($"Static search message file '{filePath}' is empty or invalid.");
         }
 
         return messages;
@@ -177,8 +180,8 @@ public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
         }
 
         throw new DirectoryNotFoundException(
-            "Static search i18n messages were not found. Include packages/frontend/i18n/src/messages " +
-            $"in the runtime artifact or set {MessagesPathEnvironmentVariable} to a directory containing en.json and tr.json.");
+            "Static search messages were not found. Include the search application messages folder " +
+            $"in the runtime artifact or set {MessagesPathEnvironmentVariable} to a directory containing en-US.json, nb-NO.json, da-DK.json, de-DE.json and sv-SE.json.");
     }
 
     private static IEnumerable<string> EnumerateCandidateMessageDirectories()
@@ -193,10 +196,8 @@ public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
         {
             foreach (var directory in EnumerateParentDirectories(root))
             {
-                yield return Path.Combine(directory, "packages", "frontend", "i18n", "src", "messages");
-                yield return Path.Combine(directory, "packages", "frontend", "i18n", "messages");
-                yield return Path.Combine(directory, "i18n", "messages");
                 yield return Path.Combine(directory, "messages");
+                yield return Path.Combine(directory, "StaticDocuments", "messages");
             }
         }
     }
@@ -212,6 +213,9 @@ public sealed class SearchStaticTextLocalizer : ISearchStaticTextLocalizer
     }
 
     private static bool ContainsRequiredMessageFiles(string directory) =>
-        File.Exists(Path.Combine(directory, "en.json")) &&
-        File.Exists(Path.Combine(directory, "tr.json"));
+        File.Exists(Path.Combine(directory, "en-US.json")) &&
+        File.Exists(Path.Combine(directory, "nb-NO.json")) &&
+        File.Exists(Path.Combine(directory, "da-DK.json")) &&
+        File.Exists(Path.Combine(directory, "de-DE.json")) &&
+        File.Exists(Path.Combine(directory, "sv-SE.json"));
 }

@@ -70,6 +70,51 @@ jobs:
           dotnet test src/packages/dotnet/tests/Norge360.Clock/Norge360.Clock.Architecture.Tests/Norge360.Clock.Architecture.Tests.csproj --configuration Release --no-restore
           dotnet test src/packages/dotnet/tests/Norge360.CurrentUser/Norge360.CurrentUser.Architecture.Tests/Norge360.CurrentUser.Architecture.Tests.csproj --configuration Release --no-restore
 
+  package-architecture-tests:
+    name: Package architecture tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore package architecture tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Architecture.Tests.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package architecture tests found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Restoring $project"
+            dotnet restore "$project"
+          done
+
+      - name: Run package architecture tests
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t projects < <(find src/packages/dotnet/tests -type f -name '*.Architecture.Tests.csproj' | sort)
+          if [ "${#projects[@]}" -eq 0 ]; then
+            echo "No package architecture tests found."
+            exit 0
+          fi
+
+          for project in "${projects[@]}"; do
+            echo "Testing $project"
+            dotnet test "$project" --configuration Release --no-restore
+          done
+
   architecture-strict:
     name: Architecture (strict baseline)
     runs-on: ubuntu-latest
