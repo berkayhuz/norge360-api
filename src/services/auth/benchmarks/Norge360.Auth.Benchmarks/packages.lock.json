@@ -277,7 +277,7 @@
           "MailKit": "[4.17.0, )",
           "Microsoft.AspNetCore.Authentication.JwtBearer": "[10.0.8, )",
           "Microsoft.AspNetCore.DataProtection.StackExchangeRedis": "[10.0.8, )",
-          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.7, )",
+          "Microsoft.Extensions.Caching.StackExchangeRedis": "[10.0.8, )",
           "MimeKit": "[4.17.0, )",
           "Norge360.AspNetCore": "[1.0.0, )",
           "Norge360.AspNetCore.TrustedGateway": "[1.0.0, )",
@@ -409,9 +409,9 @@
       },
       "Microsoft.Extensions.Caching.StackExchangeRedis": {
         "type": "CentralTransitive",
-        "requested": "[10.0.7, )",
-        "resolved": "10.0.7",
-        "contentHash": "TvD0totA8qeyrZ2YeY/qRNgYBy4BvO6dG59ziJDLVnLH4s2jeLUFEFcgA3xzqPhCMMbuz9bJTRwHxkZ/7c87jQ==",
+        "requested": "[10.0.8, )",
+        "resolved": "10.0.8",
+        "contentHash": "fle9ns3q2kk63vt/wHFtLw1U9kiEbM42vTk2Sar8VBjiGJFkXAgm0QEKFx15YMHkJIPRVdknWaovpvgGEgn10g==",
         "dependencies": {
           "StackExchange.Redis": "2.7.27"
         }

@@ -52,8 +52,8 @@
       },
       "Microsoft.AspNetCore.Http.Features": {
         "type": "Transitive",
-        "resolved": "2.3.0",
-        "contentHash": "f10WUgcsKqrkmnz6gt8HeZ7kyKjYN30PO7cSic1lPtH7paPtnQqXPOveul/SIPI43PhRD4trttg4ywnrEmmJpA==",
+        "resolved": "2.3.9",
+        "contentHash": "nDWDF0YBgElg6f0omqJ8DupmITQg5p4lklBxFpVR83tQQhOG2tw9Fa5ul8b+KywsYBsyfn9DschUmfzOV6RvGw==",
         "dependencies": {
           "Microsoft.Extensions.Primitives": "8.0.0"
         }
@@ -127,7 +127,7 @@
       "norge360.aspnetcore.currentuser": {
         "type": "Project",
         "dependencies": {
-          "Microsoft.AspNetCore.Http.Abstractions": "[2.3.9, )",
+          "Microsoft.AspNetCore.Http.Abstractions": "[2.3.10, )",
           "Norge360.Authorization.Claims": "[1.0.0, )",
           "Norge360.CurrentUser": "[1.0.0, )"
         }
@@ -140,11 +140,11 @@
       },
       "Microsoft.AspNetCore.Http.Abstractions": {
         "type": "CentralTransitive",
-        "requested": "[2.3.9, )",
-        "resolved": "2.3.9",
-        "contentHash": "ULScB/0S9+qvf+yahjR+oQUp0GrvoDHJ9XS5gTqSjLjbjUDnHaJ1s8wo3RJMpaDfb1bawX4OgQM+YmvCUveR4Q==",
+        "requested": "[2.3.10, )",
+        "resolved": "2.3.10",
+        "contentHash": "FD6mE5v3qB/sEcnLNni1oHsATuLHIFzsKHCulUZS7iaJez8+TkD432L89DQtU9PfjCkaPO0JOQjB4tS4L8oZXQ==",
         "dependencies": {
-          "Microsoft.AspNetCore.Http.Features": "2.3.0"
+          "Microsoft.AspNetCore.Http.Features": "2.3.9"
         }
       },
       "xunit.extensibility.core": {
