@@ -1,6 +1,6 @@
 param(
     [int]$Bits = 3072,
-    [string]$OutputPath = (Join-Path $PWD 'auth-jwt-signing-key.pem'),
+    [string]$OutputPath = (Join-Path $PWD 'keys/auth-jwt-signing-key.pem'),
     [switch]$Clipboard
 )
 

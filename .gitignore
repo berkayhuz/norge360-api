@@ -78,6 +78,7 @@ yarn.lock
 *.secrets.json
 
 # Local keys (keep placeholders)
+auth-jwt-signing-key.pem
 **/keys/*.pem
 **/keys/*.key
 **/data-protection-keys/*
