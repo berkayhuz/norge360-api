@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Login to GHCR
         env:
@@ -44,10 +46,68 @@ jobs:
           IMAGE_TAG: latest
           IMAGE_SHA: ${{ github.sha }}
           IMAGE_OWNER: ${{ github.repository_owner }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
           cd "$GITHUB_WORKSPACE"
+
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- || true)"
+
+          build_all=false
+          selected_images=()
+
+          mark_all() {
+            build_all=true
+          }
+
+          add_image() {
+            local image_name="$1"
+            local dockerfile="$2"
+            selected_images+=("$image_name|$dockerfile")
+          }
+
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+
+            case "$file" in
+              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|package-lock.json|src/packages/dotnet/*)
+                mark_all
+                ;;
+              src/services/auth/*)
+                add_image "norge360-auth-api" "src/services/auth/deploy/Norge360.Auth.API.Dockerfile"
+                ;;
+              src/platform/gateway/*)
+                add_image "norge360-api-gateway" "src/platform/gateway/deploy/Norge360.ApiGateway.Dockerfile"
+                ;;
+              src/services/accounts/*)
+                add_image "norge360-accounts-api" "src/services/accounts/deploy/Norge360.Accounts.API.Dockerfile"
+                add_image "norge360-accounts-worker" "src/services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile"
+                ;;
+              src/services/community/*)
+                add_image "norge360-community-api" "src/services/community/deploy/Norge360.Community.API.Dockerfile"
+                add_image "norge360-community-worker" "src/services/community/deploy/Norge360.Community.Worker.Dockerfile"
+                ;;
+              src/services/discovery/*)
+                add_image "norge360-discovery-api" "src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile"
+                add_image "norge360-discovery-worker" "src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile"
+                ;;
+              src/services/search/*)
+                add_image "norge360-search-api" "src/services/search/deploy/Norge360.Search.API.Dockerfile"
+                add_image "norge360-search-worker" "src/services/search/deploy/Norge360.Search.Worker.Dockerfile"
+                ;;
+              src/services/notification/*)
+                add_image "norge360-notification-worker" "src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile"
+                ;;
+            esac
+          done <<< "$changed_files"
+
+          if [ "${BASE_SHA:-}" = "0000000000000000000000000000000000000000" ] || [ "${#selected_images[@]}" -eq 0 ] && [ "$build_all" = false ]; then
+            build_all=true
+          fi
+
+          declare -A seen=()
 
           build_and_push() {
             local image_name="$1"
@@ -63,17 +123,30 @@ jobs:
             docker push "ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
           }
 
-          build_and_push "norge360-auth-api" "src/services/auth/deploy/Norge360.Auth.API.Dockerfile"
-          build_and_push "norge360-api-gateway" "src/platform/gateway/deploy/Norge360.ApiGateway.Dockerfile"
-          build_and_push "norge360-accounts-api" "src/services/accounts/deploy/Norge360.Accounts.API.Dockerfile"
-          build_and_push "norge360-community-api" "src/services/community/deploy/Norge360.Community.API.Dockerfile"
-          build_and_push "norge360-discovery-api" "src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile"
-          build_and_push "norge360-discovery-worker" "src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile"
-          build_and_push "norge360-accounts-worker" "src/services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile"
-          build_and_push "norge360-community-worker" "src/services/community/deploy/Norge360.Community.Worker.Dockerfile"
-          build_and_push "norge360-search-api" "src/services/search/deploy/Norge360.Search.API.Dockerfile"
-          build_and_push "norge360-search-worker" "src/services/search/deploy/Norge360.Search.Worker.Dockerfile"
-          build_and_push "norge360-notification-worker" "src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile"
+          if [ "$build_all" = true ]; then
+            selected_images=(
+              "norge360-auth-api|src/services/auth/deploy/Norge360.Auth.API.Dockerfile"
+              "norge360-api-gateway|src/platform/gateway/deploy/Norge360.ApiGateway.Dockerfile"
+              "norge360-accounts-api|src/services/accounts/deploy/Norge360.Accounts.API.Dockerfile"
+              "norge360-community-api|src/services/community/deploy/Norge360.Community.API.Dockerfile"
+              "norge360-discovery-api|src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile"
+              "norge360-discovery-worker|src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile"
+              "norge360-accounts-worker|src/services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile"
+              "norge360-community-worker|src/services/community/deploy/Norge360.Community.Worker.Dockerfile"
+              "norge360-search-api|src/services/search/deploy/Norge360.Search.API.Dockerfile"
+              "norge360-search-worker|src/services/search/deploy/Norge360.Search.Worker.Dockerfile"
+              "norge360-notification-worker|src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile"
+            )
+          fi
+
+          for entry in "${selected_images[@]}"; do
+            image_name="${entry%%|*}"
+            dockerfile="${entry#*|}"
+            if [ -z "${seen[$image_name]:-}" ]; then
+              seen[$image_name]=1
+              build_and_push "$image_name" "$dockerfile"
+            fi
+          done
 
       - name: Sync Kubernetes secrets
         env:
@@ -102,7 +175,6 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.Media__CloudflareR2__AccessKeyId }}
           R2_BUCKET_NAME: ${{ secrets.Media__CloudflareR2__BucketName }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.Media__CloudflareR2__SecretAccessKey }}
-          REDIS_CONNECTION: ${{ secrets.Infrastructure__DistributedCache__RedisConnectionString }}
           TURNSTILE_SECRET: ${{ secrets.Cloudflare__Turnstile__SecretKey }}
         run: |
           set -euo pipefail
@@ -121,10 +193,58 @@ jobs:
         env:
           IMAGE_SHA: ${{ github.sha }}
           IMAGE_OWNER: ${{ github.repository_owner }}
+          BASE_SHA: ${{ github.event.before }}
+          HEAD_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
 
           namespace=norge360-production
+
+          changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- || true)"
+          rollout_all=false
+          selected_deployments=()
+
+          mark_all() {
+            rollout_all=true
+          }
+
+          add_rollout() {
+            selected_deployments+=("$1|$2|$3")
+          }
+
+          while IFS= read -r file; do
+            [ -n "$file" ] || continue
+            case "$file" in
+              .github/workflows/*|scripts/*|docker-compose*.yml|Directory.Build.props|Directory.Build.targets|Directory.Packages.props|global.json|Norge360.slnx|.dockerignore|.nuget/*|package.json|package-lock.json|src/packages/dotnet/*)
+                mark_all
+                ;;
+              src/services/auth/*)
+                add_rollout "norge360-auth-api" "auth-api" "norge360-auth-api"
+                ;;
+              src/platform/gateway/*)
+                add_rollout "norge360-gateway" "gateway" "norge360-api-gateway"
+                ;;
+              src/services/accounts/*)
+                add_rollout "norge360-accounts-api" "accounts-api" "norge360-accounts-api"
+                add_rollout "norge360-accounts-worker" "accounts-worker" "norge360-accounts-worker"
+                ;;
+              src/services/community/*)
+                add_rollout "norge360-community-api" "community-api" "norge360-community-api"
+                add_rollout "norge360-community-worker" "community-worker" "norge360-community-worker"
+                ;;
+              src/services/discovery/*)
+                add_rollout "norge360-discovery-api" "discovery-api" "norge360-discovery-api"
+                add_rollout "norge360-discovery-worker" "discovery-worker" "norge360-discovery-worker"
+                ;;
+              src/services/search/*)
+                add_rollout "norge360-search-api" "search-api" "norge360-search-api"
+                add_rollout "norge360-search-worker" "search-worker" "norge360-search-worker"
+                ;;
+              src/services/notification/*)
+                add_rollout "norge360-notification-worker" "notification-worker" "norge360-notification-worker"
+                ;;
+            esac
+          done <<< "$changed_files"
 
           set_image_and_wait() {
             local deployment_name="$1"
@@ -136,14 +256,30 @@ jobs:
             kubectl -n "$namespace" rollout status "deployment/$deployment_name" --timeout=10m
           }
 
-          set_image_and_wait "norge360-auth-api" "auth-api" "norge360-auth-api"
-          set_image_and_wait "norge360-discovery-api" "discovery-api" "norge360-discovery-api"
-          set_image_and_wait "norge360-accounts-api" "accounts-api" "norge360-accounts-api"
-          set_image_and_wait "norge360-community-api" "community-api" "norge360-community-api"
-          set_image_and_wait "norge360-search-api" "search-api" "norge360-search-api"
-          set_image_and_wait "norge360-gateway" "gateway" "norge360-api-gateway"
-          set_image_and_wait "norge360-accounts-worker" "accounts-worker" "norge360-accounts-worker"
-          set_image_and_wait "norge360-community-worker" "community-worker" "norge360-community-worker"
-          set_image_and_wait "norge360-discovery-worker" "discovery-worker" "norge360-discovery-worker"
-          set_image_and_wait "norge360-search-worker" "search-worker" "norge360-search-worker"
-          set_image_and_wait "norge360-notification-worker" "notification-worker" "norge360-notification-worker"
+          if [ "$rollout_all" = true ] || [ "${#selected_deployments[@]}" -eq 0 ]; then
+            selected_deployments=(
+              "norge360-auth-api|auth-api|norge360-auth-api"
+              "norge360-discovery-api|discovery-api|norge360-discovery-api"
+              "norge360-accounts-api|accounts-api|norge360-accounts-api"
+              "norge360-community-api|community-api|norge360-community-api"
+              "norge360-search-api|search-api|norge360-search-api"
+              "norge360-gateway|gateway|norge360-api-gateway"
+              "norge360-accounts-worker|accounts-worker|norge360-accounts-worker"
+              "norge360-community-worker|community-worker|norge360-community-worker"
+              "norge360-discovery-worker|discovery-worker|norge360-discovery-worker"
+              "norge360-search-worker|search-worker|norge360-search-worker"
+              "norge360-notification-worker|notification-worker|norge360-notification-worker"
+            )
+          fi
+
+          declare -A rollout_seen=()
+          for entry in "${selected_deployments[@]}"; do
+            deployment_name="${entry%%|*}"
+            rest="${entry#*|}"
+            container_name="${rest%%|*}"
+            image_name="${rest##*|}"
+            if [ -z "${rollout_seen[$deployment_name]:-}" ]; then
+              rollout_seen[$deployment_name]=1
+              set_image_and_wait "$deployment_name" "$container_name" "$image_name"
+            fi
+          done

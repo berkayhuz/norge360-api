@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Norge360.Community.API.Controllers;
 using Norge360.Community.API.Models;
@@ -121,7 +122,8 @@ public sealed class CommunityControllerConsistencyTests
         var currentUser = new Mock<ICurrentUserService>();
         currentUser.SetupGet(x => x.IsAuthenticated).Returns(true);
         currentUser.SetupGet(x => x.UserId).Returns(userId);
-        return new CommunityController(service.Object, media.Object, fixture.Db, currentUser.Object)
+        var cache = new Mock<IDistributedCache>();
+        return new CommunityController(service.Object, media.Object, fixture.Db, currentUser.Object, cache.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };

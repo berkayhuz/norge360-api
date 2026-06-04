@@ -25,13 +25,16 @@ internal sealed class CommunityTestFixture : IDisposable
             .ReturnsAsync((IReadOnlyCollection<Guid> ids, Guid? _, CancellationToken _) => ids.ToHashSet());
         Visibility.Setup(x => x.CanViewAuthorPostsAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
+        Publisher.Setup(x => x.PublishAsync(It.IsAny<DiscoveryEventEnvelope>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
 
-        Service = new CommunityService(Db, Authors.Object, Visibility.Object);
+        Service = new CommunityService(Db, Authors.Object, Visibility.Object, Publisher.Object);
     }
 
     public CommunityDbContext Db { get; }
     public Mock<ICommunityAuthorProfileProvider> Authors { get; } = new();
     public Mock<ICommunityVisibilityService> Visibility { get; } = new();
+    public Mock<IDiscoveryEventPublisher> Publisher { get; } = new();
     public CommunityService Service { get; }
 
     public CommunityPost AddPost(Guid? userId = null, CommunityPostStatus status = CommunityPostStatus.Published, string? caption = "hello")

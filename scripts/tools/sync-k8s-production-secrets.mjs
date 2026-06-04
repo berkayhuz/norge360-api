@@ -54,7 +54,7 @@ async function main() {
     ['discovery-connection', requireEnv('DISCOVERY_CONNECTION')],
     ['notification-connection', requireEnv('NOTIFICATION_CONNECTION')],
     ['messaging-rabbitmq-uri', requireEnv('MESSAGING_RABBITMQ_URI')],
-    ['redis-connection', requireEnv('REDIS_CONNECTION')],
+    ['redis-connection', requireEnv('REDIS_CONNECTION', { fallback: 'norge360-redis:6379,abortConnect=false' })],
     ['discovery-internal-token', requireEnv('DISCOVERY_INTERNAL_TOKEN')],
     ['gateway-trusted-secret', requireEnv('GATEWAY_TRUSTED_SECRET')],
     ['account-internal-secret', requireEnv('ACCOUNT_INTERNAL_SECRET')],

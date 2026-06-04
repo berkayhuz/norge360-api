@@ -3,6 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Moq;
 using Norge360.Community.API.Controllers;
 using Norge360.Community.API.Models;
@@ -64,7 +65,9 @@ public sealed class CommunityControllerTests
         currentUser.SetupGet(x => x.IsAuthenticated).Returns(authenticated);
         currentUser.SetupGet(x => x.UserId).Returns(authenticated ? Guid.NewGuid() : Guid.Empty);
 
-        return new CommunityController(service.Object, mediaService.Object, db, currentUser.Object);
+        var cache = new Mock<IDistributedCache>();
+
+        return new CommunityController(service.Object, mediaService.Object, db, currentUser.Object, cache.Object);
     }
 
     private static IFormFile CreateFormFile(string name)

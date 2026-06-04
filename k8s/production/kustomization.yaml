@@ -8,6 +8,7 @@ resources:
   - services.yaml
   - deployments.yaml
   - statefulsets.yaml
+  - redis.yaml
   - horizontalpodautoscalers.yaml
   - poddisruptionbudgets.yaml
   - networkpolicies.yaml

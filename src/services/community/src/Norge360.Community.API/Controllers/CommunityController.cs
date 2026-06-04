@@ -3,9 +3,11 @@
 // Norge360 is proprietary software. See the LICENSE file in the repository root.
 // </copyright>
 
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Norge360.Community.API.Models;
 using Norge360.Community.Application.Abstractions;
 using Norge360.Community.Application.Models;
@@ -23,8 +25,15 @@ public sealed class CommunityController(
     ICommunityService communityService,
     ICommunityMediaService communityMediaService,
     ICommunityDbContext communityDbContext,
-    ICurrentUserService currentUserService) : ControllerBase
+    ICurrentUserService currentUserService,
+    IDistributedCache distributedCache) : ControllerBase
 {
+    private static readonly JsonSerializerOptions CacheJsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly TimeSpan FeedCacheTtl = TimeSpan.FromSeconds(20);
+    private static readonly TimeSpan PostCacheTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan UserPostsCacheTtl = TimeSpan.FromSeconds(30);
+    private static readonly TimeSpan CommentsCacheTtl = TimeSpan.FromSeconds(20);
+
     [HttpGet("health")]
     [AllowAnonymous]
     public IActionResult GetHealth() => Ok(new { service = "community", status = "ok" });
@@ -83,6 +92,20 @@ public sealed class CommunityController(
     public async Task<ActionResult<PagedCommunityFeedResponse>> GetFeed([FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
         var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        if (userId is null)
+        {
+            var cacheKey = BuildFeedCacheKey(page, pageSize);
+            var cached = await GetCachedAsync<PagedCommunityFeedResponse>(cacheKey, cancellationToken);
+            if (cached is not null)
+            {
+                return Ok(cached);
+            }
+
+            var result = await communityService.GetFeedAsync(page, pageSize, userId, cancellationToken);
+            await SetCachedAsync(cacheKey, result, FeedCacheTtl, cancellationToken);
+            return Ok(result);
+        }
+
         return Ok(await communityService.GetFeedAsync(page, pageSize, userId, cancellationToken));
     }
 
@@ -91,6 +114,21 @@ public sealed class CommunityController(
     public async Task<ActionResult<CommunityPostDto>> GetPost(Guid postId, CancellationToken cancellationToken)
     {
         var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        if (userId is null)
+        {
+            var cacheKey = BuildPostCacheKey(postId);
+            var cached = await GetCachedAsync<CommunityPostDto>(cacheKey, cancellationToken);
+            if (cached is not null)
+            {
+                return Ok(cached);
+            }
+
+            var postResult = await communityService.GetPostAsync(postId, userId, cancellationToken);
+            if (postResult is null) return NotFound();
+            await SetCachedAsync(cacheKey, postResult, PostCacheTtl, cancellationToken);
+            return Ok(postResult);
+        }
+
         var result = await communityService.GetPostAsync(postId, userId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
@@ -100,6 +138,20 @@ public sealed class CommunityController(
     public async Task<ActionResult<PagedCommunityFeedResponse>> GetUserPosts(Guid userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
         var viewer = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        if (viewer is null)
+        {
+            var cacheKey = BuildUserPostsCacheKey(userId, page, pageSize);
+            var cached = await GetCachedAsync<PagedCommunityFeedResponse>(cacheKey, cancellationToken);
+            if (cached is not null)
+            {
+                return Ok(cached);
+            }
+
+            var result = await communityService.GetUserPostsAsync(userId, page, pageSize, viewer, cancellationToken);
+            await SetCachedAsync(cacheKey, result, UserPostsCacheTtl, cancellationToken);
+            return Ok(result);
+        }
+
         return Ok(await communityService.GetUserPostsAsync(userId, page, pageSize, viewer, cancellationToken));
     }
 
@@ -215,6 +267,21 @@ public sealed class CommunityController(
     public async Task<ActionResult<PagedCommunityCommentsResponse>> GetPostComments(Guid postId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
     {
         var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        if (userId is null)
+        {
+            var cacheKey = BuildCommentsCacheKey(postId, page, pageSize);
+            var cached = await GetCachedAsync<PagedCommunityCommentsResponse>(cacheKey, cancellationToken);
+            if (cached is not null)
+            {
+                return Ok(cached);
+            }
+
+            var commentsResult = await communityService.GetPostCommentsAsync(postId, page, pageSize, userId, cancellationToken);
+            if (commentsResult is null) return NotFound();
+            await SetCachedAsync(cacheKey, commentsResult, CommentsCacheTtl, cancellationToken);
+            return Ok(commentsResult);
+        }
+
         var result = await communityService.GetPostCommentsAsync(postId, page, pageSize, userId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
@@ -566,4 +633,29 @@ public sealed class CommunityController(
             return Forbid();
         }
     }
+
+    private async Task<T?> GetCachedAsync<T>(string cacheKey, CancellationToken cancellationToken)
+        where T : class
+    {
+        var cached = await distributedCache.GetStringAsync(cacheKey, cancellationToken);
+        return string.IsNullOrWhiteSpace(cached) ? null : JsonSerializer.Deserialize<T>(cached, CacheJsonOptions);
+    }
+
+    private async Task SetCachedAsync<T>(string cacheKey, T value, TimeSpan ttl, CancellationToken cancellationToken)
+        where T : class
+    {
+        await distributedCache.SetStringAsync(
+            cacheKey,
+            JsonSerializer.Serialize(value, CacheJsonOptions),
+            new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = ttl
+            },
+            cancellationToken);
+    }
+
+    private static string BuildFeedCacheKey(int page, int pageSize) => $"community:feed:{page}:{pageSize}";
+    private static string BuildPostCacheKey(Guid postId) => $"community:post:{postId:D}";
+    private static string BuildUserPostsCacheKey(Guid userId, int page, int pageSize) => $"community:user-posts:{userId:D}:{page}:{pageSize}";
+    private static string BuildCommentsCacheKey(Guid postId, int page, int pageSize) => $"community:comments:{postId:D}:{page}:{pageSize}";
 }

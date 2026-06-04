@@ -1038,6 +1038,11 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: community-connection
+            - name: Infrastructure__DistributedCache__RedisConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: redis-connection
             - name: Authentication__JwtBearer__Authority
               value: http://norge360-auth-api:8080
             - name: Authentication__JwtBearer__MetadataAddress

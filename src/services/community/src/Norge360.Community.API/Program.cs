@@ -4,6 +4,7 @@
 // </copyright>
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -31,7 +32,19 @@ builder.Services.AddNorge360Media(builder.Configuration, builder.Environment);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDistributedMemoryCache();
+var redisConnectionString = builder.Configuration["Infrastructure:DistributedCache:RedisConnectionString"];
+if (!string.IsNullOrWhiteSpace(redisConnectionString))
+{
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisConnectionString;
+        options.InstanceName = "Norge360:Community:";
+    });
+}
+else
+{
+    builder.Services.AddDistributedMemoryCache();
+}
 builder.Services.AddOptions<TrustedGatewayOptions>()
     .Bind(builder.Configuration.GetSection("Security:TrustedGateway"))
     .ValidateOnStart();
