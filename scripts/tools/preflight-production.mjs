@@ -231,11 +231,21 @@ function validatePostgresConnection(value, settingName) {
 
   if (!password) {
     fail(`${settingName} must include Password.`);
+  } else if (settingName === 'ConnectionStrings__NotificationConnection' && (password.length < 16 || containsUnsafeMarker(password))) {
+    fail(`${settingName} must use a strong production database password.`);
+  } else if (password.length < 16 || containsUnsafeMarker(password)) {
+    warn(`${settingName}: database password is accepted by the current service but should be rotated to at least 16 characters.`);
   }
 
   if (!sslMode || !['require', 'verifyfull', 'prefer'].includes(sslMode.toLowerCase())) {
     fail(`${settingName} must set SSL Mode=Require, VerifyFull, or Prefer.`);
   }
+}
+
+function containsUnsafeMarker(value) {
+  const normalized = value.toLowerCase();
+  return ['localhost', '127.0.0.1', '::1', 'change_me', 'replace', 'local', 'dev', 'test']
+    .some(marker => normalized.includes(marker));
 }
 
 function validateProductionEnvironment(deployments) {
@@ -402,6 +412,36 @@ function validateJwtMetadataConfiguration(deployments) {
   }
 }
 
+function validateAwsParameterStoreConfiguration(deployments) {
+  for (const deployment of deployments) {
+    const enabled = deployment.env.find(entry => entry.name === 'Infrastructure__AwsParameterStore__Enabled')?.value;
+    const requireInProduction = deployment.env.find(entry => entry.name === 'Infrastructure__AwsParameterStore__RequireInProduction')?.value;
+
+    if (enabled?.toLowerCase() === 'false' && requireInProduction?.toLowerCase() !== 'false') {
+      fail(`${deployment.name}: Infrastructure__AwsParameterStore__RequireInProduction must be false when AWS Parameter Store is disabled in production.`);
+    }
+  }
+}
+
+function validateStatefulSetProbes() {
+  const text = exists('k8s/production/statefulsets.yaml')
+    ? read('k8s/production/statefulsets.yaml')
+    : '';
+  const rabbitDocument = splitYamlDocuments(text)
+    .find(document => scalarAfter(document, 'kind') === 'StatefulSet' && metadataName(document) === 'norge360-rabbitmq');
+
+  if (!rabbitDocument) {
+    fail('k8s/production/statefulsets.yaml: norge360-rabbitmq StatefulSet is missing.');
+    return;
+  }
+
+  const startupProbe = rabbitDocument.match(/startupProbe:[\s\S]*?(?=\n\s{10}livenessProbe:)/)?.[0] ?? '';
+  const timeout = Number(startupProbe.match(/timeoutSeconds:\s*(\d+)/)?.[1] ?? 0);
+  if (timeout < 10) {
+    fail('norge360-rabbitmq: startupProbe timeoutSeconds must be at least 10; rabbitmq-diagnostics often exceeds Kubernetes default 1s during boot.');
+  }
+}
+
 function validateTrustedGatewayHealthBypass() {
   const middlewareFiles = [
     'src/services/accounts/src/Norge360.Accounts.API/Middlewares/TrustedGatewayMiddleware.cs',
@@ -463,6 +503,8 @@ function main() {
   validateManifestReferences(deployments, services);
   validateMediaConfiguration(deployments);
   validateJwtMetadataConfiguration(deployments);
+  validateAwsParameterStoreConfiguration(deployments);
+  validateStatefulSetProbes();
   validateTrustedGatewayHealthBypass();
   validateRuntimeSecrets(services);
 

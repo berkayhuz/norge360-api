@@ -132,17 +132,18 @@ spec:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]
             periodSeconds: 10
+            timeoutSeconds: 15
             failureThreshold: 30
           livenessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]
             periodSeconds: 20
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           readinessProbe:
             exec:
               command: ["rabbitmq-diagnostics", "-q", "ping"]
             periodSeconds: 10
-            timeoutSeconds: 10
+            timeoutSeconds: 15
           resources:
             requests:
               cpu: 100m

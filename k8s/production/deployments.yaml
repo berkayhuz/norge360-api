@@ -65,6 +65,8 @@ spec:
               value: ""
             - name: Infrastructure__AwsParameterStore__Enabled
               value: "false"
+            - name: Infrastructure__AwsParameterStore__RequireInProduction
+              value: "false"
             - name: Auth__Login__AccountsGatewayBaseUrl
               value: http://norge360-gateway:8080/
             - name: Cloudflare__Turnstile__Enabled
@@ -715,6 +717,8 @@ spec:
             - name: DOTNET_ENVIRONMENT
               value: Production
             - name: Infrastructure__AwsParameterStore__Enabled
+              value: "false"
+            - name: Infrastructure__AwsParameterStore__RequireInProduction
               value: "false"
             - name: ConnectionStrings__NotificationConnection
               valueFrom:

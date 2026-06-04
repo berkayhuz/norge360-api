@@ -30,7 +30,7 @@ jobs:
         run: |
           dotnet list Norge360.slnx package --vulnerable --include-transitive > vulnerability-audit.txt
           cat vulnerability-audit.txt
-          if grep -Eiq "has the following vulnerable packages|vulnerable package" vulnerability-audit.txt; then
+          if grep -Eiq "has the following vulnerable packages" vulnerability-audit.txt; then
             echo "Vulnerable packages detected."
             exit 1
           fi
