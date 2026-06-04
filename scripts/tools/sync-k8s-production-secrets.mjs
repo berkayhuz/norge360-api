@@ -8,6 +8,10 @@ const namespace = process.env.K8S_NAMESPACE ?? 'norge360-production';
 const namespaceManifest = path.resolve(process.cwd(), 'k8s/production/namespace.yaml');
 const dryRun = process.argv.includes('--dry-run');
 const kubectlTimeoutMs = 120_000;
+const kubectlEnv = {
+  ...process.env,
+  KUBECONFIG: process.env.KUBECONFIG ?? '/root/.kube/config',
+};
 
 function requireEnv(name, { optional = false, fallback = undefined } = {}) {
   const value = process.env[name] ?? fallback;
@@ -25,6 +29,7 @@ function runKubectl(args, { input } = {}) {
     return execFileSync('kubectl', args, {
       encoding: 'utf8',
       input,
+      env: kubectlEnv,
       maxBuffer: 10 * 1024 * 1024,
       timeout: kubectlTimeoutMs,
     });

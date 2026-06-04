@@ -131,6 +131,8 @@ jobs:
       - preflight
       - package-architecture-tests
     runs-on: self-hosted
+    env:
+      KUBECONFIG: /root/.kube/config
 
     steps:
       - name: Checkout repository
