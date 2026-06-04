@@ -76,8 +76,16 @@ spec:
                   key: turnstile-secret
             - name: Security__TrustedGateway__CurrentKeyId
               value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__AllowedSources__0
+              value: Norge360.ApiGateway
+            - name: Security__TrustedGateway__AllowedSources__1
+              value: Norge360.Account
             - name: Security__TrustedGateway__Keys__0__KeyId
               value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Enabled
+              value: "true"
+            - name: Security__TrustedGateway__Keys__0__SignRequests
+              value: "true"
             - name: Security__TrustedGateway__Keys__0__Secret
               valueFrom:
                 secretKeyRef:
@@ -85,6 +93,10 @@ spec:
                   key: gateway-trusted-secret
             - name: Security__TrustedGateway__Keys__1__KeyId
               value: account-internal-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__1__Enabled
+              value: "true"
+            - name: Security__TrustedGateway__Keys__1__SignRequests
+              value: "false"
             - name: Security__TrustedGateway__Keys__1__Secret
               valueFrom:
                 secretKeyRef:

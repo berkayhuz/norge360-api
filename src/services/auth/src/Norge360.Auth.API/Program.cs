@@ -6,9 +6,11 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Norge360.AspNetCore.Health;
+using Norge360.AspNetCore.TrustedGateway.Options;
 using Norge360.Auth.API.Accessors;
 using Norge360.Auth.API.Cookies;
 using Norge360.Auth.API.Health;
+using Norge360.Auth.API.Security;
 using Norge360.Auth.API.Security.Turnstile;
 using Norge360.Auth.Application.DependencyInjection;
 using Norge360.Auth.Infrastructure.DependencyInjection;
@@ -43,6 +45,10 @@ builder.Services.PostConfigure<TurnstileOptions>(options =>
     }
 });
 builder.Services.AddSingleton<IValidateOptions<TurnstileOptions>, TurnstileOptionsValidation>();
+builder.Services.AddOptions<TrustedGatewayOptions>()
+    .Bind(builder.Configuration.GetSection(TrustedGatewayOptions.SectionName))
+    .ValidateOnStart();
+builder.Services.AddSingleton<IValidateOptions<TrustedGatewayOptions>, AuthTrustedGatewayOptionsValidation>();
 builder.Services.AddAuthApplication();
 builder.Services.AddAuthInfrastructure(builder.Configuration);
 builder.Services.AddHealthChecks()
