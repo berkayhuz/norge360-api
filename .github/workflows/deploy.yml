@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
 
           cd "$GITHUB_WORKSPACE"
-          npm ci --ignore-scripts
+          npm install --ignore-scripts --no-package-lock
 
       - name: Build and push images
         env:
