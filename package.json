@@ -14,7 +14,8 @@
     "install:secrets": "npm run secrets:sync -- --repo berkayhuz/norge360-api",
     "format:csharp": "dotnet csharpier .",
     "dotnet:format": "dotnet format --folder --check",
-    "dotnet:format:fix": "dotnet format --folder"
+    "dotnet:format:fix": "dotnet format --folder",
+    "test": "test"
   },
   "devDependencies": {
     "husky": "^9.1.7"
