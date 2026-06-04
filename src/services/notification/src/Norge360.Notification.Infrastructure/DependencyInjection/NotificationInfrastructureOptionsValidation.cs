@@ -105,12 +105,14 @@ public sealed class NotificationRabbitMqOptionsValidation(IHostEnvironment envir
             failures.Add("Notification:RabbitMq:Host must be a production broker host.");
         }
 
-        if (!options.UseTls)
+        var isInternalKubernetesBroker = IsInternalKubernetesRabbitMqHost(options.Host);
+
+        if (!options.UseTls && !isInternalKubernetesBroker)
         {
             failures.Add("Notification:RabbitMq:UseTls must be true in production.");
         }
 
-        if (options.Port == 5672)
+        if (options.Port == 5672 && !isInternalKubernetesBroker)
         {
             failures.Add("Notification:RabbitMq:Port must not use the non-TLS AMQP port in production.");
         }
@@ -152,6 +154,11 @@ public sealed class NotificationRabbitMqOptionsValidation(IHostEnvironment envir
 
     private static bool IsUnsafeHost(string host)
     {
+        if (IsInternalKubernetesRabbitMqHost(host))
+        {
+            return false;
+        }
+
         if (string.IsNullOrWhiteSpace(host) || ContainsUnsafeMarker(host))
         {
             return true;
@@ -159,6 +166,12 @@ public sealed class NotificationRabbitMqOptionsValidation(IHostEnvironment envir
 
         return Uri.CheckHostName(host) == UriHostNameType.Unknown;
     }
+
+    private static bool IsInternalKubernetesRabbitMqHost(string host) =>
+        host.Equals("norge360-rabbitmq", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production.svc", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production.svc.cluster.local", StringComparison.OrdinalIgnoreCase);
 
     private static bool ContainsUnsafeMarker(string value)
     {

@@ -42,7 +42,7 @@ public sealed class RabbitMqOptionsValidation(IHostEnvironment environment) : IV
 
     private static void ValidateProductionUri(Uri uri, List<string> failures)
     {
-        if (uri.Scheme != "amqps")
+        if (uri.Scheme != "amqps" && !IsInternalKubernetesRabbitMqHost(uri.Host))
         {
             failures.Add("Messaging:RabbitMq:Uri must use amqps in production.");
         }
@@ -67,4 +67,10 @@ public sealed class RabbitMqOptionsValidation(IHostEnvironment environment) : IV
             failures.Add("Messaging:RabbitMq:Uri contains a non-production credential marker.");
         }
     }
+
+    private static bool IsInternalKubernetesRabbitMqHost(string host) =>
+        host.Equals("norge360-rabbitmq", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production.svc", StringComparison.OrdinalIgnoreCase) ||
+        host.Equals("norge360-rabbitmq.norge360-production.svc.cluster.local", StringComparison.OrdinalIgnoreCase);
 }
