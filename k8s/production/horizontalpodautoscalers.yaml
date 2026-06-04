@@ -8,7 +8,7 @@ spec:
     kind: Deployment
     name: norge360-auth-api
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
@@ -34,7 +34,7 @@ spec:
     kind: Deployment
     name: norge360-gateway
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
@@ -60,7 +60,7 @@ spec:
     kind: Deployment
     name: norge360-accounts-api
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
@@ -86,7 +86,7 @@ spec:
     kind: Deployment
     name: norge360-community-api
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
@@ -112,7 +112,7 @@ spec:
     kind: Deployment
     name: norge360-discovery-api
   minReplicas: 1
-  maxReplicas: 6
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
@@ -138,7 +138,7 @@ spec:
     kind: Deployment
     name: norge360-search-api
   minReplicas: 1
-  maxReplicas: 8
+  maxReplicas: 1
   metrics:
     - type: Resource
       resource:
