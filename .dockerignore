@@ -168,3 +168,6 @@ src/**/publish/
 src/**/artifacts/
 src/**/TestResults/
 src/**/coverage/
+
+# misc
+secret-keys.md

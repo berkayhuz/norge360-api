@@ -173,7 +173,7 @@ jobs:
           R2_ACCESS_KEY_ID: ${{ secrets.Media__CloudflareR2__AccessKeyId }}
           R2_BUCKET_NAME: ${{ secrets.Media__CloudflareR2__BucketName }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.Media__CloudflareR2__SecretAccessKey }}
-          TURNSTILE_SECRET: ${{ secrets.Cloudflare__Turnstile__SecretKey }}
+          TURNSTILE_SECRET: ${{ secrets.TURNSTILE_SECRET }}
         run: |
           set -euo pipefail
 

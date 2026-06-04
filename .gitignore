@@ -126,3 +126,6 @@ graph.json
 # Next.js generated types
 next-env.d.ts
 .obj/
+
+# misc
+secret-keys.md
