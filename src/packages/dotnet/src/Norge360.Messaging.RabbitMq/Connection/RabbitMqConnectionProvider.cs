@@ -63,7 +63,7 @@ public sealed class RabbitMqConnectionProvider(IOptions<RabbitMqOptions> options
 
     private static RemoteCertificateValidationCallback CreateCaCertificateValidationCallback(string caCertificatePath)
     {
-        var caCertificate = X509Certificate2.CreateFromPemFile(caCertificatePath);
+        var caCertificate = X509Certificate2.CreateFromPem(File.ReadAllText(caCertificatePath));
         return (_, certificate, _, sslPolicyErrors) =>
         {
             if (certificate is null ||
