@@ -34,7 +34,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: AllowedHosts
@@ -183,7 +183,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: LocalDevelopment__DisableHttpsRedirection
@@ -294,7 +294,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: LocalDevelopment__DisableHttpsRedirection
@@ -393,11 +393,11 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: DOTNET_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ConnectionStrings__AccountsConnection
               valueFrom:
                 secretKeyRef:
@@ -476,11 +476,11 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: DOTNET_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ConnectionStrings__CommunityConnection
               valueFrom:
                 secretKeyRef:
@@ -548,11 +548,11 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: DOTNET_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ConnectionStrings__DiscoveryConnection
               valueFrom:
                 secretKeyRef:
@@ -621,7 +621,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: DOTNET_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: Search__Provider
               value: Meilisearch
             - name: Search__IndexName
@@ -690,7 +690,7 @@ spec:
           imagePullPolicy: IfNotPresent
           env:
             - name: DOTNET_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: Infrastructure__AwsParameterStore__Enabled
               value: "false"
             - name: ConnectionStrings__NotificationConnection
@@ -793,7 +793,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: AllowedHosts
@@ -892,7 +892,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: LocalDevelopment__DisableHttpsRedirection
@@ -1028,7 +1028,7 @@ spec:
               name: http
           env:
             - name: ASPNETCORE_ENVIRONMENT
-              value: Kubernetes
+              value: Production
             - name: ASPNETCORE_URLS
               value: http://+:8080
             - name: LocalDevelopment__DisableHttpsRedirection

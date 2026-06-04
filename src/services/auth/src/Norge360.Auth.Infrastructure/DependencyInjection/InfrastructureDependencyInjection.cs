@@ -46,6 +46,19 @@ public static class InfrastructureDependencyInjection
         var authDataProtectionOptions = configuration.GetSection(AuthDataProtectionOptions.SectionName).Get<AuthDataProtectionOptions>()
             ?? throw new InvalidOperationException("Auth data protection options are missing.");
 
+        if (string.Equals(distributedCacheOptions.Provider, "Redis", StringComparison.OrdinalIgnoreCase))
+        {
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = distributedCacheOptions.RedisConnectionString;
+                options.InstanceName = distributedCacheOptions.InstanceName;
+            });
+        }
+        else
+        {
+            services.AddDistributedMemoryCache();
+        }
+
         services.AddDbContext<AuthDbContext>(options =>
             options.UseNpgsql(connectionString));
 
