@@ -168,6 +168,11 @@ jobs:
 
       - name: Runtime production preflight
         env:
+          ConnectionStrings__AccountsConnection: ${{ secrets.ConnectionStrings__AccountsConnection }}
+          ConnectionStrings__CommunityConnection: ${{ secrets.ConnectionStrings__CommunityConnection }}
+          ConnectionStrings__DiscoveryConnection: ${{ secrets.ConnectionStrings__DiscoveryConnection }}
+          ConnectionStrings__IdentityConnection: ${{ secrets.ConnectionStrings__IdentityConnection }}
+          ConnectionStrings__NotificationConnection: ${{ secrets.ConnectionStrings__NotificationConnection }}
           MESSAGING_RABBITMQ_URI: ${{ secrets.Messaging__RabbitMq__Uri }}
           REDIS_CONNECTION: ${{ secrets.Infrastructure__DistributedCache__RedisConnectionString || 'norge360-redis:6379,abortConnect=false' }}
         run: |

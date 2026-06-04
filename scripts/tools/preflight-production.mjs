@@ -184,6 +184,60 @@ function validateRedisConnection(value, settingName, services) {
   }
 }
 
+function parseConnectionString(value) {
+  return new Map(
+    value
+      .split(';')
+      .map(part => part.trim())
+      .filter(Boolean)
+      .map(part => {
+        const separator = part.indexOf('=');
+        if (separator === -1) {
+          return [part.toLowerCase(), ''];
+        }
+
+        return [
+          part.slice(0, separator).trim().toLowerCase(),
+          part.slice(separator + 1).trim(),
+        ];
+      }),
+  );
+}
+
+function validatePostgresConnection(value, settingName) {
+  const parts = parseConnectionString(value);
+  const host = parts.get('host') ?? parts.get('server');
+  const database = parts.get('database');
+  const username = parts.get('username') ?? parts.get('user id') ?? parts.get('userid');
+  const password = parts.get('password');
+  const sslMode = parts.get('ssl mode') ?? parts.get('sslmode');
+
+  if (!host) {
+    fail(`${settingName} must include Host.`);
+    return;
+  }
+
+  if (['localhost', '127.0.0.1', 'host.docker.internal'].includes(host.toLowerCase())) {
+    fail(`${settingName} points at '${host}', which is not reachable from production Kubernetes pods.`);
+  }
+
+  if (!database) {
+    fail(`${settingName} must include Database.`);
+  }
+
+  if (!username) {
+    fail(`${settingName} must include Username.`);
+  }
+
+  if (!password) {
+    fail(`${settingName} must include Password.`);
+  }
+
+  if (!sslMode || !['require', 'verifyfull', 'prefer'].includes(sslMode.toLowerCase())) {
+    fail(`${settingName} must set SSL Mode=Require, VerifyFull, or Prefer.`);
+  }
+}
+
 function validateProductionEnvironment(deployments) {
   for (const deployment of deployments) {
     for (const key of ['ASPNETCORE_ENVIRONMENT', 'DOTNET_ENVIRONMENT']) {
@@ -254,6 +308,23 @@ function validateDockerUsers(deployments) {
 
 function validateManifestReferences(deployments, services) {
   for (const deployment of deployments) {
+    const allowedHosts = deployment.env.find(entry => entry.name === 'AllowedHosts')?.value
+      ?.split(';')
+      .map(host => host.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (allowedHosts && !allowedHosts.includes('*')) {
+      for (const probeName of ['startupProbe', 'livenessProbe', 'readinessProbe']) {
+        const probeMatch = deployment.document.match(new RegExp(`${probeName}:\\n([\\s\\S]*?)(?:\\n\\s{10}[a-zA-Z]|\\n\\s{8}[a-zA-Z]|\\n\\s{6}[a-zA-Z]|$)`));
+        const probeText = probeMatch?.[1] ?? '';
+        const hostHeader = probeText.match(/name:\s*Host\s*\n\s*value:\s*(.+?)\s*$/m)?.[1]?.replace(/^["']|["']$/g, '').toLowerCase();
+
+        if (probeText.includes('httpGet:') && (!hostHeader || !allowedHosts.includes(hostHeader))) {
+          fail(`${deployment.name}: ${probeName} must send a Host header allowed by AllowedHosts (${allowedHosts.join(';')}).`);
+        }
+      }
+    }
+
     for (const entry of deployment.env) {
       if (!entry.value) {
         continue;
@@ -273,6 +344,13 @@ function validateManifestReferences(deployments, services) {
 function validateRuntimeSecrets(services) {
   const rabbitMqUri = process.env.MESSAGING_RABBITMQ_URI ?? process.env.Messaging__RabbitMq__Uri;
   const redisConnection = process.env.REDIS_CONNECTION ?? process.env.Infrastructure__DistributedCache__RedisConnectionString;
+  const postgresConnections = new Map([
+    ['ConnectionStrings__IdentityConnection', process.env.ConnectionStrings__IdentityConnection ?? process.env.IDENTITY_CONNECTION],
+    ['ConnectionStrings__AccountsConnection', process.env.ConnectionStrings__AccountsConnection ?? process.env.ACCOUNTS_CONNECTION],
+    ['ConnectionStrings__CommunityConnection', process.env.ConnectionStrings__CommunityConnection ?? process.env.COMMUNITY_CONNECTION],
+    ['ConnectionStrings__DiscoveryConnection', process.env.ConnectionStrings__DiscoveryConnection ?? process.env.DISCOVERY_CONNECTION],
+    ['ConnectionStrings__NotificationConnection', process.env.ConnectionStrings__NotificationConnection ?? process.env.NOTIFICATION_CONNECTION],
+  ]);
 
   if (rabbitMqUri) {
     validateRabbitMqUri(rabbitMqUri, 'MESSAGING_RABBITMQ_URI', services);
@@ -284,6 +362,14 @@ function validateRuntimeSecrets(services) {
     validateRedisConnection(redisConnection, 'REDIS_CONNECTION', services);
   } else if (requireRuntimeSecrets) {
     fail('REDIS_CONNECTION is required for strict production preflight.');
+  }
+
+  for (const [name, value] of postgresConnections) {
+    if (value) {
+      validatePostgresConnection(value, name);
+    } else if (requireRuntimeSecrets) {
+      fail(`${name} is required for strict production preflight.`);
+    }
   }
 }
 
