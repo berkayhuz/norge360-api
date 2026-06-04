@@ -178,9 +178,9 @@ public sealed class AuthLayeringTests
             var document = XDocument.Load(projectPath);
             var references = document
                 .Descendants("ProjectReference")
-                .Select(reference => Path.GetFileName(reference.Attribute("Include")?.Value))
+                .Select(reference => reference.Attribute("Include")?.Value)
                 .Where(reference => !string.IsNullOrWhiteSpace(reference))
-                .Cast<string>()
+                .Select(reference => reference!.Replace('\\', '/').Split('/').Last())
                 .ToArray();
 
             if (allowedReferences.Length == 0)

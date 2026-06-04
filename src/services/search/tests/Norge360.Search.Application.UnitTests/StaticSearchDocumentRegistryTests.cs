@@ -6,6 +6,7 @@
 using System.Text.RegularExpressions;
 using FluentAssertions;
 using Norge360.Search.Application.Security;
+using Norge360.Search.Application.Localization;
 using Norge360.Search.Application.StaticDocuments;
 using Norge360.Search.Contracts.Documents;
 
@@ -20,7 +21,7 @@ public sealed class StaticSearchDocumentRegistryTests
 
         var documents = await registry.GetDocumentsAsync(CancellationToken.None);
 
-        documents.Should().HaveCount(StaticSearchDocumentRegistry.ManifestItems.Count * 2);
+        documents.Should().HaveCount(StaticSearchDocumentRegistry.ManifestItems.Count * SearchLocale.SupportedStaticLocales.Count);
         documents.Select(document => document.Locale).Distinct().Should().BeEquivalentTo("en-US", "nb-NO", "da-DK", "de-DE", "sv-SE");
     }
 
