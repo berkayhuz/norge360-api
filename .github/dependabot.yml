@@ -5,9 +5,49 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      github-actions:
+        patterns:
+          - "*"
 
   - package-ecosystem: nuget
     directory: "/"
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    groups:
+      microsoft-platform:
+        patterns:
+          - "Microsoft.*"
+          - "System.*"
+      aws-sdk:
+        patterns:
+          - "AWSSDK.*"
+      open-telemetry:
+        patterns:
+          - "OpenTelemetry.*"
+      testing:
+        patterns:
+          - "BenchmarkDotNet"
+          - "FluentAssertions"
+          - "Moq"
+          - "NetArchTest.Rules"
+          - "xunit"
+          - "xunit.*"
+      messaging-and-mail:
+        patterns:
+          - "MailKit"
+          - "MimeKit"
+          - "RabbitMQ.Client"
+      search-and-web:
+        patterns:
+          - "MeiliSearch"
+          - "Swashbuckle.AspNetCore"
+          - "Yarp.ReverseProxy"
+          - "libphonenumber-csharp"
+          - "QRCoder"
+          - "SixLabors.ImageSharp"
+      data-and-cache:
+        patterns:
+          - "StackExchange.Redis"
+          - "Npgsql.EntityFrameworkCore.PostgreSQL"
