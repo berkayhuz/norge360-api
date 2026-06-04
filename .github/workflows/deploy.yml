@@ -195,7 +195,7 @@ jobs:
 
           changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- || true)"
 
-          build_all=false
+          build_all=true
           selected_images=()
 
           mark_all() {
@@ -243,9 +243,9 @@ jobs:
             esac
           done <<< "$changed_files"
 
-          if [ "${BASE_SHA:-}" = "0000000000000000000000000000000000000000" ] || [ "${#selected_images[@]}" -eq 0 ] && [ "$build_all" = false ]; then
-            build_all=true
-          fi
+          # Production deploys apply the Kubernetes manifests before setting immutable
+          # image tags. Build every image so no deployment is left on a stale :latest tag.
+          build_all=true
 
           declare -A seen=()
 
@@ -341,7 +341,7 @@ jobs:
           namespace=norge360-production
 
           changed_files="$(git diff --name-only "$BASE_SHA" "$HEAD_SHA" -- || true)"
-          rollout_all=false
+          rollout_all=true
           selected_deployments=()
 
           mark_all() {
@@ -392,6 +392,9 @@ jobs:
             local image_name="$3"
 
             kubectl -n "$namespace" scale "deployment/$deployment_name" --replicas=1
+            if [ "$deployment_name" = "norge360-gateway" ]; then
+              kubectl -n "$namespace" set env "deployment/$deployment_name" Kestrel__Endpoints__Https__Url- || true
+            fi
             kubectl -n "$namespace" set image "deployment/$deployment_name" \
               "$container_name=ghcr.io/$IMAGE_OWNER/$image_name:$IMAGE_SHA"
             if ! kubectl -n "$namespace" rollout status "deployment/$deployment_name" --timeout=10m; then
@@ -402,6 +405,10 @@ jobs:
               return 1
             fi
           }
+
+          # Keep every production deployment on the same immutable commit SHA.
+          # This prevents kubectl apply from leaving unchanged services on :latest.
+          rollout_all=true
 
           if [ "$rollout_all" = true ] || [ "${#selected_deployments[@]}" -eq 0 ]; then
             selected_deployments=(
@@ -438,22 +445,63 @@ jobs:
           namespace=norge360-production
           port_forward_log="$(mktemp)"
 
-          kubectl -n "$namespace" port-forward svc/norge360-gateway 18080:8080 >"$port_forward_log" 2>&1 &
+          kubectl -n "$namespace" rollout status deployment/norge360-gateway --timeout=5m
+          kubectl -n "$namespace" port-forward --address 127.0.0.1 svc/norge360-gateway 18080:8080 >"$port_forward_log" 2>&1 &
           pf_pid=$!
+
+          print_gateway_diagnostics() {
+            echo "::group::Gateway diagnostics"
+            kubectl -n "$namespace" get deploy norge360-gateway -o wide || true
+            kubectl -n "$namespace" get pods -l app=norge360-gateway -o wide || true
+            kubectl -n "$namespace" get endpoints norge360-gateway -o wide || true
+            kubectl -n "$namespace" describe pods -l app=norge360-gateway || true
+            kubectl -n "$namespace" logs -l app=norge360-gateway --all-containers --tail=200 || true
+            kubectl -n "$namespace" logs -l app=norge360-gateway --all-containers --previous --tail=200 || true
+            echo "::endgroup::"
+          }
 
           cleanup() {
             kill "$pf_pid" >/dev/null 2>&1 || true
             wait "$pf_pid" >/dev/null 2>&1 || true
+            echo "::group::Gateway port-forward log"
+            cat "$port_forward_log" || true
+            echo "::endgroup::"
             rm -f "$port_forward_log"
           }
           trap cleanup EXIT
 
           for _ in $(seq 1 30); do
-            if curl -fsS http://127.0.0.1:18080/health/ready >/dev/null; then
+            if ! kill -0 "$pf_pid" 2>/dev/null; then
+              echo "Gateway port-forward exited before it was ready."
+              print_gateway_diagnostics
+              exit 1
+            fi
+            if grep -q "Forwarding from 127.0.0.1:18080" "$port_forward_log"; then
               break
             fi
             sleep 1
           done
 
-          curl -fsS http://127.0.0.1:18080/health/ready >/dev/null
-          curl -fsS http://127.0.0.1:18080/.well-known/openid-configuration >/dev/null
+          if ! grep -q "Forwarding from 127.0.0.1:18080" "$port_forward_log"; then
+            echo "Gateway port-forward did not become ready."
+            print_gateway_diagnostics
+            exit 1
+          fi
+
+          smoke() {
+            local path="$1"
+
+            for _ in $(seq 1 30); do
+              if curl -fsS -H "Host: norge360.com" "http://127.0.0.1:18080$path" >/dev/null; then
+                return 0
+              fi
+              sleep 2
+            done
+
+            echo "Gateway smoke test failed for $path."
+            print_gateway_diagnostics
+            return 1
+          }
+
+          smoke /health/ready
+          smoke /.well-known/openid-configuration
