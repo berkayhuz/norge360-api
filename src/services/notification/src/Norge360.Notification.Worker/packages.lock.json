@@ -175,8 +175,8 @@
       "norge360.configuration": {
         "type": "Project",
         "dependencies": {
-          "AWSSDK.Core": "[4.0.3.29, )",
-          "AWSSDK.SimpleSystemsManagement": "[4.0.6.7, )",
+          "AWSSDK.Core": "[4.0.7.5, )",
+          "AWSSDK.SimpleSystemsManagement": "[4.0.8, )",
           "Microsoft.Extensions.Configuration": "[10.0.7, )",
           "Microsoft.Extensions.Configuration.Binder": "[10.0.7, )",
           "Microsoft.Extensions.DependencyInjection.Abstractions": "[10.0.7, )",
@@ -220,8 +220,8 @@
         "type": "Project",
         "dependencies": {
           "AWSSDK.SimpleEmailV2": "[4.0.12.10, )",
-          "MailKit": "[4.16.0, )",
-          "MimeKit": "[4.16.0, )",
+          "MailKit": "[4.17.0, )",
+          "MimeKit": "[4.17.0, )",
           "Norge360.Auth.Contracts": "[1.0.0, )",
           "Norge360.Messaging.RabbitMq": "[1.0.0, )",
           "Norge360.Notification.Application": "[1.0.0, )",
@@ -233,9 +233,9 @@
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",
-        "requested": "[4.0.3.29, )",
-        "resolved": "4.0.3.29",
-        "contentHash": "y07n9BHBVRDe3fDAjitnOBPwDwJ5NZ4oOh6ZvOizYWEsJnYcs34FQtTJ70Gt17qTCH86ma5kJdyMZ2lixm/dqg=="
+        "requested": "[4.0.7.5, )",
+        "resolved": "4.0.7.5",
+        "contentHash": "kOx1nlnJic0Ao+tpCia/DxmttQCPuKLWbfuJuXSJnG03yur0TRfPDCvkrroZ/4yuy0fLomPf46vDYnpkk01J9w=="
       },
       "AWSSDK.SimpleEmailV2": {
         "type": "CentralTransitive",
@@ -248,20 +248,20 @@
       },
       "AWSSDK.SimpleSystemsManagement": {
         "type": "CentralTransitive",
-        "requested": "[4.0.6.7, )",
-        "resolved": "4.0.6.7",
-        "contentHash": "IhrXPxAP69FY6tyyXqLACBM3BIkOD0XS1TZ6VnLEH7YdQn/ZbBYHsmiRvMeujyxT7dk3KkoX9CqjjFqLM9/Jzw==",
+        "requested": "[4.0.8, )",
+        "resolved": "4.0.8",
+        "contentHash": "gR80QDzm2/9KZiqV+XvyoFppj0PeiEPYbuFTLn6fylZlwCi7Bukp03I4DiApVdYpp2JO37+udEzduKwAHDet9g==",
         "dependencies": {
-          "AWSSDK.Core": "[4.0.3.6, 5.0.0)"
+          "AWSSDK.Core": "[4.0.7.5, 5.0.0)"
         }
       },
       "MailKit": {
         "type": "CentralTransitive",
-        "requested": "[4.16.0, )",
-        "resolved": "4.16.0",
-        "contentHash": "trJ82DOpAmo8i1jO1vNE+dGn4mPRyeYfy4swRcAGgMJhPoI1Kohf4OFJJf0+YIj4iUxgxPn8W+ht7e7KiYzSjg==",
+        "requested": "[4.17.0, )",
+        "resolved": "4.17.0",
+        "contentHash": "1nUAVLxM9fhT/78we6/AGsCesnpn5dRNLLeRqOfr52Wnk87pzVwo5YMTMyqnmoXrYc7piGhmayiMA/OgDluIjg==",
         "dependencies": {
-          "MimeKit": "4.16.0"
+          "MimeKit": "4.17.0"
         }
       },
       "Microsoft.EntityFrameworkCore": {
@@ -373,9 +373,9 @@
       },
       "MimeKit": {
         "type": "CentralTransitive",
-        "requested": "[4.16.0, )",
-        "resolved": "4.16.0",
-        "contentHash": "X0LFxeM4gPRIhODyY/HYS9b+zRZ7y//v59rFzgS6wLxcPuZThnMtNZHtrr0fjLyRRkg3gqJBtvW36XfUzZ7Djw==",
+        "requested": "[4.17.0, )",
+        "resolved": "4.17.0",
+        "contentHash": "h/KXsCreJf8RpR/PSAtlbvYtZFndp9N8Wn1Bs248AL7ITyhn+AiIY5bLTvt60tbN2mu6g8KadtBNWygTji2lqg==",
         "dependencies": {
           "BouncyCastle.Cryptography": "2.6.2",
           "System.Security.Cryptography.Pkcs": "10.0.0"
