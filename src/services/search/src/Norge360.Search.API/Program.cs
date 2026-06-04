@@ -40,7 +40,7 @@ builder.Services
             throw new InvalidOperationException("Authentication:Jwt issuer, audience and metadata address or authority must be configured outside Development.");
         }
 
-        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.RequireHttpsMetadata = jwtSection.GetValue("RequireHttpsMetadata", !builder.Environment.IsDevelopment());
         options.IncludeErrorDetails = builder.Environment.IsDevelopment();
         options.SaveToken = false;
 

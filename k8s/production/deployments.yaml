@@ -328,6 +328,8 @@ spec:
               value: http://norge360-auth-api:8080
             - name: Authentication__Jwt__MetadataAddress
               value: http://norge360-auth-api:8080/.well-known/openid-configuration
+            - name: Authentication__Jwt__RequireHttpsMetadata
+              value: "false"
             - name: Search__Provider
               value: Meilisearch
             - name: Search__IndexName

@@ -385,6 +385,23 @@ function validateMediaConfiguration(deployments) {
   }
 }
 
+function validateJwtMetadataConfiguration(deployments) {
+  for (const deployment of deployments) {
+    for (const prefix of ['Authentication__Jwt', 'Authentication__JwtBearer']) {
+      const metadataAddress = deployment.env.find(entry => entry.name === `${prefix}__MetadataAddress`)?.value;
+      const authority = deployment.env.find(entry => entry.name === `${prefix}__Authority`)?.value;
+      const requireHttpsMetadata = deployment.env.find(entry => entry.name === `${prefix}__RequireHttpsMetadata`)?.value;
+      const usesInternalHttpMetadata =
+        metadataAddress?.startsWith('http://') ||
+        authority?.startsWith('http://');
+
+      if (usesInternalHttpMetadata && requireHttpsMetadata?.toLowerCase() !== 'false') {
+        fail(`${deployment.name}: ${prefix} uses internal HTTP metadata, so ${prefix}__RequireHttpsMetadata must be false.`);
+      }
+    }
+  }
+}
+
 function validateTrustedGatewayHealthBypass() {
   const middlewareFiles = [
     'src/services/accounts/src/Norge360.Accounts.API/Middlewares/TrustedGatewayMiddleware.cs',
@@ -445,6 +462,7 @@ function main() {
   validateDockerUsers(deployments);
   validateManifestReferences(deployments, services);
   validateMediaConfiguration(deployments);
+  validateJwtMetadataConfiguration(deployments);
   validateTrustedGatewayHealthBypass();
   validateRuntimeSecrets(services);
 
