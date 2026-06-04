@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 
 pnpm run gitleaks -- dir
+pnpm run preflight:production

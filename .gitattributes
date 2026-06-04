@@ -1,5 +1,6 @@
 # Normalize text files automatically
 * text=auto
+.gitattributes text eol=lf
 
 # -------------------------
 # .NET / C# source files
@@ -57,6 +58,7 @@ Dockerfile  text eol=lf
 # Scripts
 # -------------------------
 *.sh        text eol=lf
+.husky/*    text eol=lf
 *.ps1       text eol=crlf
 *.bat       text eol=crlf
 *.cmd       text eol=crlf

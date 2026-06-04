@@ -32,6 +32,9 @@ jobs:
       - name: Build with analyzers
         run: dotnet build Norge360.slnx -c Release --no-restore
 
+      - name: Static production preflight
+        run: node scripts/tools/preflight-production.mjs
+
   secret-scan:
     name: Secret scan gate
     runs-on: ubuntu-latest
@@ -162,6 +165,16 @@ jobs:
 
           cd "$GITHUB_WORKSPACE"
           pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Runtime production preflight
+        env:
+          MESSAGING_RABBITMQ_URI: ${{ secrets.Messaging__RabbitMq__Uri }}
+          REDIS_CONNECTION: ${{ secrets.Infrastructure__DistributedCache__RedisConnectionString || 'norge360-redis:6379,abortConnect=false' }}
+        run: |
+          set -euo pipefail
+
+          cd "$GITHUB_WORKSPACE"
+          node scripts/tools/preflight-production.mjs --require-runtime-secrets
 
       - name: Build and push images
         env:

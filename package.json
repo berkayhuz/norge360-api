@@ -10,6 +10,8 @@
     "benchmark:auth": "dotnet run -c Release --project src/services/auth/benchmarks/Norge360.Auth.Benchmarks/Norge360.Auth.Benchmarks.csproj -- -j short",
     "benchmark:auth:check": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/assert-auth-benchmark-thresholds.ps1",
     "benchmark:merge": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/merge-benchmark-reports.ps1",
+    "preflight:production": "node scripts/tools/preflight-production.mjs",
+    "preflight:production:strict": "node scripts/tools/preflight-production.mjs --require-runtime-secrets",
     "secrets:sync": "node scripts/tools/sync-github-secrets.mjs",
     "install:secrets": "npm run secrets:sync -- --repo berkayhuz/norge360-api",
     "format:csharp": "dotnet csharpier .",
