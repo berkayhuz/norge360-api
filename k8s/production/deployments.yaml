@@ -989,6 +989,10 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: r2-secret-access-key
+            - name: Media__SecurityScannerProvider
+              value: Noop
+            - name: Media__RequireSecurityScannerInProduction
+              value: "false"
           startupProbe:
             httpGet:
               path: /health/live
@@ -1129,6 +1133,10 @@ spec:
                 secretKeyRef:
                   name: norge360-production-secrets
                   key: r2-secret-access-key
+            - name: Media__SecurityScannerProvider
+              value: Noop
+            - name: Media__RequireSecurityScannerInProduction
+              value: "false"
           startupProbe:
             httpGet:
               path: /health/live

@@ -361,6 +361,45 @@ function validateManifestReferences(deployments, services) {
   }
 }
 
+function validateMediaConfiguration(deployments) {
+  for (const deployment of deployments) {
+    const hasMediaStorage = deployment.env.some(entry => entry.name.startsWith('Media__CloudflareR2__'));
+    if (!hasMediaStorage) {
+      continue;
+    }
+
+    const scannerProvider = deployment.env.find(entry => entry.name === 'Media__SecurityScannerProvider')?.value;
+    const requireScanner = deployment.env.find(entry => entry.name === 'Media__RequireSecurityScannerInProduction')?.value;
+
+    if (!scannerProvider) {
+      fail(`${deployment.name}: Media__SecurityScannerProvider must be explicit in production.`);
+    }
+
+    if (!requireScanner) {
+      fail(`${deployment.name}: Media__RequireSecurityScannerInProduction must be explicit in production.`);
+    }
+
+    if (requireScanner?.toLowerCase() === 'true' && scannerProvider?.toLowerCase() === 'noop') {
+      fail(`${deployment.name}: Media__SecurityScannerProvider cannot be Noop when Media__RequireSecurityScannerInProduction=true.`);
+    }
+  }
+}
+
+function validateTrustedGatewayHealthBypass() {
+  const middlewareFiles = [
+    'src/services/accounts/src/Norge360.Accounts.API/Middlewares/TrustedGatewayMiddleware.cs',
+    'src/services/community/src/Norge360.Community.API/Middlewares/TrustedGatewayMiddleware.cs',
+    'src/services/discovery/src/Norge360.Discovery.API/Middlewares/TrustedGatewayMiddleware.cs',
+  ].filter(exists);
+
+  for (const file of middlewareFiles) {
+    const text = read(file);
+    if (!text.includes('StartsWithSegments("/health")')) {
+      fail(`${file}: TrustedGatewayMiddleware must bypass /health so Kubernetes probes can work.`);
+    }
+  }
+}
+
 function validateRuntimeSecrets(services) {
   const rabbitMqUri = process.env.MESSAGING_RABBITMQ_URI ?? process.env.Messaging__RabbitMq__Uri;
   const redisConnection = process.env.REDIS_CONNECTION ?? process.env.Infrastructure__DistributedCache__RedisConnectionString;
@@ -405,6 +444,8 @@ function main() {
   validateAppSettings();
   validateDockerUsers(deployments);
   validateManifestReferences(deployments, services);
+  validateMediaConfiguration(deployments);
+  validateTrustedGatewayHealthBypass();
   validateRuntimeSecrets(services);
 
   for (const message of warnings) {

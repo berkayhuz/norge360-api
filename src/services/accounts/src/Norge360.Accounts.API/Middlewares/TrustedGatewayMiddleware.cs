@@ -25,7 +25,7 @@ public sealed class TrustedGatewayMiddleware(
         var endpoint = context.GetEndpoint();
         var allowAnonymous = endpoint?.Metadata.GetMetadata<IAllowAnonymous>() is not null;
 
-        if (!trustedGatewayOptions.RequireTrustedGateway || allowAnonymous)
+        if (!trustedGatewayOptions.RequireTrustedGateway || allowAnonymous || context.Request.Path.StartsWithSegments("/health"))
         {
             await next(context);
             return;
