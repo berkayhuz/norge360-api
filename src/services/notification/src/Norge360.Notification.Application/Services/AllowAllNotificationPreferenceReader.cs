@@ -13,6 +13,7 @@ public sealed class AllowAllNotificationPreferenceReader : IUserNotificationPref
     public Task<bool> IsChannelEnabledAsync(
         Guid userId,
         NotificationCategory category,
+        string? notificationType,
         NotificationChannel channel,
         CancellationToken cancellationToken) =>
         Task.FromResult(true);

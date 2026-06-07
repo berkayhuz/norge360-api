@@ -13,6 +13,7 @@ public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext
     public DbSet<NotificationMessage> Notifications => Set<NotificationMessage>();
     public DbSet<NotificationDeliveryAttempt> DeliveryAttempts => Set<NotificationDeliveryAttempt>();
     public DbSet<InAppNotificationRecord> InAppNotifications => Set<InAppNotificationRecord>();
+    public DbSet<UserNotificationPreference> UserNotificationPreferences => Set<UserNotificationPreference>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -55,10 +56,27 @@ public sealed class NotificationDbContext(DbContextOptions<NotificationDbContext
         {
             builder.ToTable("InAppNotifications");
             builder.HasKey(x => x.Id);
+            builder.Property(x => x.Category).HasConversion<short>();
+            builder.Property(x => x.Type).HasMaxLength(128).IsRequired();
             builder.Property(x => x.Subject).HasMaxLength(512).IsRequired();
             builder.Property(x => x.Body).HasMaxLength(8000).IsRequired();
+            builder.Property(x => x.Url).HasMaxLength(1024);
+            builder.Property(x => x.ActorUsername).HasMaxLength(128);
+            builder.Property(x => x.ActorDisplayName).HasMaxLength(256);
+            builder.Property(x => x.ActorAvatarUrl).HasMaxLength(1024);
+            builder.Property(x => x.EntityType).HasMaxLength(128);
+            builder.Property(x => x.EntityId).HasMaxLength(128);
+            builder.Property(x => x.MetadataJson).HasMaxLength(8000).IsRequired();
             builder.Property(x => x.CorrelationId).HasMaxLength(128);
-            builder.HasIndex(x => new { x.UserId, x.CreatedAtUtc });
+            builder.HasIndex(x => new { x.UserId, x.IsRead, x.CreatedAtUtc });
+        });
+
+        modelBuilder.Entity<UserNotificationPreference>(builder =>
+        {
+            builder.ToTable("UserNotificationPreferences");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.Type).HasMaxLength(128).IsRequired();
+            builder.HasIndex(x => new { x.UserId, x.Type }).IsUnique();
         });
     }
 }

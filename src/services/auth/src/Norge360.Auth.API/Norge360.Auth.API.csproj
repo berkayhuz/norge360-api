@@ -11,6 +11,7 @@
     <Compile Include="Accessors\*.cs" />
     <Compile Include="Cookies\*.cs" />
     <Compile Include="Configurations\*.cs" />
+    <Compile Include="Exceptions\*.cs" />
     <Compile Include="Middlewares\*.cs" />
     <Compile Include="Permissions\*.cs" />
     <Compile Include="Security\*.cs" />

@@ -6,5 +6,12 @@
 namespace Norge360.Auth.Contracts.Internal;
 
 public sealed record AccountSecuritySummaryResponse(
+    string Email,
+    bool EmailConfirmed,
+    DateTimeOffset? PasswordChangedAt,
+    DateTimeOffset? LastLoginAt,
     bool IsMfaEnabled,
+    bool HasAuthenticator,
+    int RecoveryCodesRemaining,
+    int TrustedDevicesCount,
     DateTimeOffset? LastSecurityEventAt);

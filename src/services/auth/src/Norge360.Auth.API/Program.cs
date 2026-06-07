@@ -5,18 +5,24 @@
 
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Norge360.AspNetCore.Health;
 using Norge360.AspNetCore.TrustedGateway.Options;
 using Norge360.Auth.API.Accessors;
 using Norge360.Auth.API.Cookies;
+using Norge360.Auth.API.Exceptions;
 using Norge360.Auth.API.Health;
 using Norge360.Auth.API.Security;
 using Norge360.Auth.API.Security.Turnstile;
 using Norge360.Auth.Application.DependencyInjection;
+using Norge360.Auth.Application.Options;
 using Norge360.Auth.Infrastructure.DependencyInjection;
+using Norge360.Auth.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<TurnstileValidationFilter>();
 builder.Services.AddControllers(options =>
@@ -60,6 +66,16 @@ builder.Services.AddHealthChecks()
     .AddCheck<TrustedGatewayConfigurationHealthCheck>("auth-trusted-gateway", tags: ["ready", "startup"]);
 
 var app = builder.Build();
+
+app.UseExceptionHandler();
+
+var databaseOptions = app.Services.GetRequiredService<IOptions<DatabaseOptions>>().Value;
+if (databaseOptions.ApplyMigrationsOnStartup)
+{
+    await using var scope = app.Services.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<AuthDbContext>();
+    await dbContext.Database.MigrateAsync();
+}
 
 if (app.Environment.IsDevelopment())
 {

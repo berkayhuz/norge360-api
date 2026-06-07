@@ -29,8 +29,12 @@ public static class AccountsInfrastructureDependencyInjection
                     .GetSection(ReservedUsernameSeedOptions.SectionName)
                     .Bind(options));
 
-        var connectionString = configuration.GetConnectionString("AccountsConnection")
-            ?? throw new InvalidOperationException("Connection string 'AccountsConnection' is missing.");
+        var connectionString = configuration.GetConnectionString("AccountsConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException(
+                "Connection string 'AccountsConnection' is missing or empty. Set ConnectionStrings__AccountsConnection for Accounts API and Worker.");
+        }
 
         services.AddDbContext<AccountsDbContext>(options =>
             options.UseNpgsql(connectionString));
@@ -42,8 +46,10 @@ public static class AccountsInfrastructureDependencyInjection
         services.AddScoped<IUsernameHistoryRepository, UsernameHistoryRepository>();
         services.AddScoped<IUserBlockRepository, UserBlockRepository>();
         services.AddScoped<IUserFollowRepository, UserFollowRepository>();
+        services.AddScoped<IProfileNotificationSubscriptionRepository, ProfileNotificationSubscriptionRepository>();
         services.AddScoped<IFollowAccessChecker, FollowAccessChecker>();
         services.AddScoped<IIntegrationEventOutbox, IntegrationEventOutbox>();
+        services.AddScoped<IAccountNotificationPublisher, OutboxAccountNotificationPublisher>();
         services.AddScoped<DemoProfileSeeder>();
         services.AddScoped<IReservedUsernameInitializer, ReservedUsernameInitializer>();
         services.AddSingleton<IClock, SystemClock>();

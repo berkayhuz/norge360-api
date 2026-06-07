@@ -9,6 +9,7 @@
     <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Clock\Norge360.Clock.csproj" />
     <ProjectReference Include="..\Norge360.Auth.Contracts\Norge360.Auth.Contracts.csproj" />
     <ProjectReference Include="..\Norge360.Auth.Domain\Norge360.Auth.Domain.csproj" />
+    <ProjectReference Include="..\..\..\notification\src\Norge360.Notification.Contracts\Norge360.Notification.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

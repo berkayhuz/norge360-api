@@ -12,5 +12,7 @@ public enum NotificationCategory
     CrmReminder = 3,
     Task = 4,
     System = 5,
-    Marketing = 6
+    Marketing = 6,
+    Social = 7,
+    Community = 8
 }

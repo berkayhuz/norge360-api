@@ -12,6 +12,7 @@ public interface IUserNotificationPreferenceReader
     Task<bool> IsChannelEnabledAsync(
         Guid userId,
         NotificationCategory category,
+        string? notificationType,
         NotificationChannel channel,
         CancellationToken cancellationToken);
 }

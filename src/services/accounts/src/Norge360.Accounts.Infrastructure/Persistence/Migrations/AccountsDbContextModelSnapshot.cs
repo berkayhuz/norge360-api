@@ -156,6 +156,11 @@ namespace Norge360.Accounts.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<short>("CommentAudience")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasDefaultValue((short)0);
+
                     b.Property<string>("Country")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -226,6 +231,11 @@ namespace Norge360.Accounts.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0);
 
+                    b.Property<bool>("HideLikeCounts")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
+
                     b.Property<short>("ProfileVisibility")
                         .HasColumnType("smallint");
 
@@ -262,6 +272,34 @@ namespace Norge360.Accounts.Infrastructure.Persistence.Migrations
                         .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("UserProfiles", (string)null);
+                });
+
+            modelBuilder.Entity("Norge360.Accounts.Domain.Entities.UserProfileNotificationSubscription", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("SubscriberProfileId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TargetProfileId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TargetProfileId");
+
+                    b.HasIndex("SubscriberProfileId", "TargetProfileId")
+                        .IsUnique();
+
+                    b.ToTable("UserProfileNotificationSubscriptions", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_UserProfileNotificationSubscriptions_Subscriber_NotEqual_Target", "\"SubscriberProfileId\" <> \"TargetProfileId\"");
+                        });
                 });
 
             modelBuilder.Entity("Norge360.Accounts.Domain.Entities.UsernameHistory", b =>
@@ -409,6 +447,21 @@ namespace Norge360.Accounts.Infrastructure.Persistence.Migrations
                     b.HasOne("Norge360.Accounts.Domain.Entities.UserProfile", null)
                         .WithMany()
                         .HasForeignKey("FollowerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Norge360.Accounts.Domain.Entities.UserProfileNotificationSubscription", b =>
+                {
+                    b.HasOne("Norge360.Accounts.Domain.Entities.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("SubscriberProfileId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Norge360.Accounts.Domain.Entities.UserProfile", null)
+                        .WithMany()
+                        .HasForeignKey("TargetProfileId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

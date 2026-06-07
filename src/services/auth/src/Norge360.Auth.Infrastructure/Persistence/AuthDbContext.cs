@@ -14,6 +14,8 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
     public DbSet<User> Users => Set<User>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<AuthVerificationToken> AuthVerificationTokens => Set<AuthVerificationToken>();
+    public DbSet<TrustedDevice> TrustedDevices => Set<TrustedDevice>();
+    public DbSet<UserMfaRecoveryCode> UserMfaRecoveryCodes => Set<UserMfaRecoveryCode>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -41,6 +43,30 @@ public sealed class AuthDbContext(DbContextOptions<AuthDbContext> options) : DbC
             builder.Property(x => x.IpAddress).HasMaxLength(64);
             builder.HasIndex(x => x.UserId);
             builder.HasIndex(x => x.RefreshTokenExpiresAt);
+            builder.HasQueryFilter(x => !x.IsDeleted);
+        });
+
+        modelBuilder.Entity<TrustedDevice>(builder =>
+        {
+            builder.ToTable("TrustedDevice");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.DeviceFingerprintHash).HasMaxLength(128).IsRequired();
+            builder.Property(x => x.DeviceName).HasMaxLength(256);
+            builder.Property(x => x.IpAddress).HasMaxLength(64);
+            builder.Property(x => x.UserAgent).HasMaxLength(512);
+            builder.HasIndex(x => x.UserId);
+            builder.HasIndex(x => new { x.UserId, x.DeviceFingerprintHash }).IsUnique(false);
+            builder.HasQueryFilter(x => !x.IsDeleted);
+        });
+
+        modelBuilder.Entity<UserMfaRecoveryCode>(builder =>
+        {
+            builder.ToTable("UserMfaRecoveryCode");
+            builder.HasKey(x => x.Id);
+            builder.Property(x => x.CodeHash).HasMaxLength(128).IsRequired();
+            builder.Property(x => x.ConsumedByIpAddress).HasMaxLength(64);
+            builder.HasIndex(x => x.UserId);
+            builder.HasIndex(x => new { x.UserId, x.CodeHash }).IsUnique();
             builder.HasQueryFilter(x => !x.IsDeleted);
         });
 

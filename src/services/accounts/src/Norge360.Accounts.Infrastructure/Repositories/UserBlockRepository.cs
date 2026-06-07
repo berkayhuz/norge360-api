@@ -37,15 +37,23 @@ public sealed class UserBlockRepository(AccountsDbContext dbContext) : IUserBloc
                 dbContext.UserProfiles.AsNoTracking().Where(profile => !profile.IsDeleted),
                 block => block.BlockedProfileId,
                 profile => profile.Id,
-                (block, profile) => new UserBlockListItem(
-                    profile.Id,
-                    profile.Username,
-                    profile.DisplayName,
+                (block, profile) => new
+                {
+                    block.CreatedAt,
                     profile.AvatarUrl,
-                    block.CreatedAt))
-            .OrderByDescending(item => item.BlockedAtUtc)
+                    profile.DisplayName,
+                    profile.Id,
+                    profile.Username
+                })
+            .OrderByDescending(item => item.CreatedAt)
             .Skip(safeOffset)
             .Take(safeLimit)
+            .Select(item => new UserBlockListItem(
+                item.Id,
+                item.Username,
+                item.DisplayName,
+                item.AvatarUrl,
+                item.CreatedAt))
             .ToArrayAsync(cancellationToken);
     }
 

@@ -19,7 +19,7 @@ public sealed class ProfileAvatarUploadIntentService(
     IMediaUrlBuilder mediaUrlBuilder,
     IOptions<MediaOptions> mediaOptions) : IProfileAvatarUploadIntentService
 {
-    private const long MaxAvatarBytes = 5L * 1024 * 1024;
+    private const long MaxAvatarBytes = 1L * 1024 * 1024;
     private static readonly TimeSpan IntentTtl = TimeSpan.FromMinutes(5);
 
     private static readonly IReadOnlyDictionary<string, string> ContentTypeToExtension =
@@ -158,4 +158,3 @@ public sealed class ProfileAvatarUploadIntentService(
         messages.Add(error);
     }
 }
-

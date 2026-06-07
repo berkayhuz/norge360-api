@@ -60,11 +60,27 @@ internal sealed class AccountsCommunityAuthorProfileProvider(
                     string.IsNullOrWhiteSpace(x.DisplayName) ? x.Username : x.DisplayName,
                     x.AvatarUrl,
                     x.IsVerified,
-                    x.CanViewPosts));
+                    x.CanViewPosts,
+                    x.CommentAudience,
+                    x.HideLikeCounts,
+                    x.IsFollowedByCurrentUser,
+                    x.IsFollowingCurrentUser));
 
             foreach (var userId in distinctIds)
             {
-                map.TryAdd(userId, new CommunityAuthorSummary(userId, null, null, null, false, userId == currentUserId));
+                map.TryAdd(
+                    userId,
+                    new CommunityAuthorSummary(
+                        userId,
+                        null,
+                        null,
+                        null,
+                        false,
+                        userId == currentUserId,
+                        null,
+                        false,
+                        userId == currentUserId,
+                        userId == currentUserId));
             }
 
             return map;
@@ -104,7 +120,17 @@ internal sealed class AccountsCommunityAuthorProfileProvider(
     {
         return userIds.ToDictionary(
             static userId => userId,
-            userId => new CommunityAuthorSummary(userId, null, null, null, false, userId == currentUserId));
+            userId => new CommunityAuthorSummary(
+                userId,
+                null,
+                null,
+                null,
+                false,
+                userId == currentUserId,
+                null,
+                false,
+                userId == currentUserId,
+                userId == currentUserId));
     }
 
     private sealed record InternalBatchSummaryItem(
@@ -114,7 +140,11 @@ internal sealed class AccountsCommunityAuthorProfileProvider(
         string? AvatarUrl,
         bool IsVerified,
         bool CanViewPosts,
-        string? ProfileVisibility);
+        string? ProfileVisibility,
+        string? CommentAudience,
+        bool HideLikeCounts,
+        bool IsFollowedByCurrentUser,
+        bool IsFollowingCurrentUser);
 
     private sealed record InternalBatchSummaryResponse(IReadOnlyList<InternalBatchSummaryItem> Items);
 }

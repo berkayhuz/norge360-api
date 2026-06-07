@@ -31,5 +31,7 @@ public sealed class UserProfile : AuditableEntity
     public bool IsVerified { get; set; } = false;
     public AccountType AccountType { get; set; } = Enums.AccountType.Personal;
     public ProfileVisibility ProfileVisibility { get; set; } = Enums.ProfileVisibility.Public;
+    public PostCommentAudience CommentAudience { get; set; } = PostCommentAudience.Followers;
+    public bool HideLikeCounts { get; set; } = false;
     public DateTimeOffset? LastSeenAt { get; set; }
 }

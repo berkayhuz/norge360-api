@@ -26,7 +26,7 @@ public static class AuthTestDataBuilder
             "test-only-placeholder",
             now.AddMinutes(15),
             "test-only-placeholder",
-            now.AddDays(14),
+            now.AddDays(7),
             userId ?? Guid.NewGuid(),
             "jane.doe",
             "jane.doe@example.com",
@@ -44,5 +44,5 @@ public static class AuthTestDataBuilder
         new(
             value ?? DescriptorPlaceholderValue,
             digest ?? DescriptorPlaceholderValue,
-            new DateTime(2026, 1, 15, 0, 0, 0, DateTimeKind.Utc));
+            new DateTime(2026, 1, 8, 0, 0, 0, DateTimeKind.Utc));
 }

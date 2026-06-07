@@ -4,4 +4,17 @@
 // </copyright>
 
 using Norge360.Entities;
-namespace Norge360.Community.Domain.Entities; public sealed class CommunityComment : AuditableEntity { public Guid PostId { get; set; } public CommunityPost Post { get; set; } = null!; public Guid UserId { get; set; } public Guid? ParentCommentId { get; set; } public CommunityComment? ParentComment { get; set; } public ICollection<CommunityComment> Replies { get; set; } = []; public string Body { get; set; } = null!; }
+
+namespace Norge360.Community.Domain.Entities;
+
+public sealed class CommunityComment : AuditableEntity
+{
+    public Guid PostId { get; set; }
+    public CommunityPost Post { get; set; } = null!;
+    public Guid UserId { get; set; }
+    public string Slug { get; set; } = null!;
+    public Guid? ParentCommentId { get; set; }
+    public CommunityComment? ParentComment { get; set; }
+    public ICollection<CommunityComment> Replies { get; set; } = [];
+    public string Body { get; set; } = null!;
+}

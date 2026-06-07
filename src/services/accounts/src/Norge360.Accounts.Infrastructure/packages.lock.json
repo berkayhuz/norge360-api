@@ -302,6 +302,9 @@
           "SixLabors.ImageSharp": "[3.1.12, )"
         }
       },
+      "norge360.notification.contracts": {
+        "type": "Project"
+      },
       "norge360.search.contracts": {
         "type": "Project"
       },

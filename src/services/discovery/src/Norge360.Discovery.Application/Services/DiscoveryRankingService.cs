@@ -156,24 +156,49 @@ public sealed class DiscoveryRankingService(IDiscoveryDbContext dbContext) : IDi
 
         if (rows.Count == 0)
         {
-            return await GetFallbackUsersAsync(limit, reasonLabel, cancellationToken);
+            return await GetFallbackUsersAsync(limit, reasonLabel, new HashSet<Guid>(), cancellationToken);
         }
 
-        return rows.Select(x => new DiscoverUserResponse(
-            x.AuthUserId,
-            x.SubjectId,
-            x.Username ?? string.Empty,
-            x.DisplayName,
-            x.AvatarUrl,
-            x.Bio,
-            x.IsVerified,
-            false,
-            reasonLabel)).ToList();
+        if (rows.Count >= limit)
+        {
+            return rows.Select(x => new DiscoverUserResponse(
+                x.AuthUserId,
+                x.SubjectId,
+                x.Username ?? string.Empty,
+                x.DisplayName,
+                x.AvatarUrl,
+                x.Bio,
+                x.IsVerified,
+                false,
+                reasonLabel)).ToList();
+        }
+
+        var excludedUserIds = rows
+            .Select(x => x.AuthUserId)
+            .Where(id => id.HasValue)
+            .Select(id => id!.Value)
+            .ToHashSet();
+
+        var fallbackRows = await GetFallbackUsersAsync(limit - rows.Count, reasonLabel, excludedUserIds, cancellationToken);
+        return rows
+            .Select(x => new DiscoverUserResponse(
+                x.AuthUserId,
+                x.SubjectId,
+                x.Username ?? string.Empty,
+                x.DisplayName,
+                x.AvatarUrl,
+                x.Bio,
+                x.IsVerified,
+                false,
+                reasonLabel))
+            .Concat(fallbackRows)
+            .ToList();
     }
 
     private async Task<IReadOnlyList<DiscoverUserResponse>> GetFallbackUsersAsync(
         int limit,
         string reasonLabel,
+        ISet<Guid> excludedUserIds,
         CancellationToken cancellationToken)
     {
         var fallbackQuery = dbContext.DiscoverySubjectSnapshots
@@ -182,7 +207,8 @@ public sealed class DiscoveryRankingService(IDiscoveryDbContext dbContext) : IDi
                 snapshot.IsActive &&
                 !snapshot.IsDeleted &&
                 snapshot.Visibility == "Public" &&
-                snapshot.Username != null);
+                snapshot.Username != null &&
+                (!snapshot.AuthUserId.HasValue || !excludedUserIds.Contains(snapshot.AuthUserId.Value)));
 
         var rows = await fallbackQuery
             .Where(snapshot => snapshot.FollowersCount > 0 || snapshot.PostsCount > 0)

@@ -2,6 +2,7 @@
   "name": "norge360-api",
   "private": true,
   "scripts": {
+    "start:dev" : "docker compose --env-file .env.secrets.local up -d --build",
     "prepare": "husky",
     "gitleaks": "node scripts/gitleaks.mjs",
     "secret:gen": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/tools/new-random-secret.ps1",
@@ -16,8 +17,7 @@
     "install:secrets": "npm run secrets:sync -- --repo berkayhuz/norge360-api",
     "format:csharp": "dotnet csharpier .",
     "dotnet:format": "dotnet format --folder --check",
-    "dotnet:format:fix": "dotnet format --folder",
-    "test": "test"
+    "dotnet:format:fix": "dotnet format --folder"
   },
   "devDependencies": {
     "husky": "^9.1.7"

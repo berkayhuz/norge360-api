@@ -47,7 +47,7 @@ public sealed class CommunityController(
         return await Execute(async () =>
         {
             var mediaFiles = request.MediaFiles ?? [];
-            if (mediaFiles.Count > 8) return BadRequest(new { errorCode = "community_media_too_many_files" });
+            if (mediaFiles.Count > 10) return BadRequest(new { errorCode = "community_media_too_many_files" });
             if (string.IsNullOrWhiteSpace(request.Caption) && mediaFiles.Count == 0) return BadRequest(new { errorCode = "community_post_empty" });
 
             var post = await communityService.CreatePostAsync(userId.Value, new CreateCommunityPostRequest(request.Caption, request.City, request.District), cancellationToken);
@@ -133,6 +133,15 @@ public sealed class CommunityController(
         return result is null ? NotFound() : Ok(result);
     }
 
+    [HttpGet("{username}/feed/{postSlug}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<CommunityPostDto>> GetPostBySlug(string username, string postSlug, CancellationToken cancellationToken)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetPostBySlugAsync(username, postSlug, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
     [HttpGet("users/{userId:guid}/posts")]
     [AllowAnonymous]
     public async Task<ActionResult<PagedCommunityFeedResponse>> GetUserPosts(Guid userId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
@@ -180,7 +189,7 @@ public sealed class CommunityController(
             }
 
             var newFiles = request.MediaFiles ?? [];
-            if (keepIds.Count + newFiles.Count > 8) return BadRequest(new { errorCode = "community_media_too_many_files" });
+            if (keepIds.Count + newFiles.Count > 10) return BadRequest(new { errorCode = "community_media_too_many_files" });
             if (string.IsNullOrWhiteSpace(request.Caption) && keepIds.Count + newFiles.Count == 0) return BadRequest(new { errorCode = "community_post_empty" });
 
             var orderedKeepIds = request.MediaOrder ?? keepIds;
@@ -262,6 +271,38 @@ public sealed class CommunityController(
         return await Execute(async () => (await communityService.DeletePostAsync(postId, userId.Value, isModerator, cancellationToken)) ? NoContent() : NotFound());
     }
 
+    [HttpPut("posts/{postId:guid}/comments-enabled")]
+    [Authorize]
+    public async Task<IActionResult> SetPostCommentsEnabled(
+        Guid postId,
+        [FromBody] SetCommunityPostCommentsEnabledRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = RequireUserId();
+        if (userId is null) return Unauthorized();
+        return await Execute(async () =>
+        {
+            var result = await communityService.SetPostCommentsEnabledAsync(postId, userId.Value, IsModerator(), request.Enabled, cancellationToken);
+            return result is null ? NotFound() : Ok(result);
+        });
+    }
+
+    [HttpPut("posts/{postId:guid}/hide-like-count")]
+    [Authorize]
+    public async Task<IActionResult> SetPostHideLikeCount(
+        Guid postId,
+        [FromBody] SetCommunityPostHideLikeCountRequest request,
+        CancellationToken cancellationToken)
+    {
+        var userId = RequireUserId();
+        if (userId is null) return Unauthorized();
+        return await Execute(async () =>
+        {
+            var result = await communityService.SetPostHideLikeCountAsync(postId, userId.Value, IsModerator(), request.HideLikeCount, cancellationToken);
+            return result is null ? NotFound() : Ok(result);
+        });
+    }
+
     [HttpGet("posts/{postId:guid}/comments")]
     [AllowAnonymous]
     public async Task<ActionResult<PagedCommunityCommentsResponse>> GetPostComments(Guid postId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
@@ -283,6 +324,51 @@ public sealed class CommunityController(
         }
 
         var result = await communityService.GetPostCommentsAsync(postId, page, pageSize, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{username}/feed/{postSlug}/comments")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PagedCommunityCommentsResponse>> GetPostCommentsBySlug(string username, string postSlug, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetPostCommentsBySlugAsync(username, postSlug, page, pageSize, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("comments/{commentId:guid}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<CommunityCommentDto>> GetComment(Guid commentId, CancellationToken cancellationToken = default)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetCommentAsync(commentId, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{username}/feed/{postSlug}/comments/{commentSlug}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<CommunityCommentDto>> GetCommentBySlug(string username, string postSlug, string commentSlug, CancellationToken cancellationToken = default)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetCommentBySlugAsync(username, postSlug, commentSlug, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("comments/{commentId:guid}/replies")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PagedCommunityCommentsResponse>> GetCommentReplies(Guid commentId, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetCommentRepliesAsync(commentId, page, pageSize, userId, cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpGet("{username}/feed/{postSlug}/comments/{commentSlug}/replies")]
+    [AllowAnonymous]
+    public async Task<ActionResult<PagedCommunityCommentsResponse>> GetCommentRepliesBySlug(string username, string postSlug, string commentSlug, [FromQuery] int page = 1, [FromQuery] int pageSize = 20, CancellationToken cancellationToken = default)
+    {
+        var userId = currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty ? currentUserService.UserId : (Guid?)null;
+        var result = await communityService.GetCommentRepliesBySlugAsync(username, postSlug, commentSlug, page, pageSize, userId, cancellationToken);
         return result is null ? NotFound() : Ok(result);
     }
 

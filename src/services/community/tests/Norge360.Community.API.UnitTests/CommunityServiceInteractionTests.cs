@@ -5,6 +5,8 @@
 
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
+using Moq;
+using Norge360.Community.Application.Models;
 using Norge360.Community.Contracts.Requests;
 using Xunit;
 
@@ -12,6 +14,83 @@ namespace Norge360.Community.API.UnitTests;
 
 public sealed class CommunityServiceInteractionTests
 {
+    [Fact]
+    public async Task CreatePostAsync_ShouldPublishPostCreatedNotificationWithFirstPostFlag()
+    {
+        using var fixture = new CommunityTestFixture();
+        var userId = Guid.NewGuid();
+
+        var post = await fixture.Service.CreatePostAsync(userId, new CreateCommunityPostRequest("hello", "Oslo", null), CancellationToken.None);
+
+        fixture.Notifications.Verify(
+            x => x.PublishPostCreatedAsync(
+                It.Is<CommunityPostPublishedNotification>(n =>
+                    n.PostId == post.Id &&
+                    n.Author.UserId == userId &&
+                    n.City == "Oslo" &&
+                    n.IsFirstPost),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task PostLikeAndCommentLike_ShouldPublishNotificationsOnlyWhenNewLikeIsFromAnotherUser()
+    {
+        using var fixture = new CommunityTestFixture();
+        var ownerId = Guid.NewGuid();
+        var likerId = Guid.NewGuid();
+        var post = fixture.AddPost(ownerId);
+        var comment = fixture.AddComment(post, ownerId);
+
+        await fixture.Service.SetPostLikeAsync(post.Id, likerId, true, CancellationToken.None);
+        await fixture.Service.SetPostLikeAsync(post.Id, likerId, true, CancellationToken.None);
+        await fixture.Service.SetCommentLikeAsync(comment.Id, likerId, true, CancellationToken.None);
+        await fixture.Service.SetCommentLikeAsync(comment.Id, likerId, true, CancellationToken.None);
+
+        fixture.Notifications.Verify(
+            x => x.PublishPostLikedAsync(
+                It.Is<CommunityInteractionNotification>(n => n.RecipientUserId == ownerId && n.PostId == post.Id),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        fixture.Notifications.Verify(
+            x => x.PublishCommentLikedAsync(
+                It.Is<CommunityInteractionNotification>(n => n.RecipientUserId == ownerId && n.PostId == post.Id),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CommentsAndReplies_ShouldNotifyPostOwnerAndParentCommentOwner()
+    {
+        using var fixture = new CommunityTestFixture();
+        var postOwnerId = Guid.NewGuid();
+        var commenterId = Guid.NewGuid();
+        var replierId = Guid.NewGuid();
+        var post = fixture.AddPost(postOwnerId);
+        var comment = await fixture.Service.AddCommentAsync(
+            post.Id,
+            commenterId,
+            new CreateCommunityCommentRequest("new comment"),
+            CancellationToken.None);
+
+        await fixture.Service.ReplyCommentAsync(
+            comment!.Id,
+            replierId,
+            new CreateCommunityReplyRequest("reply"),
+            CancellationToken.None);
+
+        fixture.Notifications.Verify(
+            x => x.PublishPostCommentedAsync(
+                It.Is<CommunityInteractionNotification>(n => n.RecipientUserId == postOwnerId && n.EntityId == comment.Id),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+        fixture.Notifications.Verify(
+            x => x.PublishCommentRepliedAsync(
+                It.Is<CommunityInteractionNotification>(n => n.RecipientUserId == commenterId && n.PostId == post.Id),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
     [Fact]
     public async Task LikeAndSaveToggles_ShouldNotCreateDuplicatesAndShouldReturnCounts()
     {

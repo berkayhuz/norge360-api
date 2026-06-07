@@ -13,8 +13,9 @@ namespace Norge360.Accounts.Application.Services;
 
 public sealed class ProfileQueryService(
     IUserProfileRepository userProfileRepository,
+    IUserFollowRepository userFollowRepository,
     IUserBlockRepository userBlockRepository,
-    IFollowAccessChecker followAccessChecker,
+    IProfileNotificationSubscriptionRepository profileNotificationSubscriptionRepository,
     IUsernameNormalizer usernameNormalizer,
     IUsernameValidator usernameValidator,
     IProfileVisibilityPolicy profileVisibilityPolicy) : IProfileQueryService
@@ -35,7 +36,10 @@ public sealed class ProfileQueryService(
 
         return profile is null
             ? ProfileQueryResult<MyProfileResponse>.ProvisioningPending("profile_provisioning_pending")
-            : ProfileQueryResult<MyProfileResponse>.Success(MapMyProfile(profile));
+            : ProfileQueryResult<MyProfileResponse>.Success(
+                MapMyProfile(
+                    profile,
+                    await LoadFollowCountsAsync(profile.Id, cancellationToken)));
     }
 
     public async Task<ProfileQueryResult<ProfileResponse>> GetPublicProfileByUsernameAsync(
@@ -61,9 +65,10 @@ public sealed class ProfileQueryService(
             return ProfileQueryResult<ProfileResponse>.NotFound("profile_not_found");
         }
 
+        UserProfile? viewerProfile = null;
         if (viewerAuthUserId.HasValue)
         {
-            var viewerProfile = await userProfileRepository.GetByAuthUserIdAsync(
+            viewerProfile = await userProfileRepository.GetByAuthUserIdAsync(
                 viewerAuthUserId.Value,
                 includeDeleted: false,
                 cancellationToken);
@@ -94,16 +99,12 @@ public sealed class ProfileQueryService(
 
             if (viewerAuthUserId.Value != profile.AuthUserId)
             {
-                var viewerProfile = await userProfileRepository.GetByAuthUserIdAsync(
-                    viewerAuthUserId.Value,
-                    includeDeleted: false,
-                    cancellationToken);
                 if (viewerProfile is null)
                 {
                     return ProfileQueryResult<ProfileResponse>.NotFound("profile_not_found");
                 }
 
-                var isFollower = await followAccessChecker.IsActiveFollowerAsync(
+                var isFollower = await userFollowRepository.ExistsActiveAsync(
                     viewerProfile.Id,
                     profile.Id,
                     cancellationToken);
@@ -114,10 +115,13 @@ public sealed class ProfileQueryService(
             }
         }
 
+        var relationship = await ResolveRelationshipAsync(viewerProfile, profile, cancellationToken);
+        var followCounts = await LoadFollowCountsAsync(profile.Id, cancellationToken);
+
         return profileVisibilityPolicy.Evaluate(profile, viewerAuthUserId) switch
         {
-            ProfileVisibilityDecision.Full => ProfileQueryResult<ProfileResponse>.Success(MapFullProfile(profile)),
-            ProfileVisibilityDecision.Limited => ProfileQueryResult<ProfileResponse>.Success(MapLimitedProfile(profile)),
+            ProfileVisibilityDecision.Full => ProfileQueryResult<ProfileResponse>.Success(MapFullProfile(profile, relationship, followCounts)),
+            ProfileVisibilityDecision.Limited => ProfileQueryResult<ProfileResponse>.Success(MapLimitedProfile(profile, relationship, followCounts)),
             _ => ProfileQueryResult<ProfileResponse>.NotFound("profile_not_found")
         };
     }
@@ -189,12 +193,36 @@ public sealed class ProfileQueryService(
         }
 
         var profiles = await userProfileRepository.ListByAuthUserIdsAsync(distinctUserIds, includeDeleted: false, cancellationToken);
+        var viewerProfile = viewerAuthUserId.HasValue
+            ? await userProfileRepository.GetByAuthUserIdAsync(viewerAuthUserId.Value, includeDeleted: false, cancellationToken)
+            : null;
+        var profileIds = profiles.Select(profile => profile.Id).ToArray();
+        var blockedProfileIds = viewerProfile is null
+            ? []
+            : (await userBlockRepository.ListBlockedProfileIdsAsync(viewerProfile.Id, cancellationToken)).ToHashSet();
+        var blockerProfileIds = viewerProfile is null
+            ? []
+            : (await userBlockRepository.ListBlockerProfileIdsAsync(viewerProfile.Id, cancellationToken)).ToHashSet();
+        var followedProfileIds = viewerProfile is null
+            ? []
+            : (await userFollowRepository.ListFollowingProfileIdsAsync(viewerProfile.Id, profileIds, cancellationToken)).ToHashSet();
         var items = new List<InternalUserBatchSummaryItem>(profiles.Count);
 
         foreach (var profile in profiles.Where(static p => p.IsActive))
         {
-            var visibilityResult = await GetPublicProfileByUsernameAsync(profile.Username, viewerAuthUserId, cancellationToken);
-            var canViewPosts = visibilityResult.Status == ProfileQueryStatus.Success;
+            var isFollowedByCurrentUser = viewerProfile is null
+                ? false
+                : await userFollowRepository.ExistsActiveAsync(viewerProfile.Id, profile.Id, cancellationToken);
+            var isFollowingCurrentUser = viewerProfile is null
+                ? false
+                : await userFollowRepository.ExistsActiveAsync(profile.Id, viewerProfile.Id, cancellationToken);
+            var canViewPosts = CanViewPosts(
+                profile,
+                viewerAuthUserId,
+                viewerProfile,
+                blockedProfileIds,
+                blockerProfileIds,
+                followedProfileIds);
 
             items.Add(new InternalUserBatchSummaryItem(
                 profile.AuthUserId,
@@ -203,7 +231,11 @@ public sealed class ProfileQueryService(
                 profile.AvatarUrl,
                 profile.IsVerified,
                 canViewPosts,
-                profile.ProfileVisibility.ToString()));
+                profile.ProfileVisibility.ToString(),
+                profile.CommentAudience.ToString(),
+                profile.HideLikeCounts,
+                isFollowedByCurrentUser,
+                isFollowingCurrentUser));
         }
 
         return new InternalUserBatchSummaryResponse(items);
@@ -245,7 +277,18 @@ public sealed class ProfileQueryService(
             items.Length == safeTake);
     }
 
-    private static MyProfileResponse MapMyProfile(UserProfile profile) => new(
+    private async Task<(int FollowersCount, int FollowingCount)> LoadFollowCountsAsync(
+        Guid profileId,
+        CancellationToken cancellationToken)
+    {
+        var followersCount = await userFollowRepository.CountFollowersAsync(profileId, cancellationToken);
+        var followingCount = await userFollowRepository.CountFollowingAsync(profileId, cancellationToken);
+        return (followersCount, followingCount);
+    }
+
+    private static MyProfileResponse MapMyProfile(
+        UserProfile profile,
+        (int FollowersCount, int FollowingCount) followCounts) => new(
         profile.Id,
         profile.AuthUserId,
         profile.Username,
@@ -260,17 +303,93 @@ public sealed class ProfileQueryService(
         profile.Occupation,
         profile.Company,
         profile.Website,
-        profile.FollowersCount,
-        profile.FollowingCount,
+        followCounts.FollowersCount,
+        followCounts.FollowingCount,
         profile.PostsCount,
         profile.IsVerified,
         profile.AccountType.ToString(),
         profile.ProfileVisibility.ToString(),
+        profile.CommentAudience.ToString(),
+        profile.HideLikeCounts,
         profile.LastSeenAt,
         profile.CreatedAt,
         profile.UpdatedAt);
 
-    private static ProfileResponse MapFullProfile(UserProfile profile) => new(
+    private async Task<ProfileRelationship> ResolveRelationshipAsync(
+        UserProfile? viewerProfile,
+        UserProfile profile,
+        CancellationToken cancellationToken)
+    {
+        if (viewerProfile is null || viewerProfile.Id == profile.Id)
+        {
+            return new ProfileRelationship(false, false, false, false);
+        }
+
+        var isFollowedByCurrentUser = await userFollowRepository.ExistsActiveAsync(
+            viewerProfile.Id,
+            profile.Id,
+            cancellationToken);
+        var isFollowingCurrentUser = await userFollowRepository.ExistsActiveAsync(
+            profile.Id,
+            viewerProfile.Id,
+            cancellationToken);
+        var isFollowRequestPending = await userFollowRepository.ExistsPendingAsync(
+            viewerProfile.Id,
+            profile.Id,
+            cancellationToken);
+        var isProfileNotificationsEnabled = await profileNotificationSubscriptionRepository.ExistsAsync(
+            viewerProfile.Id,
+            profile.Id,
+            cancellationToken);
+
+        return new ProfileRelationship(
+            isFollowedByCurrentUser,
+            isFollowingCurrentUser,
+            isFollowRequestPending,
+            isProfileNotificationsEnabled);
+    }
+
+    private static bool CanViewPosts(
+        UserProfile profile,
+        Guid? viewerAuthUserId,
+        UserProfile? viewerProfile,
+        IReadOnlySet<Guid> blockedProfileIds,
+        IReadOnlySet<Guid> blockerProfileIds,
+        IReadOnlySet<Guid> followedProfileIds)
+    {
+        if (!profile.IsActive || profile.ProfileVisibility == Domain.Enums.ProfileVisibility.Hidden)
+        {
+            return false;
+        }
+
+        if (!viewerAuthUserId.HasValue)
+        {
+            return profile.ProfileVisibility == Domain.Enums.ProfileVisibility.Public;
+        }
+
+        if (viewerProfile is null)
+        {
+            return false;
+        }
+
+        if (viewerProfile.Id != profile.Id && (blockedProfileIds.Contains(profile.Id) || blockerProfileIds.Contains(profile.Id)))
+        {
+            return false;
+        }
+
+        return profile.ProfileVisibility switch
+        {
+            Domain.Enums.ProfileVisibility.Public => true,
+            Domain.Enums.ProfileVisibility.Private => true,
+            Domain.Enums.ProfileVisibility.FollowersOnly => viewerProfile.Id == profile.Id || followedProfileIds.Contains(profile.Id),
+            _ => false
+        };
+    }
+
+    private static ProfileResponse MapFullProfile(
+        UserProfile profile,
+        ProfileRelationship relationship,
+        (int FollowersCount, int FollowingCount) followCounts) => new(
         profile.Id,
         profile.Username,
         profile.DisplayName,
@@ -283,16 +402,25 @@ public sealed class ProfileQueryService(
         profile.Occupation,
         profile.Company,
         profile.Website,
-        profile.FollowersCount,
-        profile.FollowingCount,
+        followCounts.FollowersCount,
+        followCounts.FollowingCount,
         profile.PostsCount,
         profile.IsVerified,
         profile.AccountType.ToString(),
         profile.ProfileVisibility.ToString(),
+        profile.CommentAudience.ToString(),
+        profile.HideLikeCounts,
         profile.LastSeenAt,
-        profile.CreatedAt);
+        profile.CreatedAt,
+        relationship.IsFollowedByCurrentUser,
+        relationship.IsFollowingCurrentUser,
+        relationship.IsFollowRequestPending,
+        relationship.IsProfileNotificationsEnabled);
 
-    private static ProfileResponse MapLimitedProfile(UserProfile profile) => new(
+    private static ProfileResponse MapLimitedProfile(
+        UserProfile profile,
+        ProfileRelationship relationship,
+        (int FollowersCount, int FollowingCount) followCounts) => new(
         profile.Id,
         profile.Username,
         profile.DisplayName,
@@ -306,14 +434,26 @@ public sealed class ProfileQueryService(
         null,
         null,
         null,
-        null,
-        null,
+        followCounts.FollowersCount,
+        followCounts.FollowingCount,
         profile.IsVerified,
         profile.AccountType.ToString(),
         profile.ProfileVisibility.ToString(),
+        profile.CommentAudience.ToString(),
+        profile.HideLikeCounts,
         null,
-        null);
+        null,
+        relationship.IsFollowedByCurrentUser,
+        relationship.IsFollowingCurrentUser,
+        relationship.IsFollowRequestPending,
+        relationship.IsProfileNotificationsEnabled);
 
     private static DateTimeOffset ToDateTimeOffset(DateTime value) =>
         new(DateTime.SpecifyKind(value, DateTimeKind.Utc));
+
+    private sealed record ProfileRelationship(
+        bool? IsFollowedByCurrentUser,
+        bool? IsFollowingCurrentUser,
+        bool? IsFollowRequestPending,
+        bool? IsProfileNotificationsEnabled);
 }

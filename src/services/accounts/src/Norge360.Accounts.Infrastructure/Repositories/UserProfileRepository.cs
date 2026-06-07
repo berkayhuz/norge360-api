@@ -171,6 +171,38 @@ public sealed class UserProfileRepository(AccountsDbContext dbContext) : IUserPr
             .ToArrayAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyCollection<Guid>> ListAuthUserIdsByCityAsync(
+        string city,
+        IReadOnlyCollection<Guid> excludedProfileIds,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        var normalizedCity = city.Trim().ToUpperInvariant();
+        if (normalizedCity.Length == 0)
+        {
+            return [];
+        }
+
+        var safeLimit = Math.Clamp(limit, 1, 1000);
+        var excluded = excludedProfileIds.Count == 0
+            ? Array.Empty<Guid>()
+            : excludedProfileIds.Distinct().ToArray();
+
+        return await dbContext.UserProfiles
+            .AsNoTracking()
+            .Where(profile =>
+                !profile.IsDeleted &&
+                profile.IsActive &&
+                profile.City != null &&
+                profile.City.ToUpper() == normalizedCity &&
+                !excluded.Contains(profile.Id))
+            .OrderByDescending(profile => profile.UpdatedAt ?? profile.CreatedAt)
+            .Select(profile => profile.AuthUserId)
+            .Distinct()
+            .Take(safeLimit)
+            .ToArrayAsync(cancellationToken);
+    }
+
     private IQueryable<UserProfile> ReadProfiles(bool includeDeleted)
     {
         var profiles = includeDeleted

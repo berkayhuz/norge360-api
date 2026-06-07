@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="DependencyInjection\AuthOptionValidation.cs" />
     <Compile Include="DependencyInjection\InfrastructureDependencyInjection.cs" />
     <Compile Include="Persistence\AuthDbContext.cs" />
     <Compile Include="Persistence\OutboxMessage.cs" />
@@ -18,11 +19,17 @@
     <Compile Include="Services\Models\InternalUserIdentityPayload.cs" />
     <Compile Include="Services\AccountsAuthUserProfileResolver.cs" />
     <Compile Include="Services\AccountsUsernameLoginResolver.cs" />
+    <Compile Include="Services\AuthenticatorKeyProtector.cs" />
+    <Compile Include="Services\AuthenticatorTotpService.cs" />
     <Compile Include="Services\JwtAccessTokenFactory.cs" />
     <Compile Include="Services\RefreshTokenService.cs" />
+    <Compile Include="Services\RecoveryCodeService.cs" />
+    <Compile Include="Services\SecurityAlertPublisher.cs" />
     <Compile Include="Services\TokenSigningKeyProvider.cs" />
     <Compile Include="Services\UserRepository.cs" />
+    <Compile Include="Services\UserMfaRecoveryCodeRepository.cs" />
     <Compile Include="Services\UserSessionRepository.cs" />
+    <Compile Include="Services\TrustedDeviceRepository.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +43,7 @@
     <ProjectReference Include="..\Norge360.Auth.Application\Norge360.Auth.Application.csproj" />
     <ProjectReference Include="..\Norge360.Auth.Contracts\Norge360.Auth.Contracts.csproj" />
     <ProjectReference Include="..\Norge360.Auth.Domain\Norge360.Auth.Domain.csproj" />
+    <ProjectReference Include="..\..\..\notification\src\Norge360.Notification.Contracts\Norge360.Notification.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

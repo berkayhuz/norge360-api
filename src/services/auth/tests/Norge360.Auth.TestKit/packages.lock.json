@@ -697,7 +697,8 @@
           "Norge360.AspNetCore": "[1.0.0, )",
           "Norge360.Auth.Contracts": "[1.0.0, )",
           "Norge360.Auth.Domain": "[1.0.0, )",
-          "Norge360.Clock": "[1.0.0, )"
+          "Norge360.Clock": "[1.0.0, )",
+          "Norge360.Notification.Contracts": "[1.0.0, )"
         }
       },
       "norge360.auth.contracts": {
@@ -723,6 +724,7 @@
           "Norge360.Auth.Contracts": "[1.0.0, )",
           "Norge360.Auth.Domain": "[1.0.0, )",
           "Norge360.Messaging.RabbitMq": "[1.0.0, )",
+          "Norge360.Notification.Contracts": "[1.0.0, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.2, )",
           "StackExchange.Redis": "[2.12.14, )"
         }
@@ -763,6 +765,9 @@
           "Norge360.Messaging.Abstractions": "[1.0.0, )",
           "RabbitMQ.Client": "[7.2.1, )"
         }
+      },
+      "norge360.notification.contracts": {
+        "type": "Project"
       },
       "AWSSDK.Core": {
         "type": "CentralTransitive",

@@ -31,28 +31,39 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       LocalDevelopment__DisableHttpsRedirection: "false"
+      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:?ConnectionStrings__AccountsConnection is required}"
       Services__Discovery__Enabled: "true"
-      Services__Discovery__BaseUrl: "http://discovery-api:8080"
+      Services__Discovery__BaseUrl: "http://gateway:8080"
       Services__Discovery__InternalTokenHeaderName: "X-Discovery-Internal-Token"
       Services__Discovery__InternalToken: "${Discovery__InternalEvents__Token:?Discovery__InternalEvents__Token is required}"
 
   accounts-worker:
     environment:
       DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:?ConnectionStrings__AccountsConnection is required}"
 
   community-api:
     ports: !reset []
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       LocalDevelopment__DisableHttpsRedirection: "false"
+      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:?ConnectionStrings__CommunityConnection is required}"
       Services__Discovery__Enabled: "true"
-      Services__Discovery__BaseUrl: "http://discovery-api:8080"
+      Services__Discovery__BaseUrl: "http://gateway:8080"
       Services__Discovery__InternalTokenHeaderName: "X-Discovery-Internal-Token"
       Services__Discovery__InternalToken: "${Discovery__InternalEvents__Token:?Discovery__InternalEvents__Token is required}"
+
+  notification-api:
+    ports: !reset []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      LocalDevelopment__DisableHttpsRedirection: "false"
+      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:?ConnectionStrings__NotificationConnection is required}"
 
   community-worker:
     environment:
       DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:?ConnectionStrings__CommunityConnection is required}"
 
   search-api:
     ports: !reset []
@@ -67,6 +78,7 @@ services:
   notification-worker:
     environment:
       DOTNET_ENVIRONMENT: Production
+      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:?ConnectionStrings__NotificationConnection is required}"
 
   meilisearch:
     ports: !reset []

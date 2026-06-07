@@ -14,4 +14,6 @@ public sealed record UpdateMyProfileRequest(
     string? Occupation,
     string? Company,
     string? Website,
-    string? ProfileVisibility);
+    string? ProfileVisibility,
+    string? CommentAudience,
+    bool? HideLikeCounts);

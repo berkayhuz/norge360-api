@@ -19,4 +19,9 @@ public interface IProfileMutationService
         Guid authUserId,
         CompleteAvatarUploadRequest request,
         CancellationToken cancellationToken = default);
+
+    Task<CompleteAvatarUploadResult> CompleteCoverPhotoUploadAsync(
+        Guid authUserId,
+        CompleteAvatarUploadRequest request,
+        CancellationToken cancellationToken = default);
 }

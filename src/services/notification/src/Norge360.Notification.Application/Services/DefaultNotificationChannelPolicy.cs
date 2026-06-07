@@ -18,7 +18,8 @@ public sealed class DefaultNotificationChannelPolicy(
         SendNotificationRequest request,
         CancellationToken cancellationToken)
     {
-        if (request.Category == NotificationCategory.Security)
+        request.Metadata.TryGetValue("securityEventType", out var securityEventType);
+        if (request.Category == NotificationCategory.Security && string.IsNullOrWhiteSpace(securityEventType))
         {
             return request.Channels.Distinct().ToArray();
         }
@@ -28,12 +29,19 @@ public sealed class DefaultNotificationChannelPolicy(
             return request.Channels.Distinct().ToArray();
         }
 
+        var notificationType = request.Category == NotificationCategory.Security && !string.IsNullOrWhiteSpace(securityEventType)
+            ? $"security.{securityEventType.Trim()}"
+            : request.Metadata.TryGetValue("notificationType", out var explicitNotificationType)
+                ? explicitNotificationType
+                : null;
+
         var enabledChannels = new List<NotificationChannel>();
         foreach (var channel in request.Channels.Distinct())
         {
             if (await preferenceReader.IsChannelEnabledAsync(
                     request.Recipient.UserId.Value,
                     request.Category,
+                    notificationType,
                     channel,
                     cancellationToken))
             {

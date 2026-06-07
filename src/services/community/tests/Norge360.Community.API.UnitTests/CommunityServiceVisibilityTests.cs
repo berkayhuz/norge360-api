@@ -5,7 +5,7 @@
 
 using FluentAssertions;
 using Moq;
-using Norge360.Community.Application.Abstractions;
+using Norge360.Community.Application.Models;
 using Xunit;
 
 namespace Norge360.Community.API.UnitTests;
@@ -21,15 +21,27 @@ public sealed class CommunityServiceVisibilityTests
         fixture.AddPost(visibleAuthorId);
         fixture.AddPost(visibleAuthorId);
         fixture.AddPost(hiddenAuthorId);
-        fixture.Visibility.Setup(x => x.FilterVisibleAuthorsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HashSet<Guid> { visibleAuthorId });
+        fixture.Authors.Setup(x => x.GetAuthorSummariesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((IReadOnlyCollection<Guid> ids, Guid? _, CancellationToken _) =>
+                ids.Distinct().ToDictionary(
+                    id => id,
+                    id => new CommunityAuthorSummary(
+                        id,
+                        $"user-{id:N}",
+                        "Test User",
+                        null,
+                        false,
+                        id == visibleAuthorId,
+                        null,
+                        false,
+                        false,
+                        false)));
 
         var feed = await fixture.Service.GetFeedAsync(1, 20, Guid.NewGuid(), CancellationToken.None);
 
         feed.Items.Should().HaveCount(2).And.OnlyContain(x => x.Post.UserId == visibleAuthorId);
-        fixture.Visibility.Verify(x => x.FilterVisibleAuthorsAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Once);
         fixture.Visibility.Verify(x => x.CanViewAuthorPostsAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
-        fixture.Authors.Verify(x => x.GetAuthorSummariesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Once);
+        fixture.Authors.Verify(x => x.GetAuthorSummariesAsync(It.IsAny<IReadOnlyCollection<Guid>>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
     }
 
     [Fact]

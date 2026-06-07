@@ -12,6 +12,10 @@ public sealed record InternalUserBatchSummaryItem(
     string? AvatarUrl,
     bool IsVerified,
     bool CanViewPosts,
-    string? ProfileVisibility);
+    string? ProfileVisibility,
+    string? CommentAudience,
+    bool HideLikeCounts,
+    bool IsFollowedByCurrentUser,
+    bool IsFollowingCurrentUser);
 
 public sealed record InternalUserBatchSummaryResponse(IReadOnlyList<InternalUserBatchSummaryItem> Items);

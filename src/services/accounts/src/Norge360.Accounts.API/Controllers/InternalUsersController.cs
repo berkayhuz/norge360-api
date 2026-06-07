@@ -16,6 +16,7 @@ namespace Norge360.Accounts.API.Controllers;
 [Route("api/accounts/internal/users")]
 public sealed class InternalUsersController(
     IProfileQueryService profileQueryService,
+    ICommunityNotificationTargetService communityNotificationTargetService,
     ICurrentUserService currentUserService) : ControllerBase
 {
     [HttpGet("resolve-by-username/{username}")]
@@ -75,6 +76,22 @@ public sealed class InternalUsersController(
             : (Guid?)null;
 
         var response = await profileQueryService.GetInternalUserBatchSummaryAsync(request, viewerAuthUserId, cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpPost("community-notification-targets")]
+    [ProducesResponseType<CommunityNotificationTargetsResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CommunityNotificationTargets(
+        [FromBody] CommunityNotificationTargetsRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (request.MaxRecipients is < 1 or > 1000)
+        {
+            return BadRequest(new { errorCode = "max_recipients_out_of_range", min = 1, max = 1000 });
+        }
+
+        var response = await communityNotificationTargetService.ResolveAsync(request, cancellationToken);
         return Ok(response);
     }
 }

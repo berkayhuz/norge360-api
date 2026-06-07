@@ -51,8 +51,15 @@
           "Norge360.Clock": "[1.0.0, )",
           "Norge360.Community.Application": "[1.0.0, )",
           "Norge360.Community.Domain": "[1.0.0, )",
+          "Norge360.CurrentUser": "[1.0.0, )",
+          "Norge360.Messaging.RabbitMq": "[1.0.0, )",
+          "Norge360.Notification.Contracts": "[1.0.0, )",
+          "Norge360.Persistence.EntityFrameworkCore.Auditing": "[1.0.0, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.2, )"
         }
+      },
+      "norge360.currentuser": {
+        "type": "Project"
       },
       "norge360.entities": {
         "type": "Project",
@@ -67,6 +74,27 @@
         "type": "Project",
         "dependencies": {
           "SixLabors.ImageSharp": "[3.1.12, )"
+        }
+      },
+      "norge360.messaging.abstractions": {
+        "type": "Project"
+      },
+      "norge360.messaging.rabbitmq": {
+        "type": "Project",
+        "dependencies": {
+          "Norge360.Messaging.Abstractions": "[1.0.0, )",
+          "RabbitMQ.Client": "[7.2.1, )"
+        }
+      },
+      "norge360.notification.contracts": {
+        "type": "Project"
+      },
+      "norge360.persistence.entityframeworkcore.auditing": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "[10.0.7, )",
+          "Norge360.CurrentUser": "[1.0.0, )",
+          "Norge360.Entities.Abstractions": "[1.0.0, )"
         }
       },
       "Microsoft.EntityFrameworkCore": {
@@ -98,6 +126,12 @@
           "Microsoft.EntityFrameworkCore.Relational": "[10.0.4, 11.0.0)",
           "Npgsql": "10.0.3"
         }
+      },
+      "RabbitMQ.Client": {
+        "type": "CentralTransitive",
+        "requested": "[7.2.1, )",
+        "resolved": "7.2.1",
+        "contentHash": "YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg=="
       },
       "SixLabors.ImageSharp": {
         "type": "CentralTransitive",

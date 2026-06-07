@@ -156,10 +156,16 @@ public sealed class UserBlockServiceTests
         userBlockRepository.Setup(repo => repo.ListBlockedAsync(It.IsAny<Guid>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(listedItems ?? []);
 
+        var userFollowRepository = new Mock<IUserFollowRepository>();
+
         var userProfileRepository = new Mock<IUserProfileRepository>();
         userProfileRepository.Setup(repo => repo.GetByAuthUserIdAsync(It.IsAny<Guid>(), false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profileByAuthUserId);
+        userProfileRepository.Setup(repo => repo.GetTrackedByAuthUserIdAsync(It.IsAny<Guid>(), false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profileByAuthUserId);
         userProfileRepository.Setup(repo => repo.GetByNormalizedUsernameAsync(It.IsAny<string>(), false, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(profileByUsername);
+        userProfileRepository.Setup(repo => repo.GetTrackedByNormalizedUsernameAsync(It.IsAny<string>(), false, It.IsAny<CancellationToken>()))
             .ReturnsAsync(profileByUsername);
 
         var usernameNormalizer = new Mock<IUsernameNormalizer>();
@@ -174,6 +180,7 @@ public sealed class UserBlockServiceTests
             new UserBlockService(
                 unitOfWork.Object,
                 userBlockRepository.Object,
+                userFollowRepository.Object,
                 userProfileRepository.Object,
                 usernameNormalizer.Object,
                 usernameValidator.Object),

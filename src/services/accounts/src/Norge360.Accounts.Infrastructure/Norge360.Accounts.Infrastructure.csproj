@@ -5,6 +5,7 @@
     <ProjectReference Include="..\Norge360.Accounts.Application\Norge360.Accounts.Application.csproj" />
     <ProjectReference Include="..\Norge360.Accounts.Contracts\Norge360.Accounts.Contracts.csproj" />
     <ProjectReference Include="..\Norge360.Accounts.Domain\Norge360.Accounts.Domain.csproj" />
+    <ProjectReference Include="..\..\..\notification\src\Norge360.Notification.Contracts\Norge360.Notification.Contracts.csproj" />
   </ItemGroup>
 
   <ItemGroup>

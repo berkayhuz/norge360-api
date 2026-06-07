@@ -50,12 +50,12 @@ public sealed class CommunityControllerConsistencyTests
     }
 
     [Fact]
-    public async Task UpdatePost_ShouldRejectNinthMediaBeforeUpdatingCaption()
+    public async Task UpdatePost_ShouldRejectEleventhMediaBeforeUpdatingCaption()
     {
         using var fixture = new CommunityTestFixture();
         var userId = Guid.NewGuid();
         var post = fixture.AddPost(userId);
-        var existingMedia = Enumerable.Range(0, 8).Select(index => new CommunityPostMedia
+        var existingMedia = Enumerable.Range(0, 10).Select(index => new CommunityPostMedia
         {
             PostId = post.Id,
             StorageKey = $"key-{index}",
@@ -135,7 +135,7 @@ public sealed class CommunityControllerConsistencyTests
     }
 
     private static CommunityPostDto CreatePostDto(Guid postId, Guid userId) =>
-        new(postId, userId, null, "Oslo", "Sentrum", "Published", DateTime.UtcNow, null, 0, 0, 0, false, false, null, null, true, true, false, null, []);
+        new(postId, "1234567890123456789", userId, null, "Oslo", "Sentrum", "Published", DateTime.UtcNow, null, false, false, 0, 0, 0, false, false, null, null, true, true, false, null, []);
 
     private static IFormFile CreateFormFile()
     {

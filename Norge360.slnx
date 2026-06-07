@@ -52,6 +52,7 @@
   </Folder>
   <Folder Name="/src/services/notification/" />
   <Folder Name="/src/services/notification/src/">
+    <Project Path="src/services/notification/src/Norge360.Notification.API/Norge360.Notification.API.csproj" />
     <Project Path="src/services/notification/src/Norge360.Notification.Application/Norge360.Notification.Application.csproj" />
     <Project Path="src/services/notification/src/Norge360.Notification.Contracts/Norge360.Notification.Contracts.csproj" />
     <Project Path="src/services/notification/src/Norge360.Notification.Domain/Norge360.Notification.Domain.csproj" />

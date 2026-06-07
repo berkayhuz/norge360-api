@@ -13,6 +13,9 @@ using Norge360.Community.Infrastructure.Initialization;
 using Norge360.Community.Infrastructure.Options;
 using Norge360.Community.Infrastructure.Persistence;
 using Norge360.Community.Infrastructure.Services;
+using Norge360.CurrentUser;
+using Norge360.Messaging.RabbitMq.DependencyInjection;
+using Norge360.Persistence.EntityFrameworkCore.Auditing;
 
 namespace Norge360.Community.Infrastructure.DependencyInjection;
 
@@ -22,12 +25,17 @@ public static class CommunityInfrastructureDependencyInjection
     {
         var connectionString = configuration.GetConnectionString("CommunityConnection") ?? throw new InvalidOperationException("Connection string 'CommunityConnection' is missing.");
 
-        services.AddDbContext<CommunityDbContext>(options => options.UseNpgsql(connectionString));
+        services.AddDbContext<CommunityDbContext>((serviceProvider, options) =>
+        {
+            options.UseNpgsql(connectionString);
+            options.AddInterceptors(new AuditSaveChangesInterceptor(serviceProvider.GetRequiredService<ICurrentUserService>()));
+        });
         services.AddScoped<ICommunityUnitOfWork>(sp => sp.GetRequiredService<CommunityDbContext>());
         services.AddScoped<ICommunityDbContext>(sp => sp.GetRequiredService<CommunityDbContext>());
 
         services.Configure<AccountsApiOptions>(configuration.GetSection("Services:Accounts"));
         services.Configure<DiscoveryApiOptions>(configuration.GetSection("Services:Discovery"));
+        services.AddRabbitMqMessaging(configuration);
         services.AddOptions<InternalServiceSigningOptions>()
             .Bind(configuration.GetSection("InternalServices:Signing"))
             .ValidateOnStart();
@@ -45,6 +53,8 @@ public static class CommunityInfrastructureDependencyInjection
             client.Timeout = TimeSpan.FromSeconds(10);
         });
         services.AddScoped<ICommunityAuthorProfileProvider, AccountsCommunityAuthorProfileProvider>();
+        services.AddScoped<ICommunityNotificationTargetProvider, AccountsCommunityNotificationTargetProvider>();
+        services.AddScoped<ICommunityNotificationPublisher, RabbitMqCommunityNotificationPublisher>();
         services.AddScoped<ICommunityVisibilityService, CommunityVisibilityService>();
         services.AddScoped<DemoCommunitySeeder>();
         var signingEnabled = configuration.GetValue<bool>("InternalServices:Signing:Enabled");
@@ -70,4 +80,3 @@ public static class CommunityInfrastructureDependencyInjection
         return services;
     }
 }
-

@@ -7,6 +7,8 @@ namespace Norge360.Community.Contracts.Requests;
 
 public sealed record CreateCommunityPostRequest(string? Caption, string? City, string? District);
 public sealed record UpdateCommunityPostRequest(string? Caption, string? City, string? District);
+public sealed record SetCommunityPostCommentsEnabledRequest(bool Enabled);
+public sealed record SetCommunityPostHideLikeCountRequest(bool HideLikeCount);
 public sealed record CreateCommunityCommentRequest(string Body);
 public sealed record CreateCommunityReplyRequest(string Body);
 public sealed record SetCommunityPostInterestRequest(string InterestType);

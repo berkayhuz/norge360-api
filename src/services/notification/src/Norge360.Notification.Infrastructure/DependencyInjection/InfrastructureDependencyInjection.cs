@@ -8,9 +8,11 @@ using Amazon.Runtime;
 using Amazon.SimpleEmailV2;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using Npgsql;
 using Norge360.Messaging.RabbitMq.DependencyInjection;
 using Norge360.Notification.Application.Abstractions;
 using Norge360.Notification.Infrastructure.Channels;
@@ -21,6 +23,7 @@ using Norge360.Notification.Infrastructure.Modules.Email.Infrastructure.Provider
 using Norge360.Notification.Infrastructure.Options;
 using Norge360.Notification.Infrastructure.Persistence;
 using Norge360.Notification.Infrastructure.Queues;
+using Norge360.Notification.Infrastructure.Services;
 
 namespace Norge360.Notification.Infrastructure.DependencyInjection;
 
@@ -123,6 +126,9 @@ public static class InfrastructureDependencyInjection
         });
 
         services.AddScoped<INotificationDeliveryLog, EfNotificationDeliveryLog>();
+        services.AddScoped<IInAppNotificationService, EfInAppNotificationService>();
+        services.AddScoped<IUserNotificationPreferenceService, EfUserNotificationPreferenceService>();
+        services.AddScoped<IUserNotificationPreferenceReader, EfUserNotificationPreferenceService>();
         services.AddSingleton<RabbitMqNotificationQueue>();
         services.AddSingleton<INotificationQueue>(sp => sp.GetRequiredService<RabbitMqNotificationQueue>());
         services.AddSingleton<INotificationQueueHealthCheck>(sp => sp.GetRequiredService<RabbitMqNotificationQueue>());
@@ -146,10 +152,22 @@ public static class InfrastructureDependencyInjection
         var dbContext = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
         var databaseOptions = scope.ServiceProvider.GetRequiredService<IOptions<NotificationDatabaseOptions>>().Value;
         var environment = scope.ServiceProvider.GetRequiredService<IHostEnvironment>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("NotificationInfrastructure");
 
         if (databaseOptions.ApplyMigrationsOnStartup && environment.IsDevelopment())
         {
-            await dbContext.Database.EnsureCreatedAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.MigrateAsync(cancellationToken);
+            }
+            catch (PostgresException ex) when (ex.SqlState == "42P07")
+            {
+                logger.LogWarning(
+                    ex,
+                    "Notification database already contains legacy schema objects. Applying compatibility patch and continuing.");
+
+                await NotificationSchemaCompatibility.EnsureCompatibleAsync(dbContext, logger, cancellationToken);
+            }
         }
 
         if (!await dbContext.Database.CanConnectAsync(cancellationToken))

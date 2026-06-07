@@ -78,6 +78,18 @@ public sealed class ProfileMutationService(
             profile.ProfileVisibility = parsedVisibility;
         }
 
+        var commentAudience = Normalize(request.CommentAudience);
+        if (commentAudience is not null &&
+            Enum.TryParse<PostCommentAudience>(commentAudience, ignoreCase: true, out var parsedAudience))
+        {
+            profile.CommentAudience = parsedAudience;
+        }
+
+        if (request.HideLikeCounts.HasValue)
+        {
+            profile.HideLikeCounts = request.HideLikeCounts.Value;
+        }
+
         profile.UpdatedAt = DateTime.UtcNow;
 
         await EnqueueSearchSyncEventAsync(profile, cancellationToken);
@@ -143,6 +155,63 @@ public sealed class ProfileMutationService(
         await PublishProfileSnapshotEventAsync("ProfileUpdated", profile, cancellationToken);
 
         await TryDeleteOldAvatarAsync(oldAvatarStorageKey, normalizedStorageKey!, cancellationToken);
+
+        return CompleteAvatarUploadResult.Success(MapMyProfile(profile));
+    }
+
+    public async Task<CompleteAvatarUploadResult> CompleteCoverPhotoUploadAsync(
+        Guid authUserId,
+        CompleteAvatarUploadRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        if (authUserId == Guid.Empty)
+        {
+            return CompleteAvatarUploadResult.Unauthorized("authenticated_user_required");
+        }
+
+        var validationErrors = ValidateCoverPhotoStorageKey(authUserId, request.StorageKey, out var normalizedStorageKey);
+        if (validationErrors.Count > 0)
+        {
+            return CompleteAvatarUploadResult.ValidationFailed(
+                validationErrors.ToDictionary(x => x.Key, x => x.Value.ToArray(), StringComparer.OrdinalIgnoreCase),
+                "cover_photo_complete_validation_failed");
+        }
+
+        bool objectExists;
+        try
+        {
+            objectExists = await mediaStorageProvider.ExistsAsync(normalizedStorageKey!, cancellationToken);
+        }
+        catch
+        {
+            return CompleteAvatarUploadResult.Failed("cover_photo_object_exists_check_failed");
+        }
+
+        if (!objectExists)
+        {
+            return CompleteAvatarUploadResult.NotFound("cover_photo_object_not_found");
+        }
+
+        var profile = await userProfileRepository.GetTrackedByAuthUserIdAsync(
+            authUserId,
+            includeDeleted: false,
+            cancellationToken);
+
+        if (profile is null)
+        {
+            return CompleteAvatarUploadResult.NotFound("profile_not_found");
+        }
+
+        var oldCoverPhotoStorageKey = profile.CoverPhotoStorageKey;
+        profile.CoverPhotoStorageKey = normalizedStorageKey;
+        profile.CoverPhotoUrl = mediaUrlBuilder.BuildPublicUrl(normalizedStorageKey!);
+        profile.UpdatedAt = DateTime.UtcNow;
+
+        await EnqueueSearchSyncEventAsync(profile, cancellationToken);
+        await unitOfWork.SaveChangesAsync(cancellationToken);
+        await PublishProfileSnapshotEventAsync("ProfileUpdated", profile, cancellationToken);
+
+        await TryDeleteOldCoverPhotoAsync(oldCoverPhotoStorageKey, normalizedStorageKey!, cancellationToken);
 
         return CompleteAvatarUploadResult.Success(MapMyProfile(profile));
     }
@@ -224,6 +293,31 @@ public sealed class ProfileMutationService(
         catch
         {
             // Best-effort cleanup: old avatar delete failures should not fail profile update.
+        }
+    }
+
+    private async Task TryDeleteOldCoverPhotoAsync(
+        string? oldCoverPhotoStorageKey,
+        string newCoverPhotoStorageKey,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(oldCoverPhotoStorageKey))
+        {
+            return;
+        }
+
+        if (string.Equals(oldCoverPhotoStorageKey, newCoverPhotoStorageKey, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        try
+        {
+            await mediaStorageProvider.DeleteAsync(oldCoverPhotoStorageKey, cancellationToken);
+        }
+        catch
+        {
+            // Best-effort cleanup: old cover photo delete failures should not fail profile update.
         }
     }
 
@@ -321,6 +415,58 @@ public sealed class ProfileMutationService(
         return errors;
     }
 
+    private static Dictionary<string, List<string>> ValidateCoverPhotoStorageKey(
+        Guid authUserId,
+        string? storageKey,
+        out string? normalizedStorageKey)
+    {
+        normalizedStorageKey = null;
+        var errors = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        var key = storageKey?.Trim();
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            AddError(errors, "storageKey", "storage_key_required");
+            return errors;
+        }
+
+        if (Uri.TryCreate(key, UriKind.Absolute, out _))
+        {
+            AddError(errors, "storageKey", "storage_key_must_be_relative");
+            return errors;
+        }
+
+        if (key.Contains('\\', StringComparison.Ordinal) ||
+            key.Contains("//", StringComparison.Ordinal) ||
+            key.Contains("..", StringComparison.Ordinal) ||
+            key.Contains('?', StringComparison.Ordinal) ||
+            key.Contains('#', StringComparison.Ordinal))
+        {
+            AddError(errors, "storageKey", "storage_key_invalid_path");
+            return errors;
+        }
+
+        var expectedPrefix = string.Create(
+            CultureInfo.InvariantCulture,
+            $"profiles/{authUserId:D}/cover-photo/");
+
+        if (!key.StartsWith(expectedPrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            AddError(errors, "storageKey", "storage_key_ownership_mismatch");
+            return errors;
+        }
+
+        var extension = Path.GetExtension(key);
+        if (string.IsNullOrWhiteSpace(extension) || !AllowedAvatarExtensions.Contains(extension))
+        {
+            AddError(errors, "storageKey", "storage_key_extension_not_allowed");
+            return errors;
+        }
+
+        normalizedStorageKey = key;
+        return errors;
+    }
+
     private static void AddError(
         IDictionary<string, List<string>> errors,
         string field,
@@ -356,6 +502,8 @@ public sealed class ProfileMutationService(
         profile.IsVerified,
         profile.AccountType.ToString(),
         profile.ProfileVisibility.ToString(),
+        profile.CommentAudience.ToString(),
+        profile.HideLikeCounts,
         profile.LastSeenAt,
         profile.CreatedAt,
         profile.UpdatedAt);

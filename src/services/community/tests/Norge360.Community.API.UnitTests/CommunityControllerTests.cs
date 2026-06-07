@@ -43,9 +43,9 @@ public sealed class CommunityControllerTests
     }
 
     [Fact]
-    public async Task CreatePost_WhenMoreThanEightMedia_ShouldReturnBadRequest()
+    public async Task CreatePost_WhenMoreThanTenMedia_ShouldReturnBadRequest()
     {
-        var files = Enumerable.Range(0, 9).Select(i => CreateFormFile($"file-{i}.png")).ToList();
+        var files = Enumerable.Range(0, 11).Select(i => CreateFormFile($"file-{i}.png")).ToList();
         var controller = CreateController(authenticated: true);
 
         var result = await controller.CreatePost(new CommunityUpsertPostFormRequest { Caption = "test", MediaFiles = files }, CancellationToken.None);
@@ -57,7 +57,7 @@ public sealed class CommunityControllerTests
     {
         var service = new Mock<ICommunityService>();
         service.Setup(s => s.CreatePostAsync(It.IsAny<Guid>(), It.IsAny<CreateCommunityPostRequest>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new CommunityPostDto(Guid.NewGuid(), Guid.NewGuid(), "x", "Oslo", "Sentrum", "Published", DateTime.UtcNow, null, 0, 0, 0, false, false, null, null, true, true, false, null, []));
+            .ReturnsAsync(new CommunityPostDto(Guid.NewGuid(), "1234567890123456789", Guid.NewGuid(), "x", "Oslo", "Sentrum", "Published", DateTime.UtcNow, null, false, false, 0, 0, 0, false, false, null, null, true, true, false, null, []));
 
         var mediaService = new Mock<ICommunityMediaService>();
         mediaService.Setup(s => s.UploadPostMediaAsync(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<IReadOnlyList<Norge360.Community.Application.Models.CommunityMediaUploadPayload>>(), It.IsAny<CancellationToken>()))

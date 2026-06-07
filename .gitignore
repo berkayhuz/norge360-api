@@ -76,6 +76,7 @@ yarn.lock
 !.env.secrets.local.example
 !**/.env.example
 *.secrets.json
+.local/
 
 # Local keys (keep placeholders)
 auth-jwt-signing-key.pem

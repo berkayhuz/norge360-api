@@ -61,6 +61,11 @@ namespace Norge360.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -73,6 +78,9 @@ namespace Norge360.Community.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ParentCommentId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.HasIndex("PostId", "ParentCommentId", "CreatedAt");
 
@@ -286,6 +294,11 @@ namespace Norge360.Community.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("bytea");
 
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
                     b.Property<short>("Status")
                         .HasColumnType("smallint");
 
@@ -301,6 +314,9 @@ namespace Norge360.Community.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CreatedAt");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.HasIndex("UserId", "CreatedAt");
 

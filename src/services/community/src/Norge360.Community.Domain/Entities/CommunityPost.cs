@@ -5,4 +5,19 @@
 
 using Norge360.Community.Domain.Enums;
 using Norge360.Entities;
-namespace Norge360.Community.Domain.Entities; public sealed class CommunityPost : AuditableEntity { public Guid UserId { get; set; } public string? Caption { get; set; } public string? City { get; set; } public string? District { get; set; } public CommunityPostStatus Status { get; set; } = CommunityPostStatus.Published; public ICollection<CommunityPostMedia> Media { get; set; } = []; public ICollection<CommunityComment> Comments { get; set; } = []; }
+
+namespace Norge360.Community.Domain.Entities;
+
+public sealed class CommunityPost : AuditableEntity
+{
+    public Guid UserId { get; set; }
+    public string Slug { get; set; } = null!;
+    public string? Caption { get; set; }
+    public string? City { get; set; }
+    public string? District { get; set; }
+    public CommunityPostStatus Status { get; set; } = CommunityPostStatus.Published;
+    public bool CommentsEnabled { get; set; } = true;
+    public bool? HideLikeCountOverride { get; set; }
+    public ICollection<CommunityPostMedia> Media { get; set; } = [];
+    public ICollection<CommunityComment> Comments { get; set; } = [];
+}

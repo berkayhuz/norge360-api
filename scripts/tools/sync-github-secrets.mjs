@@ -7,7 +7,7 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const sodium = require('libsodium-wrappers');
 
-const DEFAULT_FILE = '.env.secrets.local';
+const DEFAULT_FILE = '.env.secrets.production';
 const GITHUB_API = 'https://api.github.com';
 const API_VERSION = '2022-11-28';
 
@@ -55,7 +55,7 @@ function parseArgs(argv) {
 function printHelpAndExit() {
   console.log([
     'Usage:',
-    '  node scripts/tools/sync-github-secrets.mjs [--file .env.secrets.local] [--repo owner/name] [--token-env GH_TOKEN] [--dry-run]',
+    '  node scripts/tools/sync-github-secrets.mjs [--file .env.secrets.production] [--repo owner/name] [--token-env GH_TOKEN] [--dry-run]',
     '',
     'Environment:',
     '  GH_TOKEN, GITHUB_TOKEN, or the env name passed with --token-env',

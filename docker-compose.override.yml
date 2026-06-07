@@ -1,0 +1,72 @@
+services:
+  rabbitmq:
+    ports:
+      - "5671:5671"
+      - "15672:15672"
+    volumes:
+      - ./.local/rabbitmq-tls/rabbitmq.conf:/etc/rabbitmq/conf.d/20-norge360-local-tls.conf:ro
+      - ./.local/rabbitmq-tls/tls.crt:/etc/rabbitmq/tls/tls.crt:ro
+      - ./.local/rabbitmq-tls/tls.key:/etc/rabbitmq/tls/tls.key:ro
+      - ./.local/rabbitmq-tls/ca.crt:/etc/rabbitmq/tls/ca.crt:ro
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  auth:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+
+  accounts-api:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+
+  community-api:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+
+  accounts-worker:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  search-worker:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  notification-worker:
+    environment:
+      Messaging__RabbitMq__Uri: "amqps://${RABBITMQ_USER:-norge360}:${RABBITMQ_PASSWORD:-norge360}@norge360-rabbitmq:5671/"
+      Messaging__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+      Notification__RabbitMq__Host: "norge360-rabbitmq"
+      Notification__RabbitMq__Port: "5671"
+      Notification__RabbitMq__UseTls: "true"
+      Notification__RabbitMq__SslServerName: "norge360-rabbitmq"
+      Notification__RabbitMq__CaCertificatePath: "/etc/norge360/rabbitmq-ca/ca.crt"
+    volumes:
+      - ./.local/rabbitmq-tls/ca.crt:/etc/norge360/rabbitmq-ca/ca.crt:ro
+    depends_on:
+      rabbitmq:
+        condition: service_healthy

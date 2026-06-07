@@ -26,6 +26,8 @@ public sealed record MyProfileResponse(
     bool IsVerified,
     string AccountType,
     string ProfileVisibility,
+    string CommentAudience,
+    bool HideLikeCounts,
     DateTimeOffset? LastSeenAt,
     DateTime CreatedAt,
     DateTime? UpdatedAt);

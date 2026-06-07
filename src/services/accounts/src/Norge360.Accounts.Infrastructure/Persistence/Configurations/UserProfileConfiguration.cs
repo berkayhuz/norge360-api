@@ -36,6 +36,8 @@ public sealed class UserProfileConfiguration : IEntityTypeConfiguration<UserProf
         builder.Property(x => x.IsVerified).HasDefaultValue(false);
         builder.Property(x => x.AccountType).HasConversion<short>();
         builder.Property(x => x.ProfileVisibility).HasConversion<short>();
+        builder.Property(x => x.CommentAudience).HasConversion<short>().HasDefaultValue(Domain.Enums.PostCommentAudience.Followers);
+        builder.Property(x => x.HideLikeCounts).HasDefaultValue(false);
         builder.HasIndex(x => x.AuthUserId)
             .IsUnique()
             .HasFilter("\"IsDeleted\" = false");

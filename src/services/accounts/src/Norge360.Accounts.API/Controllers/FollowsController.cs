@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Norge360.Accounts.Application.Abstractions;
 using Norge360.Accounts.Application.Models;
+using Norge360.Accounts.Contracts.Responses;
 using Norge360.CurrentUser;
 
 namespace Norge360.Accounts.API.Controllers;
@@ -19,7 +20,7 @@ public sealed class FollowsController(
 {
     [HttpPost("{username}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<FollowMutationResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -31,7 +32,7 @@ public sealed class FollowsController(
 
     [HttpDelete("{username}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType<FollowMutationResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
@@ -41,13 +42,127 @@ public sealed class FollowsController(
         return MapMutationResult(result);
     }
 
+    [HttpPost("requests/{username}/accept")]
+    [Authorize]
+    [ProducesResponseType<FollowMutationResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> AcceptFollowRequestByUsername(string username, CancellationToken cancellationToken)
+    {
+        var result = await userFollowService.AcceptFollowRequestByUsernameAsync(GetUserIdOrEmpty(), username, cancellationToken);
+        return MapMutationResult(result);
+    }
+
+    [HttpDelete("requests/{username}")]
+    [Authorize]
+    [ProducesResponseType<FollowMutationResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> RejectFollowRequestByUsername(string username, CancellationToken cancellationToken)
+    {
+        var result = await userFollowService.RejectFollowRequestByUsernameAsync(GetUserIdOrEmpty(), username, cancellationToken);
+        return MapMutationResult(result);
+    }
+
+    [HttpGet("{username}/status")]
+    [Authorize]
+    [ProducesResponseType<FollowRelationResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetRelationByUsername(string username, CancellationToken cancellationToken)
+    {
+        var result = await userFollowService.GetRelationByUsernameAsync(GetUserIdOrEmpty(), username, cancellationToken);
+        return result.Status switch
+        {
+            UserFollowListStatus.Success => Ok(new FollowRelationResponse(
+                result.IsFollowing,
+                result.IsFollowedBy,
+                result.IsFollowRequestPending,
+                result.IsProfileNotificationsEnabled,
+                result.FollowersCount,
+                result.FollowingCount)),
+            UserFollowListStatus.ValidationFailed => ValidationProblem(result.ErrorCode),
+            UserFollowListStatus.NotFound => ProfileNotFound(),
+            UserFollowListStatus.ProvisioningPending => ProfileProvisioningPending(),
+            _ => UnauthorizedProblem()
+        };
+    }
+
+    [HttpGet("{username}/followers")]
+    [AllowAnonymous]
+    [ProducesResponseType<FollowUsersPageResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListFollowersByUsername(
+        string username,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await userFollowService.ListFollowersByUsernameAsync(
+            GetOptionalUserId(),
+            username,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return MapListResult(result);
+    }
+
+    [HttpGet("{username}/following")]
+    [AllowAnonymous]
+    [ProducesResponseType<FollowUsersPageResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> ListFollowingByUsername(
+        string username,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20,
+        CancellationToken cancellationToken = default)
+    {
+        var result = await userFollowService.ListFollowingByUsernameAsync(
+            GetOptionalUserId(),
+            username,
+            page,
+            pageSize,
+            cancellationToken);
+
+        return MapListResult(result);
+    }
+
     private IActionResult MapMutationResult(UserFollowMutationResult result) =>
         result.Status switch
         {
-            UserFollowMutationStatus.Success => NoContent(),
+            UserFollowMutationStatus.Success => Ok(new FollowMutationResponse(
+                result.IsFollowRequestPending ? "pending" : result.IsFollowing ? "active" : "none",
+                result.IsFollowing,
+                result.IsFollowRequestPending,
+                result.FollowersCount,
+                result.FollowingCount)),
             UserFollowMutationStatus.ValidationFailed => ValidationProblem(result.ErrorCode),
             UserFollowMutationStatus.NotFound => ProfileNotFound(),
             UserFollowMutationStatus.ProvisioningPending => ProfileProvisioningPending(),
+            _ => UnauthorizedProblem()
+        };
+
+    private IActionResult MapListResult(UserFollowListResult result) =>
+        result.Status switch
+        {
+            UserFollowListStatus.Success => Ok(new FollowUsersPageResponse(
+                result.Page,
+                result.PageSize,
+                result.Items.Select(static item => new FollowUserResponse(
+                    item.ProfileId,
+                    item.Username,
+                    item.DisplayName,
+                    item.AvatarUrl,
+                    item.FollowedAtUtc)).ToArray())),
+            UserFollowListStatus.ValidationFailed => ValidationProblem(result.ErrorCode),
+            UserFollowListStatus.NotFound => ProfileNotFound(),
+            UserFollowListStatus.ProvisioningPending => ProfileProvisioningPending(),
             _ => UnauthorizedProblem()
         };
 
@@ -55,6 +170,11 @@ public sealed class FollowsController(
         currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty
             ? currentUserService.UserId
             : Guid.Empty;
+
+    private Guid? GetOptionalUserId() =>
+        currentUserService.IsAuthenticated && currentUserService.UserId != Guid.Empty
+            ? currentUserService.UserId
+            : null;
 
     private ObjectResult ValidationProblem(string? errorCode)
     {

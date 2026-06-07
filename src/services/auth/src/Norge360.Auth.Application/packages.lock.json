@@ -71,34 +71,37 @@
           "Microsoft.IdentityModel.Abstractions": "8.17.0"
         }
       },
-      "Norge360.aspnetcore": {
+      "norge360.aspnetcore": {
         "type": "Project",
         "dependencies": {
           "Norge360.Localization": "[1.0.0, )"
         }
       },
-      "Norge360.auth.contracts": {
+      "norge360.auth.contracts": {
         "type": "Project"
       },
-      "Norge360.auth.domain": {
+      "norge360.auth.domain": {
         "type": "Project",
         "dependencies": {
           "Norge360.Entities": "[1.0.0, )"
         }
       },
-      "Norge360.clock": {
+      "norge360.clock": {
         "type": "Project"
       },
-      "Norge360.entities": {
+      "norge360.entities": {
         "type": "Project",
         "dependencies": {
           "Norge360.Entities.Abstractions": "[1.0.0, )"
         }
       },
-      "Norge360.entities.abstractions": {
+      "norge360.entities.abstractions": {
         "type": "Project"
       },
-      "Norge360.localization": {
+      "norge360.localization": {
+        "type": "Project"
+      },
+      "norge360.notification.contracts": {
         "type": "Project"
       },
       "Microsoft.IdentityModel.JsonWebTokens": {

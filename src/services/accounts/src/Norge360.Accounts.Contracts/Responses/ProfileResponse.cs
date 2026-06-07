@@ -24,5 +24,11 @@ public sealed record ProfileResponse(
     bool IsVerified,
     string AccountType,
     string ProfileVisibility,
+    string CommentAudience,
+    bool HideLikeCounts,
     DateTimeOffset? LastSeenAt,
-    DateTime? CreatedAt);
+    DateTime? CreatedAt,
+    bool? IsFollowedByCurrentUser,
+    bool? IsFollowingCurrentUser,
+    bool? IsFollowRequestPending,
+    bool? IsProfileNotificationsEnabled);

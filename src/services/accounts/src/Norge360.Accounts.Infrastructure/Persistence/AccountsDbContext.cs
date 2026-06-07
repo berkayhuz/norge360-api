@@ -17,6 +17,7 @@ public sealed class AccountsDbContext(DbContextOptions<AccountsDbContext> option
     public DbSet<ReservedUsername> ReservedUsernames => Set<ReservedUsername>();
     public DbSet<UserFollow> UserFollows => Set<UserFollow>();
     public DbSet<UserBlock> UserBlocks => Set<UserBlock>();
+    public DbSet<UserProfileNotificationSubscription> UserProfileNotificationSubscriptions => Set<UserProfileNotificationSubscription>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

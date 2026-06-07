@@ -16,7 +16,8 @@ public sealed class InternalServiceSignatureMiddleware(
     public async Task InvokeAsync(HttpContext context)
     {
         if (HttpMethods.IsPost(context.Request.Method) &&
-            context.Request.Path.Equals("/api/accounts/internal/users/batch-summary", StringComparison.OrdinalIgnoreCase))
+            (context.Request.Path.Equals("/api/accounts/internal/users/batch-summary", StringComparison.OrdinalIgnoreCase) ||
+             context.Request.Path.Equals("/api/accounts/internal/users/community-notification-targets", StringComparison.OrdinalIgnoreCase)))
         {
             if (!await validator.ValidateAsync(context.Request, context.RequestAborted))
             {

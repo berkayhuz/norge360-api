@@ -65,5 +65,11 @@ public interface IUserProfileRepository
         bool includeDeleted = false,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyCollection<Guid>> ListAuthUserIdsByCityAsync(
+        string city,
+        IReadOnlyCollection<Guid> excludedProfileIds,
+        int limit,
+        CancellationToken cancellationToken = default);
+
     Task AddAsync(UserProfile profile, CancellationToken cancellationToken = default);
 }

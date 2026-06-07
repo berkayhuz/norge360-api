@@ -17,6 +17,7 @@ namespace Norge360.Accounts.API.Controllers;
 [Route("api/accounts/profiles")]
 public sealed class ProfilesController(
     IProfileAvatarUploadIntentService profileAvatarUploadIntentService,
+    IProfileCoverPhotoUploadIntentService profileCoverPhotoUploadIntentService,
     IProfileMutationService profileMutationService,
     IProfileQueryService profileQueryService,
     IProfileViewService profileViewService,
@@ -112,6 +113,37 @@ public sealed class ProfilesController(
         };
     }
 
+    [HttpPost("me/cover-photo/upload-intent")]
+    [Authorize]
+    [ProducesResponseType<AvatarUploadIntentResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public async Task<IActionResult> CreateCoverPhotoUploadIntent(
+        [FromBody] CreateAvatarUploadIntentRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == Guid.Empty)
+        {
+            return UnauthorizedProblem();
+        }
+
+        var result = await profileCoverPhotoUploadIntentService.CreateAsync(
+            currentUserService.UserId,
+            request,
+            cancellationToken);
+
+        return result.Status switch
+        {
+            CreateAvatarUploadIntentStatus.Success when result.Value is not null => Ok(result.Value),
+            CreateAvatarUploadIntentStatus.ValidationFailed => ValidationProblem(result.Errors, result.ErrorCode),
+            CreateAvatarUploadIntentStatus.Unauthorized => UnauthorizedProblem(),
+            _ => Problem(
+                title: "Cover photo upload intent failed",
+                detail: "The upload intent could not be created.",
+                statusCode: StatusCodes.Status500InternalServerError)
+        };
+    }
+
     [HttpPost("me/avatar/complete")]
     [Authorize]
     [ProducesResponseType<MyProfileResponse>(StatusCodes.Status200OK)]
@@ -141,6 +173,39 @@ public sealed class ProfilesController(
             _ => Problem(
                 title: "Avatar completion failed",
                 detail: "The avatar could not be linked to your profile.",
+                statusCode: StatusCodes.Status500InternalServerError)
+        };
+    }
+
+    [HttpPost("me/cover-photo/complete")]
+    [Authorize]
+    [ProducesResponseType<MyProfileResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> CompleteCoverPhotoUpload(
+        [FromBody] CompleteAvatarUploadRequest request,
+        CancellationToken cancellationToken)
+    {
+        if (!currentUserService.IsAuthenticated || currentUserService.UserId == Guid.Empty)
+        {
+            return UnauthorizedProblem();
+        }
+
+        var result = await profileMutationService.CompleteCoverPhotoUploadAsync(
+            currentUserService.UserId,
+            request,
+            cancellationToken);
+
+        return result.Status switch
+        {
+            CompleteAvatarUploadStatus.Success when result.Value is not null => Ok(result.Value),
+            CompleteAvatarUploadStatus.ValidationFailed => ValidationProblem(result.Errors, result.ErrorCode),
+            CompleteAvatarUploadStatus.NotFound => ProfileNotFound(),
+            CompleteAvatarUploadStatus.Unauthorized => UnauthorizedProblem(),
+            _ => Problem(
+                title: "Cover photo completion failed",
+                detail: "The cover photo could not be linked to your profile.",
                 statusCode: StatusCodes.Status500InternalServerError)
         };
     }

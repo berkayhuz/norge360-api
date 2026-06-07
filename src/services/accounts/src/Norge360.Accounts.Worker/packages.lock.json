@@ -50,6 +50,7 @@
           "Norge360.Accounts.Contracts": "[1.0.0, )",
           "Norge360.Accounts.Domain": "[1.0.0, )",
           "Norge360.Clock": "[1.0.0, )",
+          "Norge360.Notification.Contracts": "[1.0.0, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.2, )"
         }
       },
@@ -80,6 +81,9 @@
           "Norge360.Messaging.Abstractions": "[1.0.0, )",
           "RabbitMQ.Client": "[7.2.1, )"
         }
+      },
+      "norge360.notification.contracts": {
+        "type": "Project"
       },
       "norge360.search.contracts": {
         "type": "Project"

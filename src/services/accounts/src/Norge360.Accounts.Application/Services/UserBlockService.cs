@@ -12,6 +12,7 @@ namespace Norge360.Accounts.Application.Services;
 public sealed class UserBlockService(
     IAccountsUnitOfWork unitOfWork,
     IUserBlockRepository userBlockRepository,
+    IUserFollowRepository userFollowRepository,
     IUserProfileRepository userProfileRepository,
     IUsernameNormalizer usernameNormalizer,
     IUsernameValidator usernameValidator) : IUserBlockService
@@ -32,14 +33,14 @@ public sealed class UserBlockService(
             return UserBlockMutationResult.ValidationFailed(validation.Reason);
         }
 
-        var blockerProfile = await userProfileRepository.GetByAuthUserIdAsync(blockerAuthUserId, cancellationToken: cancellationToken);
+        var blockerProfile = await userProfileRepository.GetTrackedByAuthUserIdAsync(blockerAuthUserId, cancellationToken: cancellationToken);
         if (blockerProfile is null)
         {
             return UserBlockMutationResult.ProvisioningPending("profile_provisioning_pending");
         }
 
         var normalizedUsername = usernameNormalizer.Normalize(blockedUsername);
-        var blockedProfile = await userProfileRepository.GetByNormalizedUsernameAsync(normalizedUsername, cancellationToken: cancellationToken);
+        var blockedProfile = await userProfileRepository.GetTrackedByNormalizedUsernameAsync(normalizedUsername, cancellationToken: cancellationToken);
         if (blockedProfile is null)
         {
             return UserBlockMutationResult.NotFound("blocked_profile_not_found");
@@ -55,6 +56,9 @@ public sealed class UserBlockService(
         {
             return UserBlockMutationResult.Success();
         }
+
+        await RemoveFollowIfExistsAsync(blockerProfile, blockedProfile, cancellationToken);
+        await RemoveFollowIfExistsAsync(blockedProfile, blockerProfile, cancellationToken);
 
         await userBlockRepository.AddAsync(
             new UserBlock
@@ -157,5 +161,25 @@ public sealed class UserBlockService(
         var existingBlockers = await userProfileRepository.ListExistingProfileIdsAsync(blockers, cancellationToken);
 
         return UserBlockRelationsResult.Success(existingBlocked, existingBlockers);
+    }
+
+    private async Task RemoveFollowIfExistsAsync(
+        UserProfile followerProfile,
+        UserProfile followeeProfile,
+        CancellationToken cancellationToken)
+    {
+        var existingFollow = await userFollowRepository.GetAsync(
+            followerProfile.Id,
+            followeeProfile.Id,
+            cancellationToken);
+
+        if (existingFollow is null)
+        {
+            return;
+        }
+
+        userFollowRepository.Remove(existingFollow);
+        followerProfile.FollowingCount = Math.Max(0, followerProfile.FollowingCount - 1);
+        followeeProfile.FollowersCount = Math.Max(0, followeeProfile.FollowersCount - 1);
     }
 }

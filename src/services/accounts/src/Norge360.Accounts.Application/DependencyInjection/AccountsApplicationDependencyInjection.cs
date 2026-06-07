@@ -20,7 +20,10 @@ public static class AccountsApplicationDependencyInjection
         services.AddScoped<IProfileVisibilityPolicy, ProfileVisibilityPolicy>();
         services.AddScoped<IProfileQueryService, ProfileQueryService>();
         services.AddScoped<IProfileViewService, ProfileViewService>();
+        services.AddScoped<IProfileNotificationSubscriptionService, ProfileNotificationSubscriptionService>();
+        services.AddScoped<ICommunityNotificationTargetService, CommunityNotificationTargetService>();
         services.AddScoped<IProfileAvatarUploadIntentService, ProfileAvatarUploadIntentService>();
+        services.AddScoped<IProfileCoverPhotoUploadIntentService, ProfileCoverPhotoUploadIntentService>();
         services.AddScoped<IUpdateMyProfileRequestValidator, UpdateMyProfileRequestValidator>();
         services.AddScoped<IProfileMutationService, ProfileMutationService>();
         services.AddScoped<IUserBlockService, UserBlockService>();

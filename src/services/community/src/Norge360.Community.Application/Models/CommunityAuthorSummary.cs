@@ -11,4 +11,8 @@ public sealed record CommunityAuthorSummary(
     string? DisplayName,
     string? AvatarUrl,
     bool IsVerified,
-    bool CanViewPosts);
+    bool CanViewPosts,
+    string? CommentAudience,
+    bool HideLikeCounts,
+    bool IsFollowedByCurrentUser,
+    bool IsFollowingCurrentUser);

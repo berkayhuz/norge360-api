@@ -254,6 +254,7 @@
           "Norge360.Accounts.Contracts": "[1.0.0, )",
           "Norge360.Accounts.Domain": "[1.0.0, )",
           "Norge360.Clock": "[1.0.0, )",
+          "Norge360.Notification.Contracts": "[1.0.0, )",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "[10.0.2, )"
         }
       },
@@ -310,6 +311,9 @@
           "AWSSDK.S3": "[4.0.12, )",
           "Norge360.Media": "[1.0.0, )"
         }
+      },
+      "norge360.notification.contracts": {
+        "type": "Project"
       },
       "norge360.search.contracts": {
         "type": "Project"

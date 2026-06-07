@@ -36,8 +36,10 @@ public static class InfrastructureDependencyInjection
         services.AddOptions<TokenTransportOptions>().Bind(configuration.GetSection(TokenTransportOptions.SectionName)).ValidateOnStart();
         services.AddOptions<PasswordPolicyOptions>().Bind(configuration.GetSection(PasswordPolicyOptions.SectionName)).ValidateOnStart();
         services.AddOptions<OutboxOptions>().Bind(configuration.GetSection(OutboxOptions.SectionName)).ValidateOnStart();
+        services.AddOptions<DatabaseOptions>().Bind(configuration.GetSection(DatabaseOptions.SectionName)).ValidateOnStart();
         services.AddOptions<DistributedCacheOptions>().Bind(configuration.GetSection(DistributedCacheOptions.SectionName)).ValidateOnStart();
         services.AddOptions<AuthDataProtectionOptions>().Bind(configuration.GetSection(AuthDataProtectionOptions.SectionName)).ValidateOnStart();
+        services.AddSingleton<IValidateOptions<DatabaseOptions>, DatabaseOptionsValidation>();
 
         var connectionString = configuration.GetConnectionString("IdentityConnection")
             ?? throw new InvalidOperationException("Connection string 'IdentityConnection' is missing.");
@@ -67,8 +69,14 @@ public static class InfrastructureDependencyInjection
         services.AddScoped<IUsernameLoginResolver, AccountsUsernameLoginResolver>();
         services.AddScoped<IAuthUserProfileResolver, AccountsAuthUserProfileResolver>();
         services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+        services.AddScoped<IUserMfaRecoveryCodeRepository, UserMfaRecoveryCodeRepository>();
+        services.AddScoped<ITrustedDeviceRepository, TrustedDeviceRepository>();
         services.AddScoped<IAccessTokenFactory, JwtAccessTokenFactory>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
+        services.AddScoped<IAuthenticatorTotpService, AuthenticatorTotpService>();
+        services.AddScoped<IAuthenticatorKeyProtector, AuthenticatorKeyProtector>();
+        services.AddScoped<IRecoveryCodeService, RecoveryCodeService>();
+        services.AddScoped<ISecurityAlertPublisher, SecurityAlertPublisher>();
         services.AddScoped<OutboxPayloadProtector>();
         services.AddScoped<IIntegrationEventOutbox, IntegrationEventOutbox>();
         services.AddScoped<OutboxMessagePublisher>();

@@ -13,14 +13,22 @@ namespace Norge360.Auth.Infrastructure.Services;
 public sealed class TrustedDeviceRepository(AuthDbContext dbContext) : ITrustedDeviceRepository
 {
     public async Task<IReadOnlyCollection<TrustedDevice>> ListForUserAsync(Guid userId, CancellationToken cancellationToken) =>
-        await dbContext.TrustedDevices
+        await dbContext.Set<TrustedDevice>()
             .Where(x => x.UserId == userId && !x.IsDeleted)
             .OrderByDescending(x => x.LastSeenAtUtc ?? x.TrustedAtUtc)
             .ToListAsync(cancellationToken);
 
+    public Task<TrustedDevice?> FindActiveByFingerprintAsync(Guid userId, string deviceFingerprintHash, CancellationToken cancellationToken) =>
+        dbContext.Set<TrustedDevice>().SingleOrDefaultAsync(
+            x => x.UserId == userId && !x.IsDeleted && x.RevokedAtUtc == null && x.DeviceFingerprintHash == deviceFingerprintHash,
+            cancellationToken);
+
+    public Task AddAsync(TrustedDevice device, CancellationToken cancellationToken) =>
+        dbContext.Set<TrustedDevice>().AddAsync(device, cancellationToken).AsTask();
+
     public async Task<bool> RevokeAsync(Guid userId, Guid deviceId, DateTime utcNow, string reason, CancellationToken cancellationToken)
     {
-        var device = await dbContext.TrustedDevices.SingleOrDefaultAsync(
+        var device = await dbContext.Set<TrustedDevice>().SingleOrDefaultAsync(
             x => x.UserId == userId && x.Id == deviceId && !x.IsDeleted,
             cancellationToken);
 

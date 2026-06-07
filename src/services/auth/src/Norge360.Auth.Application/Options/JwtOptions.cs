@@ -12,8 +12,8 @@ public sealed class JwtOptions
     public string Issuer { get; set; } = null!;
     public string Audience { get; set; } = null!;
     public int AccessTokenMinutes { get; set; } = 15;
-    public int RefreshTokenHours { get; set; } = 8;
-    public int RefreshTokenPersistentDays { get; set; } = 14;
+    public int RefreshTokenHours { get; set; } = 12;
+    public int RefreshTokenPersistentDays { get; set; } = 7;
     public JwtSigningKeyOptions[] SigningKeys { get; set; } = [];
 }
 

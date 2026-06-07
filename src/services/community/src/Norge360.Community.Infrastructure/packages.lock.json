@@ -264,6 +264,11 @@
           "System.Composition.Runtime": "9.0.0"
         }
       },
+      "System.Threading.RateLimiting": {
+        "type": "Transitive",
+        "resolved": "8.0.0",
+        "contentHash": "7mu9v0QDv66ar3DpGSZHg9NuNcxDaaAcnMULuZlaTpP9+hwXhrxNGsF5GmLkSHxFdb5bBc1TzeujsRgTrPWi+Q=="
+      },
       "norge360.clock": {
         "type": "Project"
       },
@@ -286,6 +291,9 @@
           "Norge360.Entities": "[1.0.0, )"
         }
       },
+      "norge360.currentuser": {
+        "type": "Project"
+      },
       "norge360.entities": {
         "type": "Project",
         "dependencies": {
@@ -299,6 +307,27 @@
         "type": "Project",
         "dependencies": {
           "SixLabors.ImageSharp": "[3.1.12, )"
+        }
+      },
+      "norge360.messaging.abstractions": {
+        "type": "Project"
+      },
+      "norge360.messaging.rabbitmq": {
+        "type": "Project",
+        "dependencies": {
+          "Norge360.Messaging.Abstractions": "[1.0.0, )",
+          "RabbitMQ.Client": "[7.2.1, )"
+        }
+      },
+      "norge360.notification.contracts": {
+        "type": "Project"
+      },
+      "norge360.persistence.entityframeworkcore.auditing": {
+        "type": "Project",
+        "dependencies": {
+          "Microsoft.EntityFrameworkCore": "[10.0.7, )",
+          "Norge360.CurrentUser": "[1.0.0, )",
+          "Norge360.Entities.Abstractions": "[1.0.0, )"
         }
       },
       "Microsoft.EntityFrameworkCore.Relational": {
@@ -365,6 +394,15 @@
         "contentHash": "fdVadZmsC8jRP0KvKy8mO8f6GV/HyBvElfcSxEhd+5FM5boAw/01iSaCto5G3G37ApJira4A3pNaVvBv8cUiLQ==",
         "dependencies": {
           "Microsoft.Extensions.DependencyInjection.Abstractions": "10.0.8"
+        }
+      },
+      "RabbitMQ.Client": {
+        "type": "CentralTransitive",
+        "requested": "[7.2.1, )",
+        "resolved": "7.2.1",
+        "contentHash": "YKXEfg9fVQiTKgZlvIhAfPSFaamEgi8DsQmisCH0IAsU4FYLrtoguDrDj6JtJVGUt40QPnBLRH6fTQcAC4qsOg==",
+        "dependencies": {
+          "System.Threading.RateLimiting": "8.0.0"
         }
       },
       "SixLabors.ImageSharp": {

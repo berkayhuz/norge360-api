@@ -24,6 +24,7 @@ public sealed class UpdateMyProfileRequestValidator : IUpdateMyProfileRequestVal
         ValidateLength("company", request.Company, 100, errors);
         ValidateWebsite(request.Website, errors);
         ValidateProfileVisibility(request.ProfileVisibility, errors);
+        ValidateCommentAudience(request.CommentAudience, errors);
 
         if (errors.Count == 0)
         {
@@ -108,6 +109,30 @@ public sealed class UpdateMyProfileRequestValidator : IUpdateMyProfileRequestVal
             !string.Equals(normalized, nameof(ProfileVisibility.FollowersOnly), StringComparison.OrdinalIgnoreCase))
         {
             AddError(errors, "profileVisibility", "profile_visibility_invalid");
+        }
+    }
+
+    private static void ValidateCommentAudience(
+        string? value,
+        IDictionary<string, List<string>> errors)
+    {
+        var normalized = Normalize(value);
+        if (normalized is null)
+        {
+            return;
+        }
+
+        if (!Enum.TryParse<PostCommentAudience>(normalized, ignoreCase: true, out _))
+        {
+            AddError(errors, "commentAudience", "comment_audience_invalid");
+            return;
+        }
+
+        if (!string.Equals(normalized, nameof(PostCommentAudience.Followers), StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(normalized, nameof(PostCommentAudience.MutualFollowers), StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(normalized, nameof(PostCommentAudience.Closed), StringComparison.OrdinalIgnoreCase))
+        {
+            AddError(errors, "commentAudience", "comment_audience_invalid");
         }
     }
 
