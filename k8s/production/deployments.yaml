@@ -854,6 +854,141 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  name: norge360-messaging-api
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: norge360-messaging-api
+  template:
+    metadata:
+      labels:
+        app: norge360-messaging-api
+    spec:
+      terminationGracePeriodSeconds: 30
+      imagePullSecrets:
+        - name: ghcr-pull-secret
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: messaging-api
+          image: ghcr.io/berkayhuz/norge360-messaging-api:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: Production
+            - name: ASPNETCORE_URLS
+              value: http://+:8080
+            - name: LocalDevelopment__DisableHttpsRedirection
+              value: "false"
+            - name: ConnectionStrings__MessagingConnection
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-connection
+            - name: Messaging__RabbitMq__Uri
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: messaging-rabbitmq-uri
+            - name: Messaging__RabbitMq__CaCertificatePath
+              value: /etc/norge360/rabbitmq-ca/ca.crt
+            - name: Messaging__RabbitMq__Exchange
+              value: Norge360.integration
+            - name: Infrastructure__DistributedCache__RedisConnectionString
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: redis-connection
+            - name: Authentication__JwtBearer__Authority
+              value: http://norge360-gateway:8080
+            - name: Authentication__JwtBearer__MetadataAddress
+              value: http://norge360-gateway:8080/.well-known/openid-configuration
+            - name: Authentication__JwtBearer__Issuer
+              value: https://auth.norge360.com
+            - name: Authentication__JwtBearer__Audience
+              value: api://norge360
+            - name: Authentication__JwtBearer__RequireHttpsMetadata
+              value: "false"
+            - name: Security__TrustedGateway__RequireTrustedGateway
+              value: "true"
+            - name: Security__TrustedGateway__CurrentKeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__AllowedSources__0
+              value: Norge360.ApiGateway
+            - name: Security__TrustedGateway__Keys__0__KeyId
+              value: gateway-k8s-key-2026-01
+            - name: Security__TrustedGateway__Keys__0__Enabled
+              value: "true"
+            - name: Security__TrustedGateway__Keys__0__SignRequests
+              value: "true"
+            - name: Security__TrustedGateway__Keys__0__Secret
+              valueFrom:
+                secretKeyRef:
+                  name: norge360-production-secrets
+                  key: gateway-trusted-secret
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__0
+              value: 10.0.0.0/8
+            - name: Security__TrustedGateway__AllowedGatewayNetworks__1
+              value: ::ffff:10.42.0.0/112
+          volumeMounts:
+            - name: rabbitmq-ca
+              mountPath: /etc/norge360/rabbitmq-ca
+              readOnly: true
+          startupProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 10
+            failureThreshold: 30
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: http
+            periodSeconds: 15
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: http
+            periodSeconds: 10
+            timeoutSeconds: 5
+          resources:
+            requests:
+              cpu: 75m
+              memory: 128Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: rabbitmq-ca
+          secret:
+            secretName: norge360-rabbitmq-tls
+            items:
+              - key: ca.crt
+                path: ca.crt
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: kubernetes.io/hostname
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              app: norge360-messaging-api
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
   name: norge360-gateway
 spec:
   replicas: 1
@@ -912,6 +1047,8 @@ spec:
               value: http://norge360-search-api:8080/
             - name: ReverseProxy__Clusters__community-api-cluster__Destinations__destination1__Address
               value: http://norge360-community-api:8080/
+            - name: ReverseProxy__Clusters__messaging-api-cluster__Destinations__destination1__Address
+              value: http://norge360-messaging-api:8080/
             - name: ReverseProxy__Clusters__discovery-api-cluster__Destinations__destination1__Address
               value: http://norge360-discovery-api:8080/
           startupProbe:

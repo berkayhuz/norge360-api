@@ -291,6 +291,7 @@ function validateDockerUsers(deployments) {
     ['norge360-community-worker', 'src/services/community/deploy/Norge360.Community.Worker.Dockerfile'],
     ['norge360-discovery-api', 'src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile'],
     ['norge360-discovery-worker', 'src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile'],
+    ['norge360-messaging-api', 'src/services/messaging/deploy/Norge360.MessagingService.API.Dockerfile'],
     ['norge360-search-api', 'src/services/search/deploy/Norge360.Search.API.Dockerfile'],
     ['norge360-search-worker', 'src/services/search/deploy/Norge360.Search.Worker.Dockerfile'],
     ['norge360-notification-worker', 'src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile'],
@@ -541,6 +542,7 @@ function validateRuntimeSecrets(services) {
     ['ConnectionStrings__AccountsConnection', process.env.ConnectionStrings__AccountsConnection ?? process.env.ACCOUNTS_CONNECTION],
     ['ConnectionStrings__CommunityConnection', process.env.ConnectionStrings__CommunityConnection ?? process.env.COMMUNITY_CONNECTION],
     ['ConnectionStrings__DiscoveryConnection', process.env.ConnectionStrings__DiscoveryConnection ?? process.env.DISCOVERY_CONNECTION],
+    ['ConnectionStrings__MessagingConnection', process.env.ConnectionStrings__MessagingConnection ?? process.env.MESSAGING_CONNECTION],
     ['ConnectionStrings__NotificationConnection', process.env.ConnectionStrings__NotificationConnection ?? process.env.NOTIFICATION_CONNECTION],
   ]);
 

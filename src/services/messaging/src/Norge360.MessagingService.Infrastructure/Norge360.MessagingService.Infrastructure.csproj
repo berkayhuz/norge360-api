@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Clock\Norge360.Clock.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.CurrentUser\Norge360.CurrentUser.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Messaging.RabbitMq\Norge360.Messaging.RabbitMq.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.Persistence.EntityFrameworkCore.Auditing\Norge360.Persistence.EntityFrameworkCore.Auditing.csproj" />
+    <ProjectReference Include="..\Norge360.MessagingService.Application\Norge360.MessagingService.Application.csproj" />
+    <ProjectReference Include="..\Norge360.MessagingService.Domain\Norge360.MessagingService.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

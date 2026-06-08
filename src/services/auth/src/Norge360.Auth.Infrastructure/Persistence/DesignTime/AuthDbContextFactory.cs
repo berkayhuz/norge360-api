@@ -13,6 +13,7 @@ public sealed class AuthDbContextFactory : IDesignTimeDbContextFactory<AuthDbCon
     public AuthDbContext CreateDbContext(string[] args)
     {
         var connectionString = Environment.GetEnvironmentVariable("Norge360_AUTH_MIGRATIONS_CONNECTION")
+            ?? Environment.GetEnvironmentVariable("IdentityConnection")
             ?? Environment.GetEnvironmentVariable("ConnectionStrings__IdentityConnection");
 
         var options = new DbContextOptionsBuilder<AuthDbContext>()

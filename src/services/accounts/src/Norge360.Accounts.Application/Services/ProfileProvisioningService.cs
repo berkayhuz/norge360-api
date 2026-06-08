@@ -41,6 +41,12 @@ public sealed class ProfileProvisioningService(
             cancellationToken);
         if (existingProfile is not null)
         {
+            if (ShouldIndexSearchDocument(existingProfile))
+            {
+                await EnqueueSearchIndexEventAsync(existingProfile, cancellationToken);
+                await unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+
             return existingProfile;
         }
 
@@ -132,6 +138,11 @@ public sealed class ProfileProvisioningService(
             occurredAtUtc,
             cancellationToken);
     }
+
+    private static bool ShouldIndexSearchDocument(UserProfile profile) =>
+        profile.IsActive &&
+        !profile.IsDeleted &&
+        profile.ProfileVisibility != ProfileVisibility.Hidden;
 
     private async Task<string> SelectUsernameAsync(
         Guid authUserId,

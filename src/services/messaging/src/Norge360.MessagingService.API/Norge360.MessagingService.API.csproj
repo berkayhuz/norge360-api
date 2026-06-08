@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore.CurrentUser\Norge360.AspNetCore.CurrentUser.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore.TrustedGateway\Norge360.AspNetCore.TrustedGateway.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.AspNetCore\Norge360.AspNetCore.csproj" />
+    <ProjectReference Include="..\..\..\..\packages\dotnet\src\Norge360.CurrentUser\Norge360.CurrentUser.csproj" />
+    <ProjectReference Include="..\Norge360.MessagingService.Application\Norge360.MessagingService.Application.csproj" />
+    <ProjectReference Include="..\Norge360.MessagingService.Contracts\Norge360.MessagingService.Contracts.csproj" />
+    <ProjectReference Include="..\Norge360.MessagingService.Infrastructure\Norge360.MessagingService.Infrastructure.csproj" />
+  </ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+</Project>

@@ -45,6 +45,7 @@ public static class AccountsInfrastructureDependencyInjection
         services.AddScoped<IReservedUsernameRepository, ReservedUsernameRepository>();
         services.AddScoped<IUsernameHistoryRepository, UsernameHistoryRepository>();
         services.AddScoped<IUserBlockRepository, UserBlockRepository>();
+        services.AddScoped<IUserProfileReportRepository, UserProfileReportRepository>();
         services.AddScoped<IUserFollowRepository, UserFollowRepository>();
         services.AddScoped<IProfileNotificationSubscriptionRepository, ProfileNotificationSubscriptionRepository>();
         services.AddScoped<IFollowAccessChecker, FollowAccessChecker>();

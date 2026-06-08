@@ -72,6 +72,7 @@ async function main() {
     ['accounts-connection', requireEnv('ACCOUNTS_CONNECTION')],
     ['community-connection', requireEnv('COMMUNITY_CONNECTION')],
     ['discovery-connection', requireEnv('DISCOVERY_CONNECTION')],
+    ['messaging-connection', requireEnv('MESSAGING_CONNECTION')],
     ['notification-connection', requireEnv('NOTIFICATION_CONNECTION')],
     ['messaging-rabbitmq-uri', requireEnv('MESSAGING_RABBITMQ_URI')],
     ['redis-connection', requireEnv('REDIS_CONNECTION', { fallback: 'norge360-redis:6379,abortConnect=false' })],

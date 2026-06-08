@@ -72,7 +72,8 @@ public static class InfrastructureDependencyInjection
             .ValidateOnStart();
         services.AddSingleton<IValidateOptions<AmazonSesEmailProviderOptions>, AmazonSesEmailProviderOptionsValidation>();
 
-        var connectionString = configuration.GetConnectionString("NotificationConnection")
+        var connectionString = configuration["NotificationConnection"]
+            ?? configuration.GetConnectionString("NotificationConnection")
             ?? throw new InvalidOperationException("Connection string 'NotificationConnection' is missing.");
 
         services.AddDbContext<NotificationDbContext>(options =>

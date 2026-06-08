@@ -128,8 +128,9 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
+if (!app.Environment.IsProduction())
 {
+    await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<AccountsDbContext>();
     await dbContext.Database.MigrateAsync();
     var demoProfileSeeder = scope.ServiceProvider.GetRequiredService<DemoProfileSeeder>();

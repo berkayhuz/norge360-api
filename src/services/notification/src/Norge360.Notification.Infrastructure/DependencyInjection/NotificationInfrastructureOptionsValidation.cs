@@ -30,10 +30,11 @@ public sealed class NotificationDatabaseOptionsValidation(
             failures.Add("Notification:Database:ApplyMigrationsOnStartup must be false in production.");
         }
 
-        var connectionString = configuration.GetConnectionString("NotificationConnection");
+        var connectionString = configuration["NotificationConnection"]
+            ?? configuration.GetConnectionString("NotificationConnection");
         if (string.IsNullOrWhiteSpace(connectionString))
         {
-            failures.Add("ConnectionStrings:NotificationConnection is required in production.");
+            failures.Add("NotificationConnection is required in production.");
         }
         else
         {
@@ -52,29 +53,29 @@ public sealed class NotificationDatabaseOptionsValidation(
         }
         catch (ArgumentException exception)
         {
-            failures.Add($"ConnectionStrings:NotificationConnection is invalid: {exception.Message}");
+            failures.Add($"NotificationConnection is invalid: {exception.Message}");
             return;
         }
 
         if (IsUnsafeHost(builder.Host))
         {
-            failures.Add("ConnectionStrings:NotificationConnection must not use localhost, loopback, or marker hosts in production.");
+            failures.Add("NotificationConnection must not use localhost, loopback, or marker hosts in production.");
         }
 
         if (builder.SslMode is not (SslMode.Require or SslMode.VerifyFull))
         {
-            failures.Add("ConnectionStrings:NotificationConnection must enforce TLS with SSL Mode=Require or SSL Mode=VerifyFull in production.");
+            failures.Add("NotificationConnection must enforce TLS with SSL Mode=Require or SSL Mode=VerifyFull in production.");
         }
 
         if (string.Equals(builder.Username, "postgres", StringComparison.OrdinalIgnoreCase))
         {
-            failures.Add("ConnectionStrings:NotificationConnection must not use the default postgres superuser in production.");
+            failures.Add("NotificationConnection must not use the default postgres superuser in production.");
         }
 
         if (!string.IsNullOrWhiteSpace(builder.Password) &&
             (builder.Password.Length < 16 || ContainsUnsafeMarker(builder.Password)))
         {
-            failures.Add("ConnectionStrings:NotificationConnection must use a strong production database password.");
+            failures.Add("NotificationConnection must use a strong production database password.");
         }
     }
 

@@ -13,6 +13,7 @@ public sealed class NotificationDbContextFactory : IDesignTimeDbContextFactory<N
     public NotificationDbContext CreateDbContext(string[] args)
     {
         var connectionString = Environment.GetEnvironmentVariable("Norge360_NOTIFICATION_MIGRATIONS_CONNECTION")
+            ?? Environment.GetEnvironmentVariable("NotificationConnection")
             ?? Environment.GetEnvironmentVariable("ConnectionStrings__NotificationConnection")
             ?? "Host=DB_HOST;Port=5433;Database=Norge360_Notification;Username=DB_USER;Password=DB_PASSWORD;SSL Mode=Require;Trust Server Certificate=true";
 

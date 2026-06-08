@@ -27,6 +27,7 @@ public static class AccountsApplicationDependencyInjection
         services.AddScoped<IUpdateMyProfileRequestValidator, UpdateMyProfileRequestValidator>();
         services.AddScoped<IProfileMutationService, ProfileMutationService>();
         services.AddScoped<IUserBlockService, UserBlockService>();
+        services.AddScoped<IUserProfileReportService, UserProfileReportService>();
         services.AddScoped<IUserFollowService, UserFollowService>();
         services.AddScoped<IUserSearchReindexService, UserSearchReindexService>();
         return services;

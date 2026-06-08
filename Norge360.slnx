@@ -68,6 +68,17 @@
     <Project Path="src/services/community/src/Norge360.Community.Infrastructure/Norge360.Community.Infrastructure.csproj" />
     <Project Path="src/services/community/src/Norge360.Community.Worker/Norge360.Community.Worker.csproj" />
   </Folder>
+  <Folder Name="/src/services/messaging/" />
+  <Folder Name="/src/services/messaging/src/">
+    <Project Path="src/services/messaging/src/Norge360.MessagingService.API/Norge360.MessagingService.API.csproj" />
+    <Project Path="src/services/messaging/src/Norge360.MessagingService.Application/Norge360.MessagingService.Application.csproj" />
+    <Project Path="src/services/messaging/src/Norge360.MessagingService.Contracts/Norge360.MessagingService.Contracts.csproj" />
+    <Project Path="src/services/messaging/src/Norge360.MessagingService.Domain/Norge360.MessagingService.Domain.csproj" />
+    <Project Path="src/services/messaging/src/Norge360.MessagingService.Infrastructure/Norge360.MessagingService.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/services/messaging/tests/">
+    <Project Path="src/services/messaging/tests/Norge360.MessagingService.Application.UnitTests/Norge360.MessagingService.Application.UnitTests.csproj" />
+  </Folder>
   <Folder Name="/src/services/accounts/" />
   <Folder Name="/src/services/accounts/src/">
     <Project Path="src/services/accounts/src/Norge360.Accounts.API/Norge360.Accounts.API.csproj" />

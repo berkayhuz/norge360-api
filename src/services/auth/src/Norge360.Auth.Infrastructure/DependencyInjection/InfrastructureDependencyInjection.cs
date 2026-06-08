@@ -41,7 +41,8 @@ public static class InfrastructureDependencyInjection
         services.AddOptions<AuthDataProtectionOptions>().Bind(configuration.GetSection(AuthDataProtectionOptions.SectionName)).ValidateOnStart();
         services.AddSingleton<IValidateOptions<DatabaseOptions>, DatabaseOptionsValidation>();
 
-        var connectionString = configuration.GetConnectionString("IdentityConnection")
+        var connectionString = configuration["IdentityConnection"]
+            ?? configuration.GetConnectionString("IdentityConnection")
             ?? throw new InvalidOperationException("Connection string 'IdentityConnection' is missing.");
         var distributedCacheOptions = configuration.GetSection(DistributedCacheOptions.SectionName).Get<DistributedCacheOptions>()
             ?? throw new InvalidOperationException("Distributed cache options are missing.");

@@ -98,14 +98,13 @@ static string RequireJwtBearerSetting(IConfigurationSection jwtBearer, string ke
 
 var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
+var migrateOnStartup = !app.Environment.IsProduction() &&
+    app.Configuration.GetValue("Discovery:Database:MigrateOnStartup", app.Environment.IsDevelopment());
+if (migrateOnStartup)
 {
-    var migrateOnStartup = app.Configuration.GetValue("Discovery:Database:MigrateOnStartup", app.Environment.IsDevelopment());
-    if (migrateOnStartup)
-    {
-        var dbContext = scope.ServiceProvider.GetRequiredService<DiscoveryDbContext>();
-        await dbContext.Database.MigrateAsync();
-    }
+    await using var scope = app.Services.CreateAsyncScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<DiscoveryDbContext>();
+    await dbContext.Database.MigrateAsync();
 }
 
 if (app.Environment.IsDevelopment())

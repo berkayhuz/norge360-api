@@ -1,23 +1,4 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: norge360-postgres
-    environment:
-      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:-postgres}"
-      POSTGRES_MULTIPLE_DATABASES: "norge360_identity,norge360_accounts,norge360_community,norge360_discovery,norge360_notifications"
-    ports:
-      - "${POSTGRES_HOST_PORT:-5434}:5432"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-      - ./infra/docker/postgres/init-multiple-databases.sh:/docker-entrypoint-initdb.d/init-multiple-databases.sh:ro
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 20s
-
   auth:
     build:
       context: .
@@ -29,7 +10,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__IdentityConnection: "${ConnectionStrings__IdentityConnection:-Host=postgres;Port=5432;Database=norge360_identity;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__IdentityConnection: "${ConnectionStrings__IdentityConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_identity;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Database__Provider: "PostgreSql"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       InvitationDelivery__Provider: "${InvitationDelivery__Provider:-smtp}"
@@ -50,10 +31,6 @@ services:
       Auth__Login__AccountsGatewayBaseUrl: "http://gateway:8080/"
     ports:
       - "5297:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
-
   gateway:
     build:
       context: .
@@ -74,6 +51,7 @@ services:
       ReverseProxy__Clusters__community-api-cluster__Destinations__destination1__Address: "http://community-api:8080/"
       ReverseProxy__Clusters__notification-api-cluster__Destinations__destination1__Address: "http://notification-api:8080/"
       ReverseProxy__Clusters__discovery-api-cluster__Destinations__destination1__Address: "http://discovery-api:8080/"
+      ReverseProxy__Clusters__messaging-api-cluster__Destinations__destination1__Address: "http://messaging-api:8080/"
     depends_on:
       auth:
         condition: service_started
@@ -101,7 +79,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:-Host=postgres;Port=5432;Database=norge360_accounts;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_accounts;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       Messaging__RabbitMq__Exchange: "Norge360.integration"
       Authentication__JwtBearer__Authority: "https://auth.local"
@@ -127,8 +105,6 @@ services:
     ports:
       - "5289:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
       discovery-api:
         condition: service_healthy
 
@@ -143,7 +119,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:-Host=postgres;Port=5432;Database=norge360_community;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_community;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       Messaging__RabbitMq__Exchange: "Norge360.integration"
       Authentication__JwtBearer__Authority: "https://auth.local"
@@ -171,8 +147,6 @@ services:
     ports:
       - "5301:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
       discovery-api:
         condition: service_healthy
 
@@ -187,7 +161,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:-Host=postgres;Port=5432;Database=norge360_notifications;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_notifications;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       Messaging__RabbitMq__Exchange: "Norge360.integration"
       Notification__IntegrationConsumer__Enabled: "false"
@@ -203,9 +177,34 @@ services:
       Security__TrustedGateway__AllowedGatewayNetworks__0: "172.16.0.0/12"
     ports:
       - "5303:8080"
+  messaging-api:
+    build:
+      context: .
+      dockerfile: src/services/messaging/deploy/Norge360.MessagingService.API.Dockerfile
+    container_name: norge360-messaging-api
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      LocalDevelopment__DisableHttpsRedirection: "true"
+      Kestrel__Endpoints__Http__Url: "http://+:8080"
+      Kestrel__Endpoints__Https__Url: "http://+:8081"
+      ConnectionStrings__MessagingConnection: "${ConnectionStrings__MessagingConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_messaging;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=80;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;SSL Mode=Require;Trust Server Certificate=true}"
+      Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
+      Messaging__RabbitMq__Exchange: "Norge360.integration"
+      Authentication__JwtBearer__Authority: "https://auth.local"
+      Authentication__JwtBearer__MetadataAddress: "http://gateway:8080/.well-known/openid-configuration"
+      Authentication__JwtBearer__Issuer: "https://auth.local"
+      Authentication__JwtBearer__Audience: "api://norge360"
+      Authentication__JwtBearer__RequireHttpsMetadata: "false"
+      Security__TrustedGateway__CurrentKeyId: "local-dev-key"
+      Security__TrustedGateway__Keys__0__KeyId: "local-dev-key"
+      Security__TrustedGateway__Keys__0__Secret: "${Security__TrustedGateway__Keys__0__Secret:-LOCAL_DEV_GATEWAY_SHARED_SECRET}"
+      Security__TrustedGateway__AllowedGatewayNetworks__0: "172.16.0.0/12"
+    ports:
+      - "5304:8080"
     depends_on:
-      postgres:
-        condition: service_healthy
+      rabbitmq:
+        condition: service_started
 
   discovery-api:
     build:
@@ -218,7 +217,7 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "true"
       Kestrel__Endpoints__Http__Url: "http://+:8080"
       Kestrel__Endpoints__Https__Url: "http://+:8081"
-      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=postgres;Port=5432;Database=norge360_discovery;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_discovery;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Authentication__JwtBearer__Authority: "https://auth.local"
       Authentication__JwtBearer__MetadataAddress: "http://gateway:8080/.well-known/openid-configuration"
       Authentication__JwtBearer__Issuer: "https://auth.local"
@@ -236,9 +235,6 @@ services:
       Security__InternalEvents__Token: "${Discovery__InternalEvents__Token:-local-dev-discovery-internal-token-change-me}"
     ports:
       - "5302:8080"
-    depends_on:
-      postgres:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:8080/health/ready"]
       interval: 15s
@@ -253,7 +249,7 @@ services:
     container_name: norge360-discovery-worker
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=postgres;Port=5432;Database=norge360_discovery;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__DiscoveryConnection: "${ConnectionStrings__DiscoveryConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_discovery;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Discovery__RankingWorker__Enabled: "true"
       Discovery__RankingWorker__IntervalSeconds: "300"
     restart: unless-stopped
@@ -278,7 +274,7 @@ services:
     container_name: norge360-notification-worker
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:-Host=postgres;Port=5432;Database=norge360_notifications;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_notifications;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Notification__Database__ApplyMigrationsOnStartup: "true"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       Notification__RabbitMq__Host: "rabbitmq"
@@ -314,7 +310,7 @@ services:
     container_name: norge360-accounts-worker
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:-Host=postgres;Port=5432;Database=norge360_accounts;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__AccountsConnection: "${ConnectionStrings__AccountsConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_accounts;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
       Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:-amqp://norge360:norge360@rabbitmq:5672/}"
       Messaging__RabbitMq__Exchange: "Norge360.integration"
       SearchBootstrap__ReindexUsersOnStartup: "true"
@@ -339,7 +335,7 @@ services:
     container_name: norge360-community-worker
     environment:
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:-Host=postgres;Port=5432;Database=norge360_community;Username=postgres;Password=postgres;Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
+      ConnectionStrings__CommunityConnection: "${ConnectionStrings__CommunityConnection:-Host=${POSTGRES_HOST:-host.docker.internal};Port=${POSTGRES_PORT:-5433};Database=norge360_community;Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-postgres};Pooling=true;Maximum Pool Size=50;Timeout=15;Command Timeout=30;GSS Encryption Mode=Disable;Include Error Detail=true}"
     restart: unless-stopped
     command:
       - /bin/sh
@@ -433,6 +429,3 @@ services:
     depends_on:
       gateway:
         condition: service_started
-
-volumes:
-  postgres-data:

@@ -4,15 +4,10 @@ title = "Norge360 Gitleaks config"
 useDefault = true
 
 [[allowlists]]
-description = "Ignore explicit local-development placeholders and sample values"
+description = "Ignore explicit local-development placeholders only"
 regexTarget = "line"
 regexes = [
-  '''LOCAL_DEV_[A-Z0-9_]+''',
-  '''CHANGE_ME_[A-Z0-9_]+''',
-  '''MEILI_MASTER_KEY''',
-  '''DB_PASSWORD''',
-  '''R2_[A-Z0-9_]+''',
-  '''SMTP_[A-Z0-9_]+''',
+  '''(^|[^A-Za-z0-9_])(LOCAL_DEV_[A-Z0-9_]+|CHANGE_ME_[A-Z0-9_]+|DB_(HOST|NAME|USER|PASSWORD)|R2_(ACCOUNT_ID|BUCKET_NAME|ACCESS_KEY_ID|SECRET_ACCESS_KEY)|SMTP_(HOST|USERNAME|PASSWORD)|RABBITMQ_(HOST|USER|PASSWORD))([^A-Za-z0-9_]|$)''',
 ]
 
 [[allowlists]]

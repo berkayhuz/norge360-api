@@ -172,6 +172,7 @@ jobs:
           ConnectionStrings__CommunityConnection: ${{ secrets.ConnectionStrings__CommunityConnection }}
           ConnectionStrings__DiscoveryConnection: ${{ secrets.ConnectionStrings__DiscoveryConnection }}
           ConnectionStrings__IdentityConnection: ${{ secrets.ConnectionStrings__IdentityConnection }}
+          ConnectionStrings__MessagingConnection: ${{ secrets.ConnectionStrings__MessagingConnection }}
           ConnectionStrings__NotificationConnection: ${{ secrets.ConnectionStrings__NotificationConnection }}
           MESSAGING_RABBITMQ_URI: ${{ secrets.Messaging__RabbitMq__Uri }}
           REDIS_CONNECTION: ${{ secrets.Infrastructure__DistributedCache__RedisConnectionString || 'norge360-redis:6379,abortConnect=false' }}
@@ -237,6 +238,9 @@ jobs:
                 add_image "norge360-search-api" "src/services/search/deploy/Norge360.Search.API.Dockerfile"
                 add_image "norge360-search-worker" "src/services/search/deploy/Norge360.Search.Worker.Dockerfile"
                 ;;
+              src/services/messaging/*)
+                add_image "norge360-messaging-api" "src/services/messaging/deploy/Norge360.MessagingService.API.Dockerfile"
+                ;;
               src/services/notification/*)
                 add_image "norge360-notification-worker" "src/services/notification/deploy/Norge360.Notification.Worker.Dockerfile"
                 ;;
@@ -287,6 +291,7 @@ jobs:
               "norge360-accounts-api|src/services/accounts/deploy/Norge360.Accounts.API.Dockerfile"
               "norge360-community-api|src/services/community/deploy/Norge360.Community.API.Dockerfile"
               "norge360-discovery-api|src/services/discovery/deploy/Norge360.Discovery.API.Dockerfile"
+              "norge360-messaging-api|src/services/messaging/deploy/Norge360.MessagingService.API.Dockerfile"
               "norge360-discovery-worker|src/services/discovery/deploy/Norge360.Discovery.Worker.Dockerfile"
               "norge360-accounts-worker|src/services/accounts/deploy/Norge360.Accounts.Worker.Dockerfile"
               "norge360-community-worker|src/services/community/deploy/Norge360.Community.Worker.Dockerfile"
@@ -317,6 +322,7 @@ jobs:
           GHCR_READ_TOKEN: ${{ secrets.GHCR_READ_TOKEN }}
           GHCR_READ_USER: ${{ secrets.GHCR_READ_USER }}
           IDENTITY_CONNECTION: ${{ secrets.ConnectionStrings__IdentityConnection }}
+          MESSAGING_CONNECTION: ${{ secrets.ConnectionStrings__MessagingConnection }}
           MESSAGING_RABBITMQ_URI: ${{ secrets.Messaging__RabbitMq__Uri }}
           MEILISEARCH_API_KEY: ${{ secrets.Meilisearch__ApiKey }}
           NOTIFICATION_CONNECTION: ${{ secrets.ConnectionStrings__NotificationConnection }}
@@ -405,6 +411,9 @@ jobs:
                 add_rollout "norge360-search-api" "search-api" "norge360-search-api"
                 add_rollout "norge360-search-worker" "search-worker" "norge360-search-worker"
                 ;;
+              src/services/messaging/*)
+                add_rollout "norge360-messaging-api" "messaging-api" "norge360-messaging-api"
+                ;;
               src/services/notification/*)
                 add_rollout "norge360-notification-worker" "notification-worker" "norge360-notification-worker"
                 ;;
@@ -441,6 +450,7 @@ jobs:
               "norge360-discovery-api|discovery-api|norge360-discovery-api"
               "norge360-accounts-api|accounts-api|norge360-accounts-api"
               "norge360-community-api|community-api|norge360-community-api"
+              "norge360-messaging-api|messaging-api|norge360-messaging-api"
               "norge360-search-api|search-api|norge360-search-api"
               "norge360-gateway|gateway|norge360-api-gateway"
               "norge360-accounts-worker|accounts-worker|norge360-accounts-worker"

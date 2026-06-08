@@ -110,26 +110,27 @@ builder.Services.AddHealthChecks();
 
 var app = builder.Build();
 
-await using (var scope = app.Services.CreateAsyncScope())
+if (!app.Environment.IsProduction())
 {
+    await using var scope = app.Services.CreateAsyncScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
     try
     {
         await dbContext.Database.MigrateAsync();
     }
-      catch (PostgresException ex) when (ex.SqlState == "42P07")
-      {
-          var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("NotificationStartup");
-          logger.LogWarning(
-              ex,
-              "Notification database already contains legacy schema objects. Applying compatibility patch and continuing.");
+    catch (PostgresException ex) when (ex.SqlState == "42P07")
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("NotificationStartup");
+        logger.LogWarning(
+            ex,
+            "Notification database already contains legacy schema objects. Applying compatibility patch and continuing.");
 
-          await NotificationSchemaCompatibility.EnsureCompatibleAsync(
-              dbContext,
-              logger,
-              CancellationToken.None);
-      }
-  }
+        await NotificationSchemaCompatibility.EnsureCompatibleAsync(
+            dbContext,
+            logger,
+            CancellationToken.None);
+    }
+}
 
 app.UseRouting();
 app.UseMiddleware<TrustedGatewayMiddleware>();

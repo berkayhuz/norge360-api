@@ -265,10 +265,11 @@ internal sealed class DatabaseOptionsValidation(IHostEnvironment environment, IC
                 failures.Add("Database:ApplyMigrationsOnStartup must be false in production.");
             }
 
-            var connectionString = configuration.GetConnectionString("IdentityConnection");
+            var connectionString = configuration["IdentityConnection"]
+                ?? configuration.GetConnectionString("IdentityConnection");
             if (string.IsNullOrWhiteSpace(connectionString))
             {
-                failures.Add("ConnectionStrings:IdentityConnection is required.");
+                failures.Add("IdentityConnection is required.");
             }
             else
             {
@@ -276,13 +277,13 @@ internal sealed class DatabaseOptionsValidation(IHostEnvironment environment, IC
                     connectionString.Contains("127.0.0.1", StringComparison.OrdinalIgnoreCase) ||
                     connectionString.Contains("(local)", StringComparison.OrdinalIgnoreCase))
                 {
-                    failures.Add("ConnectionStrings:IdentityConnection cannot point to localhost in production.");
+                    failures.Add("IdentityConnection cannot point to localhost in production.");
                 }
 
                 if (!connectionString.Contains("SSL Mode=Require", StringComparison.OrdinalIgnoreCase) &&
                     !connectionString.Contains("SSL Mode=VerifyFull", StringComparison.OrdinalIgnoreCase))
                 {
-                    failures.Add("ConnectionStrings:IdentityConnection must enforce TLS with SSL Mode=Require or SSL Mode=VerifyFull in production.");
+                    failures.Add("IdentityConnection must enforce TLS with SSL Mode=Require or SSL Mode=VerifyFull in production.");
                 }
             }
         }

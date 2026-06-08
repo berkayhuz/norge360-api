@@ -60,6 +60,14 @@ services:
       LocalDevelopment__DisableHttpsRedirection: "false"
       ConnectionStrings__NotificationConnection: "${ConnectionStrings__NotificationConnection:?ConnectionStrings__NotificationConnection is required}"
 
+  messaging-api:
+    ports: !reset []
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      LocalDevelopment__DisableHttpsRedirection: "false"
+      ConnectionStrings__MessagingConnection: "${ConnectionStrings__MessagingConnection:?ConnectionStrings__MessagingConnection is required}"
+      Messaging__RabbitMq__Uri: "${Messaging__RabbitMq__Uri:?Messaging__RabbitMq__Uri is required}"
+
   community-worker:
     environment:
       DOTNET_ENVIRONMENT: Production
